@@ -47,9 +47,9 @@ This will:
 - Define new documentation in group **MyGroup**, with ID **MyDocumentation**, with user-friendly name **My first documentation**.
   - The ID is used as the root directory for the documentation. In this example, the directory
     **mods/IwakuraEnterprises_Docs/documentation/MyDocumentation** will contain all the markdown files for the documentation.
-  - The group and ID are used when referencing specific documentation's topic. The user-friendly name is shown to the user
+  - The group and ID are used when referencing specific documentation's topic. The user-friendly name is shown to the player
     in the documentation list on the left side of the interface.
-- Mark the documentation as enabled. Disabled documentations are now shown to the user.
+- Mark the documentation as enabled. Disabled documentations are not shown to the player.
 - Put the documentation first in the documentation list. **Sort indexes are sorted from the lowest to highest**. This
 allows you to control the order of documentations.
 

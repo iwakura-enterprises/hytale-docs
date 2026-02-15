@@ -1,0 +1,65 @@
+{
+  "documentations": [
+    {
+      "group": "IwakuraEnterprises",
+      "id": "Docs",
+      "name": "Docs",
+      "enabled": true,
+      "sortIndex": 900,
+      "topics": [
+        {
+          "file": "index.md"
+        },
+        {
+          "file": "changelog.md"
+        },
+        {
+          "file": "configuration.md",
+          "subTopics": [
+            {
+              "file": "command-shortcuts.md"
+            }
+          ]
+        },
+        {
+          "file": "topic-identifiers.md"
+        },
+        {
+          "file": "misc/index.md",
+          "subTopics": [
+            {
+              "file": "misc/markdown-stress-test.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "group": "IwakuraEnterprises",
+      "id": "DocsDeveloper",
+      "name": "Docs - Developer",
+      "enabled": true,
+      "sortIndex": 1100,
+      "topics": [
+        {
+          "file": "index.md"
+        }
+      ]
+    },
+    {
+      "group": "IwakuraEnterprises",
+      "id": "DocsServerOwner",
+      "name": "Docs - Server owner",
+      "enabled": true,
+      "sortIndex": 1000,
+      "topics": [
+        {
+          "file": "index.md"
+        },
+        {
+          "file": "first-steps.md"
+        }
+      ]
+    }
+  ]
+}

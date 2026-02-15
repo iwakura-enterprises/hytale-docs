@@ -2,6 +2,7 @@ package enterprises.iwakura.docs;
 
 import org.jspecify.annotations.NonNull;
 
+import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 

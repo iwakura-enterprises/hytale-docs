@@ -56,17 +56,7 @@ public class DocumentationService {
         DocsAPI.get().register(plugin, new ResourcesDocumentationLoader(
             DocumentationType.INTERNAL,
             plugin.getClassLoader(),
-            "internal-docs/developer/index.json"
-        ));
-        DocsAPI.get().register(plugin, new ResourcesDocumentationLoader(
-            DocumentationType.INTERNAL,
-            plugin.getClassLoader(),
-            "internal-docs/server-owner/index.json"
-        ));
-        DocsAPI.get().register(plugin, new ResourcesDocumentationLoader(
-            DocumentationType.INTERNAL,
-            plugin.getClassLoader(),
-            "internal-docs/docs/index.json"
+            "internal-docs/index.json"
         ));
     }
 

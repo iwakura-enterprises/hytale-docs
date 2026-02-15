@@ -1,0 +1,19 @@
+{
+  "documentations": [
+    {
+      "group": "IwakuraEnterprises",
+      "id": "Example",
+      "name": "Docs - Example",
+      "enabled": false,
+      "sortIndex": 1000,
+      "topics": [
+        {
+          "file": "index.md"
+        },
+        {
+          "file": "first-steps.md"
+        }
+      ]
+    }
+  ]
+}

@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 
-import enterprises.iwakura.docs.config.DocumentationConfig;
-import enterprises.iwakura.docs.config.ResourcesDocumentationIndexConfig;
+import enterprises.iwakura.docs.config.AssetDocumentationConfig;
+import enterprises.iwakura.docs.config.AssetDocumentationIndexConfig;
 import enterprises.iwakura.docs.config.TopicConfig;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
@@ -124,59 +125,62 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
             return List.of();
         }
 
-        ResourcesDocumentationIndexConfig indexConfig;
+        AssetDocumentationIndexConfig indexConfig;
         try {
-            indexConfig = loaderContext.getGson().fromJson(indexContent, ResourcesDocumentationIndexConfig.class);
+            indexConfig = loaderContext.getGson().fromJson(indexContent, AssetDocumentationIndexConfig.class);
         } catch (Exception exception) {
             logger.error("Failed to parse index.json: " + indexPath, exception);
             return List.of();
         }
 
-        var documentationConfig = indexConfig.getDocumentation();
-        if (documentationConfig == null) {
-            logger.error("No documentation config found in index: " + indexPath);
+        if (indexConfig.getDocumentations() == null) {
+            logger.error("Null documentations in index: " + indexPath);
             return List.of();
         }
 
-        if (!documentationConfig.isEnabled()) {
-            logger.warn("Skipping disabled " + documentationConfig);
-            return List.of();
-        }
+        return indexConfig.getDocumentations().stream()
+            .map(documentationConfig -> {
+                if (!documentationConfig.isEnabled()) {
+                    logger.warn("Skipping disabled " + documentationConfig);
+                    return null;
+                }
 
-        logger.info("Documentation index %s defines %d root topics".formatted(
-            indexPath, indexConfig.getTopics().size()
-        ));
+                logger.info("Documentation index %s defines %d root topics".formatted(
+                    indexPath, documentationConfig.getTopics().size()
+                ));
 
-        try {
-            var documentation = loadDocumentation(loaderContext, documentationConfig, indexConfig);
-            logger.info("Loaded %s with %d topics".formatted(
-                documentation, documentation.countTopics()
-            ));
-            return List.of(documentation);
-        } catch (Exception exception) {
-            logger.error("Failed to load " + documentationConfig, exception);
-            return List.of();
-        }
+                try {
+                    var documentation = loadDocumentation(loaderContext, documentationConfig);
+                    logger.info("Loaded %s with %d topics".formatted(
+                        documentation, documentation.countTopics()
+                    ));
+                    return documentation;
+                } catch (Exception exception) {
+                    logger.error("Failed to load " + documentationConfig, exception);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
     }
 
     private Documentation loadDocumentation(
         LoaderContext loaderContext,
-        DocumentationConfig documentationConfig,
-        ResourcesDocumentationIndexConfig indexConfig
+        AssetDocumentationConfig documentationConfig
     ) throws IOException {
         var logger = loaderContext.getLogger();
         var documentation = documentationConfig.toDocumentation(documentationType);
-        var basePath = getBasePath(); // Not using documentation id, developer must specify the pain fully
+        var basePath = getBasePath() + "/" + documentationConfig.getGroup() + "_" + documentationConfig.getId();
         var fileToTopic = new HashMap<String, Topic>();
         var configMap = new HashMap<String, TopicConfig>();
 
         // Load all topics recursively from the index
-        loadTopicEntries(documentation, loaderContext, indexConfig.getTopics(), basePath, fileToTopic, configMap);
+        loadTopicEntries(documentation, loaderContext, documentationConfig.getTopics(), basePath, fileToTopic, configMap);
 
         logger.info("Loaded %d topics from resources".formatted(fileToTopic.size()));
 
         // Build the topic hierarchy
-        var rootTopics = buildTopicHierarchy(loaderContext, indexConfig.getTopics(), fileToTopic, configMap);
+        var rootTopics = buildTopicHierarchy(loaderContext, documentationConfig.getTopics(), fileToTopic, configMap);
 
         documentation.addTopics(rootTopics);
         return documentation;
@@ -185,7 +189,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
     private void loadTopicEntries(
         Documentation documentation,
         LoaderContext loaderContext,
-        List<ResourcesDocumentationIndexConfig.Entry> entries,
+        List<AssetDocumentationConfig.Entry> entries,
         String basePath,
         Map<String, Topic> fileToTopic,
         Map<String, TopicConfig> configMap
@@ -226,7 +230,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
 
     private List<Topic> buildTopicHierarchy(
         LoaderContext loaderContext,
-        List<ResourcesDocumentationIndexConfig.Entry> entries,
+        List<AssetDocumentationConfig.Entry> entries,
         Map<String, Topic> fileToTopic,
         Map<String, TopicConfig> configMap
     ) {
