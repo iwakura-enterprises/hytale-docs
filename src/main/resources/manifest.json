@@ -1,0 +1,22 @@
+{
+  "Group": "IwakuraEnterprises",
+  "Name": "Docs",
+  "Version": "1.0.0",
+  "Description": "Ingame documentation",
+  "Authors": [
+    {
+      "Name": "Mayuna",
+      "Email": "mayuna@iwakura.enterprises"
+    }
+  ],
+  "Website": "https://iwakura.enterprises",
+  "ServerVersion": "*",
+  "Dependencies": {
+  },
+  "OptionalDependencies": {
+    "AmoAster:Kytale": "*"
+  },
+  "DisabledByDefault": false,
+  "Main": "enterprises.iwakura.docs.DocsPlugin",
+  "IncludesAssetPack": true
+}

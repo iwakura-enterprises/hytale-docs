@@ -1,0 +1,105 @@
+plugins {
+    id 'java'
+    id("com.gradleup.shadow") version "9.3.1"
+    id("app.ultradev.hytalegradle") version "1.4.3"
+}
+
+group = 'enterprises.iwakura'
+version = '1.0.0'
+def serverPatchLine = "release"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.hytale-modding.info/releases' }
+    flatDir {
+        dir 'libs'
+    }
+}
+
+dependencies {
+    implementation name: 'HytaleUIParser-2.1.0'
+
+    // MiniMessage but Hytale
+    implementation 'com.github.InsiderAnh:TaleMessage:1.0.2'
+
+    // CommonMark
+    implementation 'org.commonmark:commonmark:0.27.1'
+    implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.27.1'
+
+    // Runtime Dependency injection + configs
+    implementation 'enterprises.iwakura:sigewine-core:2.4.1'
+    implementation 'enterprises.iwakura:jean-core:1.1.1'
+    implementation 'enterprises.iwakura:jean-gson:1.1.1'
+
+    // For @Bean annotation IDEA support
+    compileOnly 'org.springframework:spring-context:7.0.2'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.+'
+    annotationProcessor 'org.projectlombok:lombok:1.18.+'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+shadowJar {
+    archiveFileName = "docs-${version}.jar"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+hytale {
+    // Use optional custom hytale installation directory
+    if (project.hasProperty('hytaleInstallationDir')) {
+        basePath.set(file(project.property('hytaleInstallationDir') + "/install/" + serverPatchLine + "/package/game/latest"))
+    }
+
+    // Configure build for release
+    allowOp.set(true)
+    patchline.set(serverPatchLine)
+}
+
+def generatedSrcDir = "${buildDir}/generated-src/main/java"
+
+task generateVersionClass {
+    doLast {
+        def versionClassFile = file("${generatedSrcDir}/enterprises/iwakura/docs/Version.java")
+        versionClassFile.parentFile.mkdirs()
+        versionClassFile.text =
+                """
+package enterprises.iwakura.docs;
+
+/**
+ * Auto-generated version class.
+ */
+public final class Version {
+
+    /**
+     * Project's current version.
+     */
+    public static final String VERSION = "${project.version}";
+
+    private Version() {
+        // Prevent instantiation
+    }
+}
+"""
+    }
+}
+
+// Include generated sources in compilation
+sourceSets {
+    main {
+        java {
+            srcDir generatedSrcDir
+        }
+    }
+}
+
+// Make sure version class is generated before compilation
+compileJava.dependsOn generateVersionClass

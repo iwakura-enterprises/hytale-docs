@@ -1,0 +1,36 @@
+{
+  "documentation": {
+    "group": "IwakuraEnterprises",
+    "id": "Docs",
+    "name": "Docs",
+    "enabled": true,
+    "sortIndex": 900
+  },
+  "topics": [
+    {
+      "file": "index.md"
+    },
+    {
+      "file": "changelog.md"
+    },
+    {
+      "file": "configuration.md",
+      "subTopics": [
+        {
+          "file": "command-shortcuts.md"
+        }
+      ]
+    },
+    {
+      "file": "topic-identifiers.md"
+    },
+    {
+      "file": "misc/index.md",
+      "subTopics": [
+        {
+          "file": "misc/markdown-stress-test.md"
+        }
+      ]
+    }
+  ]
+}

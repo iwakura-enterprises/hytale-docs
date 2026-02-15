@@ -1,0 +1,844 @@
+$Sounds = "Sounds.ui";
+
+// Panels
+@Panel = Group {
+  Background: (TexturePath: "Common/ContainerFullPatch.png", Border: 20);
+};
+
+@TitleLabel = Label {
+  Style: (FontSize: 40, Alignment: Center);
+};
+
+@DefaultLabelStyle = (FontSize: 16, TextColor: #96a9be);
+
+// Buttons
+@ButtonSounds = $Sounds.@ButtonsLight;
+@ButtonsCancel = $Sounds.@ButtonsCancel;
+@ButtonDestructiveSounds = $Sounds.@ButtonsDestructive;
+
+@ButtonBorder = 12;
+@PrimaryButtonHeight = 44;
+@SmallButtonHeight = 32;
+@BigButtonHeight = 48;
+@ButtonPadding = 24;
+@DefaultButtonMinWidth = 172;
+
+// Legacy aliases for backward compatibility
+@DefaultButtonHeight = @PrimaryButtonHeight;
+@DefaultButtonPadding = @ButtonPadding;
+
+@DefaultButtonDefaultBackground = PatchStyle(TexturePath: "Common/Buttons/Primary.png", VerticalBorder: @ButtonBorder, HorizontalBorder: 80);
+@DefaultButtonHoveredBackground = PatchStyle(TexturePath: "Common/Buttons/Primary_Hovered.png", VerticalBorder: @ButtonBorder, HorizontalBorder: 80);
+@DefaultButtonPressedBackground = PatchStyle(TexturePath: "Common/Buttons/Primary_Pressed.png", VerticalBorder: @ButtonBorder, HorizontalBorder: 80);
+@DefaultButtonDisabledBackground = PatchStyle(TexturePath: "Common/Buttons/Disabled.png", VerticalBorder: @ButtonBorder, HorizontalBorder: 80);
+
+@DefaultSquareButtonDefaultBackground = PatchStyle(TexturePath: "Common/Buttons/Primary_Square.png", Border: @ButtonBorder);
+@DefaultSquareButtonHoveredBackground = PatchStyle(TexturePath: "Common/Buttons/Primary_Square_Hovered.png", Border: @ButtonBorder);
+@DefaultSquareButtonPressedBackground = PatchStyle(TexturePath: "Common/Buttons/Primary_Square_Pressed.png", Border: @ButtonBorder);
+@DefaultSquareButtonDisabledBackground = PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder);
+
+@DisabledColor = #797b7c;
+
+@DefaultButtonLabelStyle = LabelStyle(
+  FontSize: 17,
+  TextColor: #bfcdd5,
+  RenderBold: true,
+  RenderUppercase: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@DefaultButtonDisabledLabelStyle = LabelStyle(
+  ...@DefaultButtonLabelStyle,
+  TextColor: @DisabledColor
+);
+
+// Client-compatible aliases
+@PrimaryButtonLabelStyle = @DefaultButtonLabelStyle;
+@PrimaryButtonDisabledLabelStyle = @DefaultButtonDisabledLabelStyle;
+
+@SecondaryButtonLabelStyle = LabelStyle(
+  ...@DefaultButtonLabelStyle,
+  TextColor: #bdcbd3
+);
+
+@SecondaryButtonDisabledLabelStyle = LabelStyle(
+  ...@SecondaryButtonLabelStyle,
+  TextColor: @DisabledColor
+);
+
+@SmallButtonLabelStyle = LabelStyle(
+  ...@DefaultButtonLabelStyle,
+  FontSize: 14
+);
+
+@SmallButtonDisabledLabelStyle = LabelStyle(
+  ...@SmallButtonLabelStyle,
+  TextColor: @DisabledColor
+);
+
+@SmallSecondaryButtonLabelStyle = LabelStyle(
+  ...@SecondaryButtonLabelStyle,
+  FontSize: 14
+);
+
+@SmallSecondaryButtonDisabledLabelStyle = LabelStyle(
+  ...@SmallSecondaryButtonLabelStyle,
+  TextColor: @DisabledColor
+);
+
+@DefaultButtonStyle = ButtonStyle(
+  Default: (Background: @DefaultButtonDefaultBackground),
+  Hovered: (Background: @DefaultButtonHoveredBackground),
+  Pressed: (Background: @DefaultButtonPressedBackground),
+  Disabled: (Background: @DefaultButtonDisabledBackground),
+  Sounds: @ButtonSounds,
+);
+
+@DefaultTextButtonStyle = TextButtonStyle(
+  Default: (Background: @DefaultButtonDefaultBackground, LabelStyle: @DefaultButtonLabelStyle),
+  Hovered: (Background: @DefaultButtonHoveredBackground, LabelStyle: @DefaultButtonLabelStyle),
+  Pressed: (Background: @DefaultButtonPressedBackground, LabelStyle: @DefaultButtonLabelStyle),
+  Disabled: (Background: @DefaultButtonDisabledBackground, LabelStyle: @DefaultButtonDisabledLabelStyle),
+  Sounds: @ButtonSounds,
+);
+
+@SmallDefaultTextButtonStyle = TextButtonStyle(
+  Default: (Background: (TexturePath: "Common/ButtonSmall.png", Border: 6), LabelStyle: @SmallButtonLabelStyle),
+  Hovered: (Background: (TexturePath: "Common/ButtonSmallHovered.png", Border: 6), LabelStyle: @SmallButtonLabelStyle),
+  Pressed: (Background: (TexturePath: "Common/ButtonSmallPressed.png", Border: 6), LabelStyle: @SmallButtonLabelStyle),
+  Disabled: (Background: @DefaultButtonDisabledBackground, LabelStyle: @SmallButtonDisabledLabelStyle),
+  Sounds: @ButtonSounds,
+);
+
+@CancelTextButtonStyle = TextButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive.png", Border: @ButtonBorder), LabelStyle: @DefaultButtonLabelStyle),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: @ButtonBorder), LabelStyle: @DefaultButtonLabelStyle),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: @ButtonBorder), LabelStyle: @DefaultButtonLabelStyle),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder), LabelStyle: @DefaultButtonLabelStyle),
+  Sounds: @ButtonsCancel,
+);
+
+@CancelButtonStyle = ButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive.png", Border: @ButtonBorder)),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive_Hovered.png", Border: @ButtonBorder)),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Destructive_Pressed.png", Border: @ButtonBorder)),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder)),
+  Sounds: @ButtonSounds,
+);
+
+@SecondaryButtonStyle = ButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: @ButtonBorder)),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: @ButtonBorder)),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: @ButtonBorder)),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder)),
+  Sounds: @ButtonSounds,
+);
+
+@SecondaryTextButtonStyle = TextButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle)
+);
+
+@TertiaryButtonStyle = ButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary.png", Border: @ButtonBorder)),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: @ButtonBorder)),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: @ButtonBorder)),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder)),
+  Sounds: @ButtonSounds,
+);
+
+@SmallSecondaryTextButtonStyle = TextButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: @ButtonBorder), LabelStyle: @SmallSecondaryButtonLabelStyle),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: @ButtonBorder), LabelStyle: @SmallSecondaryButtonLabelStyle),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: @ButtonBorder), LabelStyle: @SmallSecondaryButtonLabelStyle),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder), LabelStyle: @SmallSecondaryButtonLabelStyle)
+);
+
+@TertiaryTextButtonStyle = TextButtonStyle(
+  Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary_Hovered.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Tertiary_Pressed.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle),
+  Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: @ButtonBorder), LabelStyle: @SecondaryButtonLabelStyle)
+);
+
+@TextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@DefaultTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight);
+  Padding: (Horizontal: @DefaultButtonPadding);
+  Text: @Text;
+};
+
+@Button = Button {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@DefaultSquareButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight, Width: @DefaultButtonHeight);
+  Padding: (Horizontal: @DefaultButtonPadding);
+};
+
+@CancelTextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@CancelTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsCancel,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight);
+  Padding: (Horizontal: @DefaultButtonPadding);
+  Text: @Text;
+};
+
+@CancelButton = Button {
+  @Anchor = Anchor();
+  @Sounds = ();
+  @Width = @DefaultButtonHeight;
+  Style: (
+    ...@CancelButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight, Width: @Width);
+};
+
+@SmallSecondaryTextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@SmallSecondaryTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @SmallButtonHeight);
+  Padding: (Horizontal: 16);
+  Text: @Text;
+};
+
+@SmallTertiaryTextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@TertiaryTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @SmallButtonHeight);
+  Padding: (Horizontal: 16);
+  Text: @Text;
+};
+
+@SecondaryTextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@SecondaryTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight);
+  Padding: (Horizontal: @DefaultButtonPadding);
+  Text: @Text;
+};
+
+@SecondaryButton = Button {
+  @Anchor = Anchor();
+  @Sounds = ();
+  @Width = @DefaultButtonHeight;
+  Style: (
+    ...@SecondaryButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight, Width: @Width);
+};
+
+@TertiaryTextButton = TextButton {
+  @Anchor = Anchor();
+  @Sounds = ();
+  Style: (
+    ...@TertiaryTextButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight);
+  Padding: (Horizontal: @DefaultButtonPadding);
+  Text: @Text;
+};
+
+@TertiaryButton = Button {
+  @Anchor = Anchor();
+  @Sounds = ();
+  @Width = @DefaultButtonHeight;
+  Style: (
+    ...@TertiaryButtonStyle,
+    Sounds: (
+      ...$Sounds.@ButtonsLight,
+      ...@Sounds
+    )
+  );
+  Anchor: (...@Anchor, Height: @DefaultButtonHeight, Width: @Width);
+};
+
+
+@DefaultColorPickerStyle = ColorPickerStyle(
+  OpacitySelectorBackground: "Common/ColorPickerOpacitySelectorBackground.png",
+  ButtonBackground: "Common/ColorPickerButton.png",
+  ButtonFill: "Common/ColorPickerFill.png",
+  TextFieldDecoration: (
+    Default: (
+      Background: #000000(0.5)
+    )
+  ),
+  TextFieldPadding: (Left: 7),
+  TextFieldHeight: 32
+);
+
+@DefaultColorPickerDropdownBoxStyle = ColorPickerDropdownBoxStyle(
+  ColorPickerStyle: @DefaultColorPickerStyle,
+  Background: (Default: "Common/ColorPickerDropdownBoxBackground.png"),
+  ArrowBackground: (Default: "Common/ColorPickerDropdownBoxArrow.png"),
+  Overlay: (Default: "Common/ColorPickerDropdownBoxOverlay.png"),
+  PanelBackground: (TexturePath: "Common/DropdownBox.png", Border: 16),
+  PanelPadding: (Full: 15),
+  PanelOffset: 10,
+  ArrowAnchor: (Width: 11, Height: 7, Right: 3, Bottom: 3)
+);
+
+@CloseButton = Button {
+  Anchor: (Top: -16, Right: -16, Width: 32, Height: 32);
+
+  Style: (
+    Default: (Background: "Common/ContainerCloseButton.png"),
+    Hovered: (Background: "Common/ContainerCloseButtonHovered.png"),
+    Pressed: (Background: "Common/ContainerCloseButtonPressed.png"),
+  );
+};
+
+@DefaultScrollbarStyle = ScrollbarStyle(
+  Spacing: 6,
+  Size: 6,
+  Background: (TexturePath: "Common/Scrollbar.png", Border: 3),
+  Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3),
+  HoveredHandle: (TexturePath: "Common/ScrollbarHandleHovered.png", Border: 3),
+  DraggedHandle: (TexturePath: "Common/ScrollbarHandleDragged.png", Border: 3)
+);
+
+@DefaultExtraSpacingScrollbarStyle = ScrollbarStyle(
+  ...@DefaultScrollbarStyle,
+  Spacing: 12
+);
+
+@TranslucentScrollbarStyle = ScrollbarStyle(
+  Spacing: 6,
+  Size: 6,
+  OnlyVisibleWhenHovered: true,
+  Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3)
+);
+
+@DefaultPlaceholderScrollbarStyle = ScrollbarStyle(
+  Spacing: 12,
+  Size: 10
+);
+
+@DefaultCheckBoxStyle = CheckBoxStyle(
+  Unchecked: (
+    DefaultBackground: (Color: #00000000),
+    HoveredBackground: (Color: #00000000),
+    PressedBackground: (Color: #00000000),
+    DisabledBackground: (Color: #424242),
+    ChangedSound: (SoundPath: $Sounds.@Untick, Volume: 6)
+  ),
+  Checked: (
+    DefaultBackground: (TexturePath: "Common/Checkmark.png"),
+    HoveredBackground: (TexturePath: "Common/Checkmark.png"),
+    PressedBackground: (TexturePath: "Common/Checkmark.png"),
+    ChangedSound: (SoundPath: $Sounds.@Tick, Volume: 6)
+  )
+);
+
+@CheckBox = CheckBox {
+  Anchor: (Width: 22, Height: 22);
+  Background: (TexturePath: "Common/CheckBoxFrame.png", Border: 7);
+  Padding: (Full: 4);
+  Style: @DefaultCheckBoxStyle;
+};
+
+@CheckBoxWithLabel = Group {
+  @Checked = false;
+
+  LayoutMode: Left;
+
+  @CheckBox #CheckBox {
+    Value: @Checked;
+  }
+
+  Label {
+    Text: @Text;
+    Anchor: (Right: 30, Left: 11);
+    Style: (
+      ...@DefaultLabelStyle,
+      VerticalAlignment: Center
+    );
+  }
+};
+
+@InputBoxBackground = PatchStyle(TexturePath: "Common/InputBox.png", Border: 16);
+@InputBoxHoveredBackground = PatchStyle(TexturePath: "Common/InputBoxHovered.png", Border: 16);
+@InputBoxPressedBackground = PatchStyle(TexturePath: "Common/InputBoxPressed.png", Border: 16);
+@InputBoxSelectedBackground = PatchStyle(TexturePath: "Common/InputBoxSelected.png", Border: 16);
+
+@DefaultInputFieldStyle = InputFieldStyle();
+@DefaultInputFieldPlaceholderStyle = InputFieldStyle(TextColor: #6e7da1);
+
+@TextField = TextField {
+  @Anchor = ();
+
+  Style: @DefaultInputFieldStyle;
+  PlaceholderStyle: @DefaultInputFieldPlaceholderStyle;
+  Background: @InputBoxBackground;
+  Anchor: (...@Anchor, Height: 38);
+  Padding: (Horizontal: 10);
+};
+
+@NumberField = NumberField {
+  @Anchor = ();
+
+  Style: @DefaultInputFieldStyle;
+  PlaceholderStyle: @DefaultInputFieldPlaceholderStyle;
+  Background: @InputBoxBackground;
+  Anchor: (...@Anchor, Height: 38);
+  Padding: (Horizontal: 10);
+};
+
+@DefaultDropdownBoxLabelStyle = LabelStyle(TextColor: #96a9be, RenderUppercase: true, VerticalAlignment: Center, FontSize: 13);
+@DefaultDropdownBoxEntryLabelStyle = LabelStyle(...@DefaultDropdownBoxLabelStyle, TextColor: #b7cedd);
+
+@DefaultDropdownBoxStyle = DropdownBoxStyle(
+  DefaultBackground: (TexturePath: "Common/Dropdown.png", Border: 16),
+  HoveredBackground: (TexturePath: "Common/DropdownHovered.png", Border: 16),
+  PressedBackground: (TexturePath: "Common/DropdownPressed.png", Border: 16),
+  DefaultArrowTexturePath: "Common/DropdownCaret.png",
+  HoveredArrowTexturePath: "Common/DropdownCaret.png",
+  PressedArrowTexturePath: "Common/DropdownPressedCaret.png",
+  ArrowWidth: 13,
+  ArrowHeight: 18,
+  LabelStyle: @DefaultDropdownBoxLabelStyle,
+  EntryLabelStyle: @DefaultDropdownBoxEntryLabelStyle,
+  NoItemsLabelStyle: (...@DefaultDropdownBoxEntryLabelStyle, TextColor: #b7cedd(0.5)),
+  SelectedEntryLabelStyle: (...@DefaultDropdownBoxEntryLabelStyle, RenderBold: true),
+  HorizontalPadding: 8,
+  PanelScrollbarStyle: @DefaultScrollbarStyle,
+  PanelBackground: (TexturePath: "Common/DropdownBox.png", Border: 16),
+  PanelPadding: 6,
+  PanelAlign: Right,
+  PanelOffset: 7,
+  EntryHeight: 31,
+  EntriesInViewport: 10,
+  HorizontalEntryPadding: 7,
+  HoveredEntryBackground: (Color: #0a0f17),
+  PressedEntryBackground: (Color: #0f1621),
+  Sounds: $Sounds.@DropdownBox,
+  EntrySounds: $Sounds.@ButtonsLight,
+  FocusOutlineSize: 1,
+  FocusOutlineColor: #ffffff(0.4)
+);
+
+@DropdownBoxHeight = 32;
+
+@DropdownBox = DropdownBox {
+  @Anchor = ();
+
+  Anchor: (...@Anchor, Width: 330, Height: @DropdownBoxHeight);
+  Style: @DefaultDropdownBoxStyle;
+};
+
+// TODO: TitledDropdownBoxStyle requires missing textures: DropdownAlt.png, AltDropdownCaretDown.png, AltDropdownCaretUp.png, TitledDropdownBox.png
+// @TitledDropdownBoxStyle = DropdownBoxStyle(
+//   ...@DefaultDropdownBoxStyle,
+//   DefaultBackground: (TexturePath: "Common/DropdownAlt.png", Border: 16),
+//   HoveredBackground: (TexturePath: "Common/DropdownAltHovered.png", Border: 16),
+//   PressedBackground: (TexturePath: "Common/DropdownAltHovered.png", Border: 16),
+//   DefaultArrowTexturePath: "Common/AltDropdownCaretDown.png",
+//   HoveredArrowTexturePath: "Common/AltDropdownCaretDown.png",
+//   PressedArrowTexturePath: "Common/AltDropdownCaretUp.png",
+//   ArrowWidth: 12,
+//   ArrowHeight: 7,
+//   PanelTitleLabelStyle: LabelStyle(TextColor: #96a9be, RenderBold: true, RenderUppercase: true, VerticalAlignment: Center, FontSize: 13),
+//   PanelPadding: 29,
+//   PanelAlign: Bottom,
+//   PanelBackground: (TexturePath: "Common/TitledDropdownBox.png", Border: 57),
+//   HoveredEntryBackground: (Color: #252e48),
+//   PressedEntryBackground: (Color: #232b44),
+//   Sounds: $Sounds.@DropdownBox
+// );
+
+@DefaultFileDropdownBoxStyle = FileDropdownBoxStyle(
+  DefaultBackground: (TexturePath: "Common/Dropdown.png", Border: 16),
+  HoveredBackground: (TexturePath: "Common/DropdownHovered.png", Border: 16),
+  PressedBackground: (TexturePath: "Common/DropdownPressed.png", Border: 16),
+  DefaultArrowTexturePath: "Common/DropdownCaret.png",
+  HoveredArrowTexturePath: "Common/DropdownCaret.png",
+  PressedArrowTexturePath: "Common/DropdownPressedCaret.png",
+  ArrowWidth: 9,
+  ArrowHeight: 18,
+  LabelStyle: (TextColor: #96a9be, RenderBold: true, VerticalAlignment: Center, FontSize: 18),
+  HorizontalPadding: 14,
+  PanelAlign: Bottom,
+  PanelOffset: 7,
+  Sounds: $Sounds.@DropdownBox
+);
+
+@DefaultPopupMenuLayerStyle = PopupMenuLayerStyle(
+  Background: (TexturePath: "Common/Popup.png", Border: 16),
+  Padding: 2,
+  BaseHeight: 5,
+  MaxWidth: 200,
+  TitleStyle: (RenderBold: true, RenderUppercase: true, FontSize: 13, TextColor: #ccb588),
+  TitleBackground: (TexturePath: "Common/PopupTitle.png"),
+  RowHeight: 25,
+  ItemLabelStyle: (RenderBold: true, RenderUppercase: true, FontSize: 11, TextColor: #96a9be(0.8)),
+  ItemPadding: (Vertical: 5, Horizontal: 8),
+  ItemBackground: (TexturePath: "Common/PopupItem.png"),
+  ItemIconSize: 16,
+  HoveredItemBackground: (TexturePath: "Common/HoveredPopupItem.png"),
+  PressedItemBackground: (TexturePath: "Common/PressedPopupItem.png"),
+  ItemSounds: $Sounds.@ButtonsLight
+);
+
+@PopupTitleStyle = LabelStyle(
+  FontSize: 38,
+  LetterSpacing: 2,
+  RenderUppercase: true,
+  RenderBold: true,
+  HorizontalAlignment: Center,
+  VerticalAlignment: Center
+);
+
+@ContentSeparator = Group {
+  @Anchor = Anchor();
+
+  Anchor: (...@Anchor, Height: 1);
+  Background: (Color: #2b3542);
+};
+
+@DefaultSpinner = Sprite {
+  @Anchor = ();
+  Anchor: (...@Anchor, Width: 32, Height: 32);
+  TexturePath: "Common/Spinner.png";
+  Frame: (Width: 32, Height: 32, PerRow: 8, Count: 72);
+  FramesPerSecond: 30;
+};
+
+@ActionButtonContainer = Group {
+  LayoutMode: Right;
+  Anchor: (Right: 50, Bottom: 50, Height: 27);
+};
+
+@ActionButtonSeparator = Group {
+  Anchor: (Width: 35);
+};
+
+@VerticalActionButtonSeparator = Group {
+  Anchor: (Height: 20);
+};
+
+@SubtitleStyle = LabelStyle(FontSize: 15, RenderUppercase: true, TextColor: #96a9be);
+
+@Subtitle = Label {
+  Style: @SubtitleStyle;
+  Text: @Text;
+  Anchor: (Bottom: 10);
+};
+
+@TitleStyle = LabelStyle(
+  FontSize: 15,
+  VerticalAlignment: Center,
+  RenderUppercase: true,
+  TextColor: #b4c8c9,
+  FontName: "Secondary",
+  RenderBold: true,
+  LetterSpacing: 0
+);
+
+@Title = Label {
+  @Alignment = Center;
+  @Text = "";
+
+  Style: (
+    ...@TitleStyle,
+    HorizontalAlignment: @Alignment
+  );
+  Padding: (Horizontal: 19);
+  Text: @Text;
+};
+
+@TitleHeight = 38;
+@TitleOffset = 4;
+
+@ContentPaddingFull = 9 + 8;
+@ContentPadding = Padding(Full: @ContentPaddingFull, Top: 8);
+
+@TopTabAnchor = Anchor(Width: 82, Height: 62, Right: 5, Bottom: -14);
+
+@TopTabStyle = TabStateStyle(
+  Background: "Common/Tab.png",
+  Overlay: "Common/TabOverlay.png",
+  IconAnchor: (Width: 44, Height: 44),
+  Anchor: (Width: 82, Height: 62, Right: 5, Bottom: -14));
+
+@TopTabsStyle = TabNavigationStyle(
+  TabStyle: (
+    Default: @TopTabStyle,
+    Hovered: (...@TopTabStyle, Anchor: (...@TopTabAnchor, Bottom: -5)),
+    Pressed: (...@TopTabStyle, Anchor: (...@TopTabAnchor, Bottom: -8))
+  ),
+  SelectedTabStyle: (
+    Default: (
+      ...@TopTabStyle,
+      Anchor: (...@TopTabAnchor, Bottom: 4),
+      IconAnchor: (Width: 44, Height: 44),
+      Overlay: "Common/TabSelectedOverlay.png"
+    )
+  ));
+
+@HeaderTabStyle = TabStateStyle(
+  Anchor: (Width: 34, Height: 34),
+  IconOpacity: 0.25);
+
+@HeaderTabsStyle = TabNavigationStyle(
+  TabStyle: (
+    Default: @HeaderTabStyle
+  ),
+  SelectedTabStyle: (
+    Default: (
+      ...@HeaderTabStyle,
+      IconOpacity: 1
+    )
+  ),
+  SeparatorAnchor: (Width: 5, Height: 34),
+  SeparatorBackground: "Common/HeaderTabSeparator.png");
+
+@ClearButtonStyle = (
+  Texture: (TexturePath: "Common/ClearInputIcon.png", Color: #ffffff(0.3)),
+  HoveredTexture: (TexturePath: "Common/ClearInputIcon.png", Color: #ffffff(0.5)),
+  PressedTexture: (TexturePath: "Common/ClearInputIcon.png", Color: #ffffff(0.4)),
+  Width: 16,
+  Height: 16,
+  Side: Right,
+  Offset: 10
+);
+
+@HeaderSearch = Group {
+  @MarginRight = 10;
+
+  Anchor: (Width: 200, Right: 0);
+
+  CompactTextField #SearchInput {
+    Anchor: (Height: 30, Right: @MarginRight);
+    CollapsedWidth: 34;
+    ExpandedWidth: 200;
+    PlaceholderText: %server.customUI.searchPlaceholder;
+    Style: (FontSize: 16);
+    PlaceholderStyle: (TextColor: #3d5a85, RenderUppercase: true, FontSize: 14);
+    Padding: (Horizontal: 12, Left: 34);
+    Decoration: (
+      Default: (
+        Icon: (Texture: "Common/SearchIcon.png", Width: 16, Height: 16, Offset: 9),
+        ClearButtonStyle: @ClearButtonStyle
+      )
+    );
+  }
+};
+
+@HeaderTextButtonLabelStyle = (...@TitleStyle, VerticalAlignment: Center, TextColor: #d3d6db, FontName: "Default", RenderBold: true, LetterSpacing: 1);
+
+@HeaderTextButtonStyle = TextButtonStyle(
+  Default: (LabelStyle: @HeaderTextButtonLabelStyle),
+  Hovered: (LabelStyle: (...@HeaderTextButtonLabelStyle, TextColor: #eaebee)),
+  Pressed: (LabelStyle: (...@HeaderTextButtonLabelStyle, TextColor: #b6bbc2)),
+);
+
+@HeaderTextButton = TextButton {
+  Style: @HeaderTextButtonStyle;
+  Padding: (Right: 22, Left: 15, Bottom: 1);
+};
+
+@HeaderSeparator = Group {
+  Anchor: (Width: 5, Height: 34);
+  Background: "Common/HeaderTabSeparator.png";
+};
+
+@PanelTitle = Group {
+  @Alignment = Start;
+  @Text = "";
+
+  LayoutMode: Top;
+
+  Label #PanelTitle {
+    Style: (RenderBold: true, VerticalAlignment: Center, FontSize: 15, TextColor: #afc2c3, HorizontalAlignment: @Alignment);
+    Anchor: (Height: 35, Horizontal: 8);
+    Text: @Text;
+  }
+
+  Group {
+    Background: #393426(0.5);
+    Anchor: (Height: 1);
+  }
+};
+
+@VerticalSeparator = Group {
+  Background: (TexturePath: "Common/ContainerVerticalSeparator.png");
+  Anchor: (Width: 6, Top: -2);
+};
+
+@PanelSeparatorFancy = Group {
+  @Anchor = ();
+
+  LayoutMode: Left;
+  Anchor: (...@Anchor, Height: 8);
+
+  Group {
+    FlexWeight: 1;
+    Background: "Common/ContainerPanelSeparatorFancyLine.png";
+  }
+
+  Group {
+    Anchor: (Width: 11);
+    Background: "Common/ContainerPanelSeparatorFancyDecoration.png";
+  }
+
+  Group {
+    FlexWeight: 1;
+    Background: "Common/ContainerPanelSeparatorFancyLine.png";
+  }
+};
+
+@InnerPaddingValue = 8;
+@FullPaddingValue = @InnerPaddingValue + 9;
+
+@Container = Group {
+  @ContentPadding = Padding(Full: @FullPaddingValue);
+  @CloseButton = false;
+
+  Group #Title {
+    Anchor: (Height: @TitleHeight, Top: 0);
+    Padding: (Top: 7);
+    Background: (TexturePath: "Common/ContainerHeaderNoRunes.png", HorizontalBorder: 35, VerticalBorder: 0);
+  }
+
+  Group #Content {
+    LayoutMode: Top;
+    Padding: @ContentPadding;
+    Anchor: (Top: @TitleHeight);
+    Background: (TexturePath: "Common/ContainerPatch.png", Border: 23);
+  }
+
+  Button #CloseButton {
+    Anchor: (Width: 32, Height: 32, Top: -8, Right: -8);
+    Style: (
+      Default: (Background: "Common/ContainerCloseButton.png"),
+      Hovered: (Background: "Common/ContainerCloseButtonHovered.png"),
+      Pressed: (Background: "Common/ContainerCloseButtonPressed.png"),
+      Sounds: @ButtonsCancel
+    );
+    Visible: @CloseButton;
+  }
+};
+
+@DecoratedContainer = Group {
+  @ContentPadding = Padding(Full: 9 + 8);
+  @CloseButton = false;
+
+  Group #Title {
+    Anchor: (Height: @TitleHeight, Top: 0);
+    Background: (TexturePath: "Common/ContainerHeader.png", HorizontalBorder: 50, VerticalBorder: 0);
+    Padding: (Top: 7);
+
+    Group #ContainerDecorationTop {
+      Anchor: (Width: 236, Height: 11, Top: -12);
+      Background: "Common/ContainerDecorationTop.png";
+    }
+  }
+
+  Group #Content {
+    LayoutMode: Top;
+    Anchor: (Top: @TitleHeight);
+    Padding: @ContentPadding;
+    Background: (TexturePath: "Common/ContainerPatch.png", Border: 23);
+  }
+
+  Group #ContainerDecorationBottom {
+    Anchor: (Width: 236, Height: 11, Bottom: -6);
+    Background: "Common/ContainerDecorationBottom.png";
+  }
+
+  Button #CloseButton {
+    Anchor: (Width: 32, Height: 32, Top: -8, Right: -8);
+    Style: (
+      Default: (Background: "Common/ContainerCloseButton.png"),
+      Hovered: (Background: "Common/ContainerCloseButtonHovered.png"),
+      Pressed: (Background: "Common/ContainerCloseButtonPressed.png"),
+      Sounds: @ButtonsCancel
+    );
+    Visible: @CloseButton;
+  }
+};
+
+@PageOverlay = Group {
+  Background: #000000(0.45);
+};
+
+@DefaultSliderStyle = SliderStyle(
+  Background: (TexturePath: "Common/SliderBackground.png", Border: 2),
+  Handle: "Common/SliderHandle.png",
+  HandleWidth: 16,
+  HandleHeight: 16,
+  Sounds: (
+    MouseHover: (SoundPath: $Sounds.@ButtonsLightHover, Volume: 6)
+  )
+);
+
+@BackButton = Group {
+  LayoutMode: Left;
+  Anchor: (Left: 50, Bottom: 50, Width: 110, Height: 27);
+
+  BackButton {}
+};
+
+@DefaultTextTooltipStyle = TextTooltipStyle(
+  Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),
+  MaxWidth: 400,
+  LabelStyle: (Wrap: true, FontSize: 16),
+  Padding: 24
+);
