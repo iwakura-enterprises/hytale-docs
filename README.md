@@ -4,6 +4,8 @@
 
 Create stunning documentation right in the game with **markdown**!
 
+CurseForge: https://www.curseforge.com/hytale/mods/docs
+
 ***
 
 ## tl;dr
