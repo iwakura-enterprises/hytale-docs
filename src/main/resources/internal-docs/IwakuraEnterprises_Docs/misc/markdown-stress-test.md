@@ -1,6 +1,6 @@
 ---
 name: Markdown Stress Tester
-description: This topic showcases the power of Docs' markdown renderer.
+description: This topic showcases the power of Voile's markdown renderer.
 author: mayuna, Markdown file from https://github.com/mxstbr/markdown-test-file, edited by mayuna (MIT License)
 ---
 
@@ -396,7 +396,7 @@ This example results in <gradient data="red:yellow:green:blue:purple">text in th
 
 ## Buttons - linking other topics
 
-Due to Hytale's limitation, there cannot be inline links to other topics. As a compromise, Docs
+Due to Hytale's limitation, there cannot be inline links to other topics. As a compromise, Voile
 allows you to create buttons using HTML block.
 
 ```

@@ -1,10 +1,10 @@
 ---
 name: Home
-description: Docs powered documentation
+description: Voile powered documentation
 author: mayuna
 ---
 
-# Docs <3 Server owners
+# Voile <3 Server owners
 
 Within this documentation, you'll be able to learn everything You need to know about setting up documentation
 for your server.

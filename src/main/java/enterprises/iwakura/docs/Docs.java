@@ -24,7 +24,7 @@ public class Docs {
     private final DocsCommand docsCommand;
     private final ReloadCommand reloadCommand;
 
-    private final DocsAPI docsAPI;
+    private final VoileAPI voileAPI;
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
     private final ValidatorService validatorService;
@@ -34,7 +34,7 @@ public class Docs {
     private final Logger logger;
 
     public void setup() {
-        logger.info("Initializing Docs...");
+        logger.info("Initializing Voile...");
         logger.info("Made by Iwakura Enterprises");
 
         configurationService.init();
@@ -48,8 +48,8 @@ public class Docs {
         logger.info("Registering global listeners...");
         globalListeners.forEach(this::registerGlobalListener);
 
-        logger.info("Initializing DocsAPI...");
-        docsAPI.init();
+        logger.info("Initializing VoileAPI...");
+        voileAPI.init();
 
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();

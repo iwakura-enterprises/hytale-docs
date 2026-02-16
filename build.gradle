@@ -45,7 +45,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName = "docs-${version}.jar"
+    archiveFileName = "voile-${version}.jar"
     exclude 'fonts/**'
 }
 

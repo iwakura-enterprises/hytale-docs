@@ -3,7 +3,7 @@
     {
       "group": "IwakuraEnterprises",
       "id": "Docs",
-      "name": "Docs",
+      "name": "Voile Documentation",
       "enabled": true,
       "sortIndex": 900,
       "topics": [
@@ -37,7 +37,7 @@
     {
       "group": "IwakuraEnterprises",
       "id": "DocsDeveloper",
-      "name": "Docs - Developer",
+      "name": "Voile for Developers",
       "enabled": true,
       "sortIndex": 1100,
       "topics": [
@@ -49,7 +49,7 @@
     {
       "group": "IwakuraEnterprises",
       "id": "DocsServerOwner",
-      "name": "Docs - Server owner",
+      "name": "Voile for Server Owners",
       "enabled": true,
       "sortIndex": 1000,
       "topics": [

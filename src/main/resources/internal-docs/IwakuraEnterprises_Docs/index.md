@@ -1,15 +1,15 @@
 ---
-name: Welcome to Docs!
-description: Welcome to Docs!
+name: Welcome to Voile!
+description: Welcome to Voile!
 author: mayuna
 ---
 
-# Welcome to Docs!
+# Welcome to Voile!
 
- <gradient data="red:yellow:green">Thank you for installing Docs!</gradient>
+ <gradient data="red:yellow:green">Thank you for installing Voile!</gradient>
 
-Docs is a **documentation framework** allowing server owners and mod developers to create **user-friendly documentations**
-accessible right from the game. Within this internal documentation, you will learn how to use Docs.
+Voile is a **documentation framework** allowing server owners and mod developers to create **user-friendly documentations**
+accessible right from the game. Within this internal documentation, you will learn how to use Voile.
 
 ## Server Owner
 
@@ -21,7 +21,7 @@ Are you a server owner planning to create documentation for your server? Look no
 
 ## Developer
 
-Are you developing a mod that requires documentation? Docs is the perfect solution.
+Are you developing a mod that requires documentation? Voile is the perfect solution.
 
 <buttons>
   <button topic="DocsDeveloper:index">Hello, World!</button>

@@ -16,22 +16,22 @@ import lombok.RequiredArgsConstructor;
 
 @Bean
 @RequiredArgsConstructor
-public class DocsAPI {
+public class VoileAPI {
 
-    private static DocsAPI instance;
+    private static VoileAPI instance;
 
     private final Logger logger;
     private final DocumentationService documentationService;
 
     /**
-     * Returns the {@link DocsAPI} instance
+     * Returns the {@link VoileAPI} instance
      *
-     * @return {@link DocsAPI} instance
+     * @return {@link VoileAPI} instance
      *
      * @throws IllegalStateException if DocsAPI have not been yet loaded. This can happen when your plugin loads
      *                               before Docs is loaded.
      */
-    public static DocsAPI get() {
+    public static VoileAPI get() {
         if (instance == null) {
             throw new IllegalStateException("DocsAPI is not yet loaded! Make sure your plugin loads AFTER Docs!");
         }

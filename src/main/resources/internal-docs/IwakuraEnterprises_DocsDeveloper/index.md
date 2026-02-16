@@ -4,14 +4,14 @@ description: DEVELOPERS DEVELOPERS DEVELOPERS DEVELOPERS
 author: mayuna
 ---
 
-# Docs <3 Developers
+# Voile <3 Developers
 
-You don't have to install any dependencies, Docs will load documentations straight from your mod's resources.
+You don't have to install any dependencies, Voile will load documentations straight from your mod's resources.
 
 ## Create documentation index file
 
-Firstly you need to tell Docs what documentations you want to add. This is done by creating an index file in **Common/Docs**
-directory in your mod's resources. Docs searches for JSON files named in format of **{ModGroup}_{ModName}.json**.
+Firstly you need to tell Voile what documentations you want to add. This is done by creating an index file in **Common/Docs**
+directory in your mod's resources. Voile searches for JSON files named in format of **{ModGroup}_{ModName}.json**.
 
 Let's say your mod has group **MyGroup** and name **MyMod**. In that case you would create index file at **Common/Docs/MyGroup_MyMod.json**.
 

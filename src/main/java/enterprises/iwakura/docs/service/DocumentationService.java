@@ -11,7 +11,7 @@ import java.util.Optional;
 import com.google.gson.Gson;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 
-import enterprises.iwakura.docs.DocsAPI;
+import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
@@ -49,11 +49,11 @@ public class DocumentationService {
      */
     public void registerDocumentationLoaders() {
         logger.info("Registering default documentation loaders...");
-        DocsAPI.get().register(plugin, new FileSystemDocumentationLoader(
+        VoileAPI.get().register(plugin, new FileSystemDocumentationLoader(
             DocumentationType.SERVER,
             plugin.getDataDirectory().resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory()))
         );
-        DocsAPI.get().register(plugin, new ResourcesDocumentationLoader(
+        VoileAPI.get().register(plugin, new ResourcesDocumentationLoader(
             DocumentationType.INTERNAL,
             plugin.getClassLoader(),
             "internal-docs/index.json"

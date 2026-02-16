@@ -46,7 +46,7 @@ public class DocsCommand extends AbstractPlayerCommand {
         DocumentationViewerService documentationViewerService,
         Logger logger
     ) {
-        super("docs", "Opens the Docs interface");
+        super("docs", "Opens Voile's interface");
         this.configurationService = configurationService;
         this.documentationService = documentationService;
         this.fallbackTopicService = fallbackTopicService;

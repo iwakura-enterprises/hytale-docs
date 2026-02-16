@@ -91,7 +91,7 @@ public class DocumentationViewerService {
         documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
         topicRenderer.clearAndAppendInline(context, context.getTopic());
         topicChapterTreeRenderer.clearAndAppendInline(context, context.getTopic());
-        context.getCommandBuilder().set("#ContainerTitleGroup[0].Text", "Docs // " + context.getTopic().getName());
+        context.getCommandBuilder().set("#ContainerTitleGroup[0].Text", "Voile // " + context.getTopic().getName());
 
         var playerRef = page.getPlayerRef();
         if (!validatorService.validateUI(playerRef, context, context.getCommandBuilder())) {

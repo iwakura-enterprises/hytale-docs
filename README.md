@@ -1,8 +1,8 @@
-![Docs Banner saying Docs for Hytale, Create stunning documentations in-game!](https://akasha.iwakura.enterprises/data-source/hetzner/public/logo/docs-banner.png)
+![Voile Banner saying Voile for Hytale, Create stunning documentations in-game!](https://akasha.iwakura.enterprises/data-source/hetzner/public/logo/voile-banner.png)
 
-# **Docs** for Hytale
+# **Voile** for Hytale
 
-Create stunning documentation right in the game with **markdown**!
+Create stunning documentation right in the game with **markdown**! A spiritual successor to Patchouli (Minecraft)
 
 CurseForge: https://www.curseforge.com/hytale/mods/docs
 
@@ -35,7 +35,7 @@ After installing the mod inside the mods folder, you can use the command **/docs
 
 ## Documentation
 
-You may find complete documentation at [Iwakura Enterprises Docs](https://docs.iwakura.enterprises/hytale-docs.html)
+You may find complete documentation at [Iwakura Enterprises Documentations](https://docs.iwakura.enterprises/hytale-docs.html)
 
 ## Support & suggestions
 
@@ -56,7 +56,7 @@ If your question will provide valuable information to other users, I'll share it
 
 ## Command shortcuts
 
-Docs allows you to create **command shortcuts**. These commands allows you to open specific topics/documentations with a simple command.
+Voile allows you to create **command shortcuts**. These commands allows you to open specific topics/documentations with a simple command.
 
 For example, as a server owner, you may create command shortcut `/rules` that will open screen with rules. This can be done in **config.json** located in **mods/IwakuraEneterprises\_Docs** in the **commandShortcuts** section:
 

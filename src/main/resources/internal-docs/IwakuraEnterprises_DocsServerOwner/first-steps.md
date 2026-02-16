@@ -5,13 +5,13 @@ description: The absolute basics of creating a documentation
 author: mayuna
 ---
 
-# 1. Installing Docs
+# 1. Installing Voile
 
-> If you're reading this in Hytale, you have successfully installed Docs! **Please, move onto the next chapter.**
+> If you're reading this in Hytale, you have successfully installed Voile! **Please, move onto the next chapter.**
 
 # 2. Understanding configuration
 
-After you've installed Docs, there will be new directory in **mods** folder: **IwakuraEnterprises_Docs**.
+After you've installed Voile, there will be new directory in **mods** folder: **IwakuraEnterprises_Docs**.
 
 In this folder you'll be able to find the configuration file, folder for storing documentations and
 folder for various UI-related errors.
@@ -24,7 +24,7 @@ For now, let's keep all settings unchanged, in the default configuration.
 
 # 3. Creating first documentation
 
-You may define all server documentations at **mods/IwakuraEnterprises_Docs/documentation/index.json**. Within this file
+You may define all server documentations at **mods/IwakuraEnterprises_Voile/documentation/index.json**. Within this file
 you'll be able to add, remove, disable or enable your server-specific documentation. Let's create your first documentation:
 
 ```json
@@ -46,7 +46,7 @@ Let's also create directory **MyDocumentation** next to the **index.json** file 
 This will:
 - Define new documentation in group **MyGroup**, with ID **MyDocumentation**, with user-friendly name **My first documentation**.
   - The ID is used as the root directory for the documentation. In this example, the directory
-    **mods/IwakuraEnterprises_Docs/documentation/MyDocumentation** will contain all the markdown files for the documentation.
+    **mods/IwakuraEnterprises_Voile/documentation/MyDocumentation** will contain all the markdown files for the documentation.
   - The group and ID are used when referencing specific documentation's topic. The user-friendly name is shown to the player
     in the documentation list on the left side of the interface.
 - Mark the documentation as enabled. Disabled documentations are not shown to the player.
@@ -73,7 +73,7 @@ author: Me, Myself & I
 This is my first topic! This is awesome :)
 ```
 
-After saving the topic, you can run **/docs-reload** command to reload the Docs' configuration and documentations. After
+After saving the topic, you can run **/docs-reload** command to reload the Voile's configuration and documentations. After
 reopening the interface with **/docs**, you'll be able to see your first documentation on the left side! After you verify
 you can see it, continue to the next chapter.
 
@@ -168,7 +168,7 @@ new markdown file called **third-topic.md**
 > This is my first topic! This is awesome :)
 > ```
 
-After you reload the Docs, there should be now three topics. **Good job!**
+After you reload the Voile, there should be now three topics. **Good job!**
 
 # 7. What's next?
 

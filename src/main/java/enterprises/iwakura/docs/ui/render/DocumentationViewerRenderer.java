@@ -44,7 +44,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                     #Title {
                         Group #ContainerTitleGroup {
                             @Title {
-                                @Text = "Docs // {{topic-title}}";
+                                @Text = "Voile // {{topic-title}}";
                             }
                         }
                     }
@@ -66,7 +66,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 LayoutMode: Top;
                 Anchor: (Left: 5, Top: 5);
                 Label {
-                    Text: "Docs {{version}} // Made by Iwakura Enterprises";
+                    Text: "Voile {{version}} // Made by Iwakura Enterprises";
                     Style: (
                         TextColor: #b4c8c9(0.3),
                         RenderBold: true,

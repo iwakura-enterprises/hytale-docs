@@ -6,14 +6,14 @@ author: mayuna
 
 # Command Shortcuts
 
-**Command Shortcuts** is a feature in Docs that allows you to configure commands that will open specific **topics**.
+**Command Shortcuts** is a feature in Voile that allows you to configure commands that will open specific **topics**.
 This allows you to create accessible documentation for server's specific needs. One example is **/rules** command that
 shows server's rules.
 
 ## Configuration
 
-You may enable and configure Command Shortcuts in Docs' configuration file **config.json** located in
-**mods/IwakuraEnterprises_Docs**.
+You may enable and configure Command Shortcuts in Voile's configuration file **config.json** located in
+**mods/IwakuraEnterprises_Voile**.
 
 Here you can add the command shortcuts. They are simple objects that specify the command's name
 and the topic that will be opened.
@@ -54,7 +54,7 @@ Not following these rules might get you banned.
 > **Note:** You may specify the topic's ID directly within the markdown's front-matter. If not specified, the file's
 > name is used as an ID (e.g. **rules.md** will have ID **rules**).
 
-> One would create this topic in directory like this ~ **mods/IwakuraEnterprises_Docs/documentation/MyDocumentation**
+> One would create this topic in directory like this ~ **mods/IwakuraEnterprises_Voile/documentation/MyDocumentation**
 > 
 > See **First steps** topic to see how you can create documentations.
 
@@ -62,8 +62,8 @@ Not following these rules might get you banned.
   <button topic="DocsServerOwner:first-steps">First steps</button>
 </buttons>
 
-Upon reloading Docs with **/docs-reload**, you should be able to see new topic labeled **Server Rules**. However as of now,
-you cannot open it with a command. Let's change that. Open Docs' configuration file **config.json** and add a command shortcut.
+Upon reloading Voile with **/docs-reload**, you should be able to see new topic labeled **Server Rules**. However as of now,
+you cannot open it with a command. Let's change that. Open Voile's configuration file **config.json** and add a command shortcut.
 
 We must define the command's name (here **rules**) and what topic it will open. This is done using **Topic Identifier**
 (see topic **Topic Identifiers** for more information).

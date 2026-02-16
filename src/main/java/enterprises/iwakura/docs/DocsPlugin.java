@@ -23,7 +23,7 @@ public class DocsPlugin extends JavaPlugin {
 
     @Override
     protected void setup() {
-        logger.info("Docs Enabled!");
+        logger.info("Voile Enabled!");
         logger.info("Starting up...");
 
         logger.info("Injecting beans into Sigewine...");
@@ -37,19 +37,19 @@ public class DocsPlugin extends JavaPlugin {
         logger.info("Injecting Docs class...");
         docsInstance = sigewine.inject(Docs.class);
 
-        logger.info("Setting up Docs...");
+        logger.info("Setting up Voile...");
         docsInstance.setup();
     }
 
     @Override
     protected void start() {
-        logger.info("Starting Docs...");
+        logger.info("Starting Voile...");
         docsInstance.start();
     }
 
     @Override
     protected void shutdown() {
-        logger.info("Shutting down Docs...");
+        logger.info("Shutting down Voile...");
         if (docsInstance != null) {
             docsInstance.shutdown();
         }
