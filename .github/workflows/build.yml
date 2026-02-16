@@ -1,15 +1,6 @@
 name: 'Build & Test'
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
-    inputs:
-      commit:
-        description: If the commit you want to test isn't the head of a branch, provide its SHA here
-        required: false
 
 jobs:
   build-test:
