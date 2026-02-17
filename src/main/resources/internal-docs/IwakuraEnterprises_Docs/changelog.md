@@ -4,6 +4,13 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.3.0
+
+### Added
+- Support for simple Markdown documentation, see topic **Voile for Developers -> Home** for more info.
+- Update checker. You'll be able to see if there's a new version available next to the current version (<gray>top left</gray>).
+- Check whenever the mod is in single-player, in which case the OOBE will be disabled.
+
 # 1.2.0
 
 ### Major
