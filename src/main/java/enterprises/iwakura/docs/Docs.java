@@ -56,7 +56,8 @@ public class Docs {
     }
 
     public void start() {
-        pluginAssetLoaderService.scan();
+        pluginAssetLoaderService.scanForDocumentationIndex();
+        pluginAssetLoaderService.scanForDocumentationMarkdown();
         documentationService.reloadDocumentations();
     }
 

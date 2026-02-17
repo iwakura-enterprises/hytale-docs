@@ -42,7 +42,12 @@
       "sortIndex": 1100,
       "topics": [
         {
-          "file": "index.md"
+          "file": "index.md",
+          "subTopics": [
+            {
+              "file": "advanced.md"
+            }
+          ]
         }
       ]
     },
