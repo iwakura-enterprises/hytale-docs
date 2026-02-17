@@ -10,6 +10,7 @@ import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
+import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -29,6 +30,7 @@ public class Docs {
     private final DocumentationService documentationService;
     private final ValidatorService validatorService;
     private final PluginAssetLoaderService pluginAssetLoaderService;
+    private final UpdateCheckerService updateCheckerService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -39,6 +41,7 @@ public class Docs {
 
         configurationService.init();
         validatorService.init(plugin.getDataDirectory());
+        updateCheckerService.init();
 
         logger.info("Registering commands...");
         docsCommand.initAliases();

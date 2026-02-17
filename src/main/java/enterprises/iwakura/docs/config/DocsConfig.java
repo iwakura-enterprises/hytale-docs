@@ -14,6 +14,7 @@ public class DocsConfig {
 
     private boolean enabled = true;
     private boolean outOfBoxExperience = true;
+    private boolean updateCheckerEnabled = true;
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
     private final List<DocumentationType> enabledTypes = new ArrayList<>(DocumentationType.ALL);

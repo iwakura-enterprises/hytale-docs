@@ -6,6 +6,7 @@ import enterprises.iwakura.docs.Version;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer.RenderData;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
     private final DocumentationTreeRenderer documentationTreeRenderer;
     private final TopicRenderer topicRenderer;
     private final TopicChapterTreeRenderer topicChapterTreeRenderer;
+    private final UpdateCheckerService updateCheckerService;
 
     @Override
     public String render(DocsContext ctx, RenderData renderData) {
@@ -61,17 +63,32 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                     }
                 }
             }
-            
+
             Group {
                 LayoutMode: Top;
                 Anchor: (Left: 5, Top: 5);
-                Label {
-                    Text: "Voile {{version}} // Made by Iwakura Enterprises";
-                    Style: (
-                        TextColor: #b4c8c9(0.3),
-                        RenderBold: true,
-                        RenderUppercase: true
-                    );
+                Group {
+                    LayoutMode: Left;
+
+                    Label {
+                        Text: "Voile {{version}} // Made by Iwakura Enterprises";
+                        Style: (
+                            TextColor: #b4c8c9(0.3),
+                            RenderBold: true,
+                            RenderUppercase: true
+                        );
+                    }
+
+                    Group { Padding: (Left: 10); }
+
+                    Label {
+                        Text: "{{update-available-text}}";
+                        Style: (
+                            TextColor: #8a90f0,
+                            RenderBold: true,
+                            RenderUppercase: true
+                        );
+                    }
                 }
                 Label {
                     Text: "mayuna@iwakura.enterprises";
@@ -91,7 +108,8 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 .replace("{{topic}}", topicUI)
                 .replace("{{topic-title}}", renderData.getTopic().getName())
                 .replace("{{chapter-tree}}", topicChapterTreeUI)
-                .replace("{{version}}", Version.VERSION);
+                .replace("{{version}}", Version.VERSION)
+                .replace("{{update-available-text}}", updateCheckerService.isUpdateAvailable() ? "Update available: " + updateCheckerService.getUpdateVersion() : "");
     }
 
     @Data

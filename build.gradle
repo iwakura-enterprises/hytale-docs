@@ -27,10 +27,13 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.27.1'
     implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.27.1'
 
-    // Runtime Dependency injection + configs
+    // Runtime Dependency injection + configs + api
     implementation 'enterprises.iwakura:sigewine-core:2.4.1'
     implementation 'enterprises.iwakura:jean-core:1.1.1'
     implementation 'enterprises.iwakura:jean-gson:1.1.1'
+    implementation 'enterprises.iwakura:kirara-core:1.4.1'
+    implementation 'enterprises.iwakura:kirara-gson:1.4.1'
+    implementation 'enterprises.iwakura:kirara-httpclient:1.4.1'
 
     // For @Bean annotation IDEA support
     compileOnly 'org.springframework:spring-context:7.0.2'
