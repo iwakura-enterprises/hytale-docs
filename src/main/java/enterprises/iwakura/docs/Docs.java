@@ -10,6 +10,7 @@ import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
+import enterprises.iwakura.docs.service.ServerService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
 import enterprises.iwakura.docs.util.Logger;
@@ -31,6 +32,7 @@ public class Docs {
     private final ValidatorService validatorService;
     private final PluginAssetLoaderService pluginAssetLoaderService;
     private final UpdateCheckerService updateCheckerService;
+    private final ServerService serverService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -42,6 +44,11 @@ public class Docs {
         configurationService.init();
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
+
+        if (!serverService.isRunningOnDedicatedServer()) {
+            logger.info("We're running in singleplayer! Disabling OOBE...");
+            configurationService.getDocsConfig().setOutOfBoxExperience(false);
+        }
 
         logger.info("Registering commands...");
         docsCommand.initAliases();
