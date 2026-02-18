@@ -46,12 +46,14 @@ public class DocsCommand extends AbstractPlayerCommand {
         DocumentationViewerService documentationViewerService,
         Logger logger
     ) {
-        super("docs", "Opens Voile's interface");
+        super("voile", "Opens Voile's interface");
         this.configurationService = configurationService;
         this.documentationService = documentationService;
         this.fallbackTopicService = fallbackTopicService;
         this.documentationViewerService = documentationViewerService;
         this.logger = logger;
+
+        addAliases("docs");
 
         topicIdentifierArg = withOptionalArg("topic", "Topic identifier to open", ArgTypes.STRING);
     }

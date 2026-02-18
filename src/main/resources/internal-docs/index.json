@@ -8,21 +8,18 @@
       "sortIndex": 900,
       "topics": [
         {
-          "file": "index.md"
-        },
-        {
-          "file": "changelog.md"
-        },
-        {
-          "file": "configuration.md",
+          "file": "index.md",
           "subTopics": [
             {
-              "file": "command-shortcuts.md"
+              "file": "changelog.md"
             }
           ]
         },
         {
           "file": "topic-identifiers.md"
+        },
+        {
+          "file": "formatting.md"
         },
         {
           "file": "misc/index.md",
@@ -62,7 +59,13 @@
           "file": "index.md"
         },
         {
+          "file": "configuration.md"
+        },
+        {
           "file": "first-steps.md"
+        },
+        {
+          "file": "command-shortcuts.md"
         }
       ]
     }

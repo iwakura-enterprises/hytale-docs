@@ -11,7 +11,7 @@ The configuration for Voile is located at **mods/IwakuraEnterprises_Voile/config
 ## Configuration file
 
 Using the configuration file, **config.json**, you're able to configure various parts of this mod.
-- **enabled** - enables/disables the /docs command
+- **enabled** - enables/disables the /voile command
 - **outOfBoxExperience** - enables/disables the OOBE (welcome to Voile chat message) (automatically disabled for singleplayer)
 - **updateCheckerEnabled** - enables/disables update checker
 - **loadDocumentationsFromDirectory** - specifies directory from which all server documentations are loaded

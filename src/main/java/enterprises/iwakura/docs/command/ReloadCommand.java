@@ -23,10 +23,12 @@ public class ReloadCommand extends CommandBase {
         DocumentationService documentationService,
         Logger logger
     ) {
-        super("docs-reload", "Reloads Docs' configuration and registered documentations");
+        super("voile-reload", "Reloads Voile's configuration and registered documentations");
         this.configurationService = configurationService;
         this.documentationService = documentationService;
         this.logger = logger;
+
+        addAliases("docs-reload");
     }
 
     @Override

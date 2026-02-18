@@ -32,7 +32,7 @@ This defines a command **/rules** that opens the **rules** topic in **MyDocument
 Let's say you have created documentation with ID **MyDocumentation** in group **MyGroup**. Let's create a
 topic called **rules**:
 
-```json
+```md
 ---
 id: rules
 name: Server Rules

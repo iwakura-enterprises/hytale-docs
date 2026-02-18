@@ -103,13 +103,13 @@ have ID **first-steps**. You may also use field **id** in the front-matter to sp
 > **Warning:** A topics loaded from resources do not support **sub-topics** field in front-matter. Due to technical
 > limitations, **you must define all topics in the index file**, including sub-topics.
 
-## What's more?
+## What's next?
 
 You can have a look at other topics included in these internal documentations. For example, learning **Topic Identifiers**
-is recommended. You can also check out the **Markdown Stress Tester** topic for additional formatting tips
+is recommended. You can also check out the **Formatting** topic for additional formatting tips
 (including how to format text with colors and create clickable buttons).
 
 <buttons>
   <button topic="Docs:topic-identifiers">Topic Identifiers</button>
-  <button topic="Docs:markdown-stress-test">Markdown Stress Tester</button>
+  <button topic="Docs:formatting">Formatting</button>
 </buttons>

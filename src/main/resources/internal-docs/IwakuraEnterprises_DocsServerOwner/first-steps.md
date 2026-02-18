@@ -11,7 +11,7 @@ author: mayuna
 
 # 2. Understanding configuration
 
-After you've installed Voile, there will be new directory in **mods** folder: **IwakuraEnterprises_Docs**.
+After you've installed Voile, there will be new directory in **mods** folder: **IwakuraEnterprises_Voile**.
 
 In this folder you'll be able to find the configuration file, folder for storing documentations and
 folder for various UI-related errors.
@@ -61,7 +61,7 @@ contain sub-topics. In matter of a fact, you're currently reading this in Topic 
 You may create topics by creating markdown files. Each markdown file is a topic. These terms may be used interchangeably
 in this topic: *topic is markdown file ~ markdown file is topic*.
 
-Let's create your first topic called **home.md** in folder **IwakuraEnterprises_Docs/documentation/MyDocumentation**:
+Let's create your first topic called **home.md** in folder **IwakuraEnterprises_Voile/documentation/MyDocumentation**:
 
 ```md
 ---
@@ -74,7 +74,7 @@ This is my first topic! This is awesome :)
 ```
 
 After saving the topic, you can run **/docs-reload** command to reload the Voile's configuration and documentations. After
-reopening the interface with **/docs**, you'll be able to see your first documentation on the left side! After you verify
+reopening the interface with **/voile**, you'll be able to see your first documentation on the left side! After you verify
 you can see it, continue to the next chapter.
 
 > Topic's ID is defined by the name of the markdown file. You may also define your own ID by adding **id** field.
@@ -128,7 +128,7 @@ new markdown file called **third-topic.md**
 > Our documentation structure should now look something like this:
 > 
 > ```
-> IwakuraEnterprises_Docs/documentation
+> IwakuraEnterprises_Voile/documentation
 >   MyDocumentation/
 >     home.md
 >     second-topic.md

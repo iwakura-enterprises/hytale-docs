@@ -1,16 +1,16 @@
 ---
-name: Topic identifiers
+name: Topic Identifiers
 description: How topics can be identified
 author: mayuna
 ---
 
-# Topic identifiers
+# Topic Identifiers
 
 When linking other topics, you must somehow specify a topic. Topic doesn't have to have unique ID across all documentations.
 That's why there are topic identifiers - **a way to specify single topic across all documentations**
 
 Topic identifiers are used in configuration, when linking different topics in buttons, and when opening specific topic using
-**/docs** command.
+**/voile** command.
 
 > **Warning:** When defining sub-topics in a topic, you cannot use topic identifier. This is because you may only define
 > sub-topics in the current documentation that the topic belongs to. **You cannot link different topics from different

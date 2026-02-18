@@ -4,35 +4,43 @@ description: DEVELOPERS DEVELOPERS DEVELOPERS DEVELOPERS
 author: mayuna
 ---
 
-# Voile <3 Developers
+# Voile for Developers
 
-You don't have to install any dependencies, Voile will load documentations straight from your mod's resources.
+Simple or complex documentations, you don't have to install any dependencies. Voile will load documentations
+straight from your mod's resources. This allows you to focus on the documentation, rather than on adding a
+mod support.
 
-Depending on your needs, there are two ways of adding support:
-1. Creating simple documentation inside single Markdown file
-2. Creating documentation with unlimited number of topics & sub-topics
+There are currently **two** ways to add documentations:
+1. Create simple documentation inside a single Markdown file
+2. Create documentation with unlimited number of topics & sub-topics
 
-See the **Advanced** topic for the second way.
+Based on your needs, you'll have to choose. The former allows you to **quickly sketch up simple documentation**, while
+the latter allows you to **create complex-yet-simple documentation with many topics**.
+
+In this topic, we'll focus on the first way. For the second way, please see **Advanced** topic.
 
 <buttons>
   <button topic="DocsDeveloper:advanced">Advanced</button>
 </buttons>
 
-## Simple documentation
+## Simple Documentation
 
-Simply create Markdown file in your mod's resources at **Common/Docs/{ModGroup}_{ModName}.md** with the following format:
+Simply create a Markdown file in your mod's resources at **Common/Docs/{ModGroup}_{ModName}.md** where the **ModGroup**
+is your mod's group and **ModName** your mod's name. **The file name is case-sensitive.**
 
-```md
----
-name: My Mod Name
-description: This is a description for my mod!
-author: Me & myself
----
-
-# My Mod
-
-My Mod adds .... and .......
-```
+> **Common/Docs/MyGroup_MyMod.md**
+> 
+> ```md
+> ---
+> name: My Mod Name
+> description: This is a description for my mod!
+> author: Me & myself
+> ---
+> 
+> # My Mod
+> 
+> My Mod adds .... and .......
+> ```
 
 **That's it.** Voile will show your Markdown file (topic) under documentation named **Various Mods**.
 
@@ -43,10 +51,10 @@ However, there are some limitations:
 
 Topics in **Various Mods** documentation are always sorted alphabetically.
 
-If you're looking for more advanced support, see **Advanced** topic. For topic formatting tips, see
-the **Markdown Stress Tester**.
+For additional information, see the following topics.
 
 <buttons>
   <button topic="DocsDeveloper:advanced">Advanced</button>
-  <button topic="Docs:markdown-stress-test">Markdown Stress Tester</button>
+  <button topic="Docs:formatting">Formatting</button>
+  <button topic="Docs:topic-identifiers">Topic Identifiers</button>
 </buttons>

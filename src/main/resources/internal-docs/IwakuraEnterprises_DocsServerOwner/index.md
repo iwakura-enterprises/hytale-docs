@@ -4,7 +4,7 @@ description: Voile powered documentation
 author: mayuna
 ---
 
-# Voile <3 Server owners
+# Voile for Server owners
 
 Within this documentation, you'll be able to learn everything You need to know about setting up documentation
 for your server.
@@ -16,3 +16,4 @@ Creating your first documentation? **Start here!**
 <buttons>
   <button topic="DocsServerOwner:first-steps">First steps</button>
 </buttons>
+

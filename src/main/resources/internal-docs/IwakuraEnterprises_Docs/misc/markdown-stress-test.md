@@ -10,9 +10,6 @@ author: mayuna, Markdown file from https://github.com/mxstbr/markdown-test-file,
 show, some specific niches also aren't properly displayed. However, the vast majority
 of the markdown is correctly rendered.
 
-> **Note (from mayuna):** Check out <gradient data="red:yellow:green:blue:purple">color formatting</gradient>
-> and button formatting at the bottom of this topic!
-
 ## Overview
 
 ### Philosophy
@@ -342,80 +339,3 @@ The markdown render also supports thematic breaks.
 ---
 
 They are used to signify a structural shift or transition between topics.
-
-## Colors
-
-The markdown renderer also supports various color formatting. This is done thanks to
-TaleMessage (https://github.com/InsiderAnh/TaleMessage).
-
-### Minecraft-style colors
-
-TaleMessage supports Minecraft-styled coloring using the ampersand (&) symbol:
-- `&0` &0for Black color
-- `&1` &1for Dark Blue color
-- `&2` &2for Dark Green color
-- `&3` &3for Dark Turquoise color
-- `&4` &4for Dark Red color
-- `&5` &5for Purple color
-- `&6` &6for Dark Yellow color
-- `&7` &7for Light Gray color
-- `&8` &8for Dark Gray color
-- `&9` &9for Light Blue color
-- `&a` &afor Light Green color
-- `&b` &bfor Light Turquoise color
-- `&c` &cfor Light Red color
-- `&d` &dfor Magenta color
-- `&e` &efor Light Yellow color
-- `&f` &ffor White color
-
-### Inline HTML color codes
-
-TaleMessage also supports inline HTML color codes formatted like `<red>text</red>`:
-- <red>Red</red>
-- <green>Green</green>
-- <blue>Blue</blue>
-
-Hexadecimal values are also supported:
-- <#e5da52>Written in hex!</#e5da52>
-
-You may even write colors in decimal values like `<255,85,85>`:
-- <255,85,85>Red in RGB</255,85,85>
-- <128,64,200>Custom color</128,64,200>
-
-### Gradients
-
-TaleMessage also adds support for gradients. However, due to markdown rendering, they are defined like this:
-
-```
-<gradient data="red:yellow:green:blue:purple">Text in gradient color!</gradient>
-```
-
-This example results in <gradient data="red:yellow:green:blue:purple">text in the rainbow gradient!</gradient>
-
-> **Fun fact:** The render uses commands to fill in the stylized text. This single topic uses nearly **~230** commands!
-
-## Buttons - linking other topics
-
-Due to Hytale's limitation, there cannot be inline links to other topics. As a compromise, Voile
-allows you to create buttons using HTML block.
-
-```
-<buttons>
-    <button topic="my_topic">My Topic</button>
-    <button topic="MyGroup:my_topic">My Topic</button>
-    <button topic="MyDocumentation:my_topic">My Topic</button>
-    <button topic="MyGroup:MyDocumentation:my_topic">My Topic</button>
-</buttons>
-```
-
-This will create four buttons linking the same topic. As you can see, you must specify the topic's
-ID. You may also specify either a documentation group or documentation id (or both!) **If there would**
-**be duplicate topic IDs, the button might not link to the correct topic.** An example button is here:
-
-<buttons>
-    <button topic="Non:Existing:topic">Non-existing topic</button>
-</buttons>
-
-This button links non-existing topic that will show error message with useful debug information.
-
-> More button types might be added in future releases.
