@@ -4,6 +4,13 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.3.1
+
+### Minor
+- Improved **Internal Docs** for Voile
+- Voile's interface now can be opened with **/voile** (with backwards compatible **/docs**)
+- Voile can be now be reloaded with **/voile-reload** (with backwards compatible **/docs-reload**)
+
 # 1.3.0
 
 ### Added
