@@ -38,18 +38,12 @@ public class PluginAssetLoaderService {
         for (PluginBase plugin : PluginManager.get().getPlugins()) {
             if (plugin instanceof JavaPlugin javaPlugin) {
                 var identifier = plugin.getIdentifier();
-                var indexResourceUrl = javaPlugin.getClassLoader().getResource(
-                    DOCUMENTATION_INDEX_RESOURCE_PATH.formatted(identifier.getGroup(), identifier.getName()
-                ));
+                var indexPath = DOCUMENTATION_INDEX_RESOURCE_PATH.formatted(identifier.getGroup(), identifier.getName());
+                var indexResourceUrl = javaPlugin.getClassLoader().getResource(indexPath);
                 if (indexResourceUrl != null) {
                     logger.info("Found AssetDocumentationIndexConfig resource in plugin %s, registering resource documentation loader...".formatted(
                         plugin.getName()
                     ));
-                    String indexPath = indexResourceUrl.getPath();
-                    int jarSeparator = indexPath.indexOf("!/");
-                    if (jarSeparator != -1) {
-                        indexPath = indexPath.substring(jarSeparator + 2);
-                    }
                     documentationService.registerDocumentationLoader(javaPlugin, new ResourcesDocumentationLoader(
                         DocumentationType.MOD,
                         javaPlugin.getClassLoader(),
