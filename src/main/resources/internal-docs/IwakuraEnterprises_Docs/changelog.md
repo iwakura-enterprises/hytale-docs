@@ -4,6 +4,12 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.3.2
+
+### Minor
+- Fixed an issue when loading resources from other mods. The JVM might load the resources from
+filesystem, instead of a JAR. (<gray>Thank you FonnyFofo from WanMine!</gray>)
+
 # 1.3.1
 
 ### Minor
