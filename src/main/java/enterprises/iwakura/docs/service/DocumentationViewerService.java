@@ -1,5 +1,11 @@
 package enterprises.iwakura.docs.service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -9,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeRenderer;
@@ -25,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DocumentationViewerService {
 
+    private static final Map<UUID, String> lastOpenedTopicForPlayer = Collections.synchronizedMap(new HashMap<>());
+
     private final ValidatorService validatorService;
     private final DocumentationService documentationService;
     private final FallbackTopicService fallbackTopicService;
@@ -35,7 +44,58 @@ public class DocumentationViewerService {
     private final Logger logger;
 
     /**
-     * Opens Docs interface for player. Validates the generated UI based on {@link DocsConfig.Validator}
+     * Opens the interface for specified player.
+     *
+     * @param playerRef Player reference
+     * @param requestedTopicIdentifier Topic identifier that should be opened, fallbacks to other if not found
+     * @param notFoundTopicIfInvalid If 'Not Found' topic should be opened if the requested topic is not found
+     *
+     * @return True if opened, false otherwise
+     */
+    public boolean openFor(PlayerRef playerRef, Optional<String> requestedTopicIdentifier, boolean notFoundTopicIfInvalid) {
+        var documentations = documentationService.getDocumentations();
+        var topicToOpen = Optional.<Topic>empty();
+
+        var lastOpenedTopicIdentifier = Optional.ofNullable(lastOpenedTopicForPlayer.get(playerRef.getUuid()));
+
+        // 1. Requested topic
+        if (requestedTopicIdentifier.isPresent()) {
+            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get());
+
+            // Fallback to not found topic
+            if (notFoundTopicIfInvalid && topicToOpen.isEmpty()) {
+                topicToOpen = Optional.of(
+                    fallbackTopicService.createTopicNotFound(documentations, requestedTopicIdentifier.get())
+                );
+            }
+        }
+
+        // 2. Last opened topic
+        if (topicToOpen.isEmpty() && lastOpenedTopicIdentifier.isPresent()) {
+            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get());
+        }
+
+        // 3. Default config topic
+        if (topicToOpen.isEmpty()) {
+            topicToOpen = documentationService.getDefaultTopic(documentations);
+        }
+
+        if (topicToOpen.isEmpty()) {
+            ChatInfo.ERROR.send(playerRef, "Could not find a topic to open. (there is %d documentation(s))".formatted(
+                documentations.size()
+            ));
+            return false;
+        }
+
+        return openFor(playerRef, DocsContext.of(
+            documentations,
+            topicToOpen.get()
+        ));
+    }
+
+    /**
+     * Opens Docs interface for player. Validates the generated UI based on {@link DocsConfig.Validator}.
+     * Allows to open the interface even if docsConfig.enabled == false
      *
      * @param playerRef   Player ref
      * @param docsContext Docs context
@@ -43,6 +103,7 @@ public class DocumentationViewerService {
      * @return True if Docs interfaces was opened, false otherwise
      */
     public boolean openFor(PlayerRef playerRef, DocsContext docsContext) {
+        lastOpenedTopicForPlayer.put(playerRef.getUuid(), docsContext.getTopic().getTopicIdentifier());
         var docsContextRendered = DocsContext.of(docsContext);
         String ui;
 
@@ -108,6 +169,7 @@ public class DocumentationViewerService {
             return;
         }
 
+        lastOpenedTopicForPlayer.put(playerRef.getUuid(), context.getTopic().getTopicIdentifier());
         page.replaceWithContext(context, false);
     }
 

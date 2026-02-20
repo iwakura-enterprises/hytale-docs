@@ -156,4 +156,18 @@ public class Topic {
             ", name='" + name + '\'' +
             '}';
     }
+
+    /**
+     * Returns the topic identifier
+     *
+     * @return Topic identifier
+     */
+    public String getTopicIdentifier() {
+        if (documentation == null) {
+            return id;
+        }
+        return "%s:%s:%s".formatted(
+            documentation.getGroup(), documentation.getId(), id
+        );
+    }
 }

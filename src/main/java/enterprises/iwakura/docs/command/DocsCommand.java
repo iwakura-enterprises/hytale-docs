@@ -1,5 +1,7 @@
 package enterprises.iwakura.docs.command;
 
+import java.util.Optional;
+
 import org.jspecify.annotations.NonNull;
 
 import com.hypixel.hytale.component.Ref;
@@ -96,34 +98,13 @@ public class DocsCommand extends AbstractPlayerCommand {
         }
 
         var commandShortcuts = configurationService.getDocsConfig().getCommandShortcuts();
-        var documentations = documentationService.getDocumentations();
         var commandShortcutTopicIdentifier = commandShortcuts.getTopicIdentifierForCommand(commandContext.getInputString());
-        var topicIdentifier = topicIdentifierArg.get(commandContext);
-        Topic topic;
+        var requestedTopicIdentifier = topicIdentifierArg.get(commandContext);
 
-        if (topicIdentifier == null && commandShortcuts.isEnabled() && commandShortcutTopicIdentifier.isPresent()) {
-            topicIdentifier = commandShortcutTopicIdentifier.get();
+        if (requestedTopicIdentifier == null && commandShortcuts.isEnabled() && commandShortcutTopicIdentifier.isPresent()) {
+            requestedTopicIdentifier = commandShortcutTopicIdentifier.get();
         }
 
-        if (topicIdentifier != null) {
-            var topicByIdentifier = documentationService.findTopic(documentations, topicIdentifier);
-            if (topicByIdentifier.isPresent()) {
-                topic = topicByIdentifier.get();
-            } else {
-                topic = fallbackTopicService.createTopicNotFound(documentations, topicIdentifier);
-            }
-        } else {
-            var defaultTopic = documentationService.getDefaultTopic();
-            if (defaultTopic.isEmpty()) {
-                ChatInfo.ERROR.send(commandContext, "There are no loaded documentations!");
-                return;
-            }
-            topic = defaultTopic.get();
-        }
-
-        documentationViewerService.openFor(playerRef, DocsContext.of(
-            documentationService.getDocumentations(),
-            topic
-        ));
+        documentationViewerService.openFor(playerRef, Optional.ofNullable(requestedTopicIdentifier), true);
     }
 }

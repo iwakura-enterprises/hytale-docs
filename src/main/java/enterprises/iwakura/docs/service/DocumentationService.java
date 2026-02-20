@@ -1,12 +1,14 @@
 package enterprises.iwakura.docs.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -123,10 +125,11 @@ public class DocumentationService {
     /**
      * Returns default topic specified in documentation index. If none is specified, the first topic is returned.
      *
+     * @param documentations Documentations to find the default configured topic
+     *
      * @return Optional topic (empty if no topics were loaded)
      */
-    public Optional<Topic> getDefaultTopic() {
-        var documentations = getDocumentations();
+    public Optional<Topic> getDefaultTopic(List<Documentation> documentations) {
         if (documentations.isEmpty()) {
             return Optional.empty();
         }
