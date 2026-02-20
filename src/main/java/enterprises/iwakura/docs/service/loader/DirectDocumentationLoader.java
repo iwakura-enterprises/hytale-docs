@@ -17,6 +17,14 @@ public class DirectDocumentationLoader extends DocumentationLoader {
 
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
+        loaderContext.getLogger().info("└ Directly loading %d documentations".formatted(documentations.size()));
         return documentations;
+    }
+
+    @Override
+    public String toString() {
+        return "DirectDocumentationLoader{" +
+            "documentations.size=" + documentations.size() +
+            '}';
     }
 }

@@ -32,7 +32,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
-        logger.info("Loading documentations from file system in directory " + documentationDirectory);
+        logger.info("└ Loading documentations from file system in directory " + documentationDirectory);
         var indexFile = documentationDirectory.resolve("index.json");
 
         if (!Files.exists(documentationDirectory)) {
@@ -44,7 +44,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
         }
 
         if (!Files.exists(indexFile)) {
-            logger.warn("index.json at %s does not exist! Creating new one...".formatted(indexFile));
+            logger.warn("└ index.json at %s does not exist! Creating new one...".formatted(indexFile));
             try {
                 Files.writeString(indexFile, loaderContext.getGson().toJson(new DocumentationIndexConfig()));
             } catch (IOException exception) {
@@ -56,11 +56,11 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
         try {
             indexConfig = loaderContext.getGson().fromJson(Files.readString(indexFile), DocumentationIndexConfig.class);
         } catch (Exception exception) {
-            logger.error("Failed to load index.json: %s" + indexFile, exception);
+            logger.error("└ Failed to load index.json: %s" + indexFile, exception);
             return List.of();
         }
 
-        logger.info("Documentation index %s defines %d documentations".formatted(
+        logger.info("└ Documentation index %s defines %d documentations".formatted(
             indexFile, indexConfig.getDocumentations().size()
         ));
 
@@ -68,22 +68,22 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
 
         for (DocumentationConfig documentationConfig : indexConfig.getDocumentations()) {
             if (!documentationConfig.isEnabled()) {
-                logger.warn("Skipping disabled " + documentationConfig);
+                logger.warn("└ Skipping disabled " + documentationConfig);
                 continue;
             }
 
             try {
                 var documentation = loadDocumentation(loaderContext, documentationConfig);
                 documentations.add(documentation);
-                logger.info("Loaded %s with %d topics".formatted(
+                logger.info("└ Loaded %s with %d topics".formatted(
                     documentation, documentation.countTopics()
                 ));
             } catch (Exception exception) {
-                logger.error("Failed to load " + documentationConfig, exception);
+                logger.error("└ Failed to load " + documentationConfig, exception);
             }
         }
 
-        logger.info("Loaded %d documentations from %s".formatted(
+        logger.info("└ Loaded %d documentations from %s".formatted(
             documentations.size(), indexFile
         ));
 
@@ -103,7 +103,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
         var childTopicIds = new HashSet<String>();
 
         if (!Files.exists(documentationRootDirectory)) {
-            logger.warn("Directory %s does not exist, creating..." + documentationRootDirectory);
+            logger.warn("└ Directory %s does not exist, creating..." + documentationRootDirectory);
             Files.createDirectories(documentationRootDirectory);
         }
 
@@ -117,7 +117,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             ), exception);
         }
 
-        logger.info("Found %d markdown files in %s".formatted(
+        logger.info("└ Found %d markdown files in %s".formatted(
             markdownFiles.size(), documentationRootDirectory
         ));
 
@@ -144,7 +144,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 pathToTopic.put(file, topic);
                 topicMap.put(topic.getId(), topic);
             } catch (Exception exception) {
-                logger.error("Invalid topic config, skipping %s (%s)".formatted(
+                logger.error("└ Invalid topic config, skipping %s (%s)".formatted(
                     file, topicConfig
                 ));
             }
@@ -177,7 +177,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 if (subTopic == null) {
                     var warning = "Sub-topic not found: %s".formatted(subTopicId);
                     topic.getWarnings().add(warning);
-                    logger.warn(warning);
+                    logger.warn("└ " + warning);
                     continue;
                 }
 
@@ -189,7 +189,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                         loopPath, subTopicId, topicConfig.getId()
                     );
                     topic.getWarnings().add(warning);
-                    logger.warn(warning);
+                    logger.warn("└ " + warning);
                     continue;
                 }
 
@@ -244,16 +244,24 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                         }
                         topics.add(matchingTopic);
                     } else {
-                        logger.warn("No topic found for file: %s".formatted(entry));
+                        logger.warn("└ No topic found for file: %s".formatted(entry));
                     }
                 }
             }
         } catch (IOException exception) {
-            logger.warn("Failed to list directory: %s".formatted(directory));
+            logger.warn("└ Failed to list directory: %s".formatted(directory));
         }
 
         // Sort topics by sortIndex within this directory
         topics.sort(Comparator.comparingInt(Topic::getSortIndex));
         return topics;
+    }
+
+    @Override
+    public String toString() {
+        return "FileSystemDocumentationLoader{" +
+            "documentationType=" + documentationType +
+            ", documentationDirectory=" + documentationDirectory +
+            '}';
     }
 }

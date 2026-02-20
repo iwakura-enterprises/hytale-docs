@@ -111,17 +111,17 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
-        logger.info("Loading documentations from class loader resources at " + indexPath);
+        logger.info("└ Loading documentations from class loader resources at " + indexPath);
 
         String indexContent;
         try (var inputStream = classLoader.getResourceAsStream(indexPath)) {
             if (inputStream == null) {
-                logger.error("Documentations index.json not found in resources: " + indexPath);
+                logger.error("└ Documentations index.json not found in resources: " + indexPath);
                 return List.of();
             }
             indexContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException exception) {
-            logger.error("Failed to read index.json from resources: " + indexPath, exception);
+            logger.error("└ Failed to read index.json from resources: " + indexPath, exception);
             return List.of();
         }
 
@@ -129,34 +129,34 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
         try {
             indexConfig = loaderContext.getGson().fromJson(indexContent, AssetDocumentationIndexConfig.class);
         } catch (Exception exception) {
-            logger.error("Failed to parse index.json: " + indexPath, exception);
+            logger.error("└ Failed to parse index.json: " + indexPath, exception);
             return List.of();
         }
 
         if (indexConfig.getDocumentations() == null) {
-            logger.error("Null documentations in index: " + indexPath);
+            logger.error("└ Null documentations in index: " + indexPath);
             return List.of();
         }
 
         return indexConfig.getDocumentations().stream()
             .map(documentationConfig -> {
                 if (!documentationConfig.isEnabled()) {
-                    logger.warn("Skipping disabled " + documentationConfig);
+                    logger.warn("└ Skipping disabled " + documentationConfig);
                     return null;
                 }
 
-                logger.info("Documentation index %s defines %d root topics".formatted(
-                    indexPath, documentationConfig.getTopics().size()
+                logger.info("└ Documentation %s defines %d root topics".formatted(
+                    documentationConfig.toString(), documentationConfig.getTopics().size()
                 ));
 
                 try {
                     var documentation = loadDocumentation(loaderContext, documentationConfig);
-                    logger.info("Loaded %s with %d topics".formatted(
+                    logger.info("└ Loaded %s with %d topics".formatted(
                         documentation, documentation.countTopics()
                     ));
                     return documentation;
                 } catch (Exception exception) {
-                    logger.error("Failed to load " + documentationConfig, exception);
+                    logger.error("└ Failed to load " + documentationConfig, exception);
                     return null;
                 }
             })
@@ -177,7 +177,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
         // Load all topics recursively from the index
         loadTopicEntries(documentation, loaderContext, documentationConfig.getTopics(), basePath, fileToTopic, configMap);
 
-        logger.info("Loaded %d topics from resources".formatted(fileToTopic.size()));
+        logger.info("└ Loaded %d topics from resources".formatted(fileToTopic.size()));
 
         // Build the topic hierarchy
         var rootTopics = buildTopicHierarchy(loaderContext, documentationConfig.getTopics(), fileToTopic, configMap);
@@ -204,7 +204,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
 
             try (var inputStream = classLoader.getResourceAsStream(filePath)) {
                 if (inputStream == null) {
-                    logger.warn("Topic file not found in resources: " + filePath);
+                    logger.warn("└ Topic file not found in resources: " + filePath);
                     continue;
                 }
 
@@ -240,7 +240,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
         for (var entry : entries) {
             var topic = fileToTopic.get(entry.getFile());
             if (topic == null) {
-                logger.warn("No topic found for entry: " + entry.getFile());
+                logger.warn("└ No topic found for entry: " + entry.getFile());
                 continue;
             }
 
@@ -256,7 +256,7 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
                             loopPath, subTopic.getId(), topic.getId()
                         );
                         topic.getWarnings().add(warning);
-                        logger.warn(warning);
+                        logger.warn("└ " + warning);
                         continue;
                     }
                     topic.getTopics().add(subTopic);
@@ -272,5 +272,14 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
     private String getBasePath() {
         var lastSlash = indexPath.lastIndexOf('/');
         return lastSlash > 0 ? indexPath.substring(0, lastSlash) : "";
+    }
+
+    @Override
+    public String toString() {
+        return "ResourcesDocumentationLoader{" +
+            "documentationType=" + documentationType +
+            ", indexPath='" + indexPath + '\'' +
+            ", classLoader=" + classLoader +
+            '}';
     }
 }

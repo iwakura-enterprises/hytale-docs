@@ -24,7 +24,7 @@ public class ResourceMarkdownFileDocumentationLoader extends DocumentationLoader
         var logger = loaderContext.getLogger();
         var documentation = documentationSupplier.get();
 
-        logger.info("Loading %d simple markdown documentations for various mods into %s".formatted(
+        logger.info("└ Loading %d simple markdown documentations for various mods into %s".formatted(
             resourceMarkdownFiles.size(), documentation
         ));
 
@@ -35,13 +35,13 @@ public class ResourceMarkdownFileDocumentationLoader extends DocumentationLoader
                 var markdownContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 markdownFileContents.put(plugin, markdownContent);
             } catch (Exception exception) {
-                logger.error("Failed to load markdown content resource %s from mods %s".formatted(
+                logger.error("└ Failed to load markdown content resource %s from mod %s".formatted(
                     resourceMarkdownFile, plugin.getIdentifier()
                 ), exception);
             }
         });
 
-        logger.info("Loaded %d markdown file contents".formatted(
+        logger.info("└ Loaded %d markdown file contents".formatted(
             markdownFileContents.size()
         ));
 
@@ -56,16 +56,23 @@ public class ResourceMarkdownFileDocumentationLoader extends DocumentationLoader
                 topic.setSortIndex(0); // Will be sorted alphabetically
                 documentation.addTopics(topic);
             } catch (Exception exception) {
-                logger.error("Failed to load topic config from mods %s: %s".formatted(
+                logger.error("└ Failed to load topic config from mods %s: %s".formatted(
                     plugin.getIdentifier(), markdownContent
                 ), exception);
             }
         });
 
-        logger.info("Loaded %d topics from simple markdown files supplied by various mods".formatted(
+        logger.info("└ Loaded %d topics from simple markdown files supplied by various mods".formatted(
             documentation.countTopics()
         ));
 
         return List.of(documentation);
+    }
+
+    @Override
+    public String toString() {
+        return "ResourceMarkdownFileDocumentationLoader{" +
+            "resourceMarkdownFiles.size=" + resourceMarkdownFiles.size() +
+            '}';
     }
 }

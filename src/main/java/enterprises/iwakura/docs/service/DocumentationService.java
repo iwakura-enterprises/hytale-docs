@@ -85,11 +85,14 @@ public class DocumentationService {
         for (var entry : documentationLoaders.entrySet()) {
             var plugin = entry.getKey();
             var loaders = entry.getValue();
-            logger.info("Plugin %s specified %d documentation loader(s), loading...".formatted(
+            logger.info("# Plugin %s specified %d documentation loader(s), loading...".formatted(
                 plugin.getName(), loaders.size()
             ));
             for (DocumentationLoader documentationLoader : loaders) {
                 try {
+                    logger.info("Loading %s @ %s".formatted(
+                        plugin.getName(), documentationLoader.toString()
+                    ));
                     loadedDocumentations.addAll(documentationLoader.load(loaderContext));
                 } catch (Exception exception) {
                     logger.error("Failed to load documentations registered by plugin %s with loader %s (%s)".formatted(

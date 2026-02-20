@@ -21,6 +21,8 @@ public abstract class DocumentationLoader {
      */
     public abstract List<Documentation> load(LoaderContext loaderContext);
 
+    public abstract String toString();
+
     /**
      * Checks if adding a sub-topic would create a circular reference
      *

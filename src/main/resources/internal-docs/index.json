@@ -22,6 +22,9 @@
           "file": "formatting.md"
         },
         {
+          "file": "configuration.md"
+        },
+        {
           "file": "misc/index.md",
           "subTopics": [
             {
@@ -57,9 +60,6 @@
       "topics": [
         {
           "file": "index.md"
-        },
-        {
-          "file": "configuration.md"
         },
         {
           "file": "first-steps.md"
