@@ -61,7 +61,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
                     documentation.getId(),
                     topic.getId()
                 )),
-            false
+            true
         );
 
         return treeUI

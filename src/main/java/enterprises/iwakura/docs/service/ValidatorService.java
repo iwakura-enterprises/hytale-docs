@@ -38,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ValidatorService {
 
+    public static boolean showedKytaleWarning = false;
     public static final String DUMP_DIRECTORY_NAME = "generated_ui_errors";
     public static final String PLAYER_CRASHED_HEADER =
         """
@@ -205,7 +206,10 @@ public class ValidatorService {
 
     private List<String> validateIfKytaleInstalled(PlayerRef playerRef, DocsContext docsContext, String ui) {
         if (PluginManager.get().getPlugin(PluginIdentifier.fromString("AmoAster:Kytale")) == null) {
-            logger.warn("Kytale is not installed! HytaleUIParser cannot validate generated UI.");
+            if (!showedKytaleWarning) {
+                logger.warn("Kytale is not installed! HytaleUIParser cannot validate generated UI.");
+                showedKytaleWarning = true;
+            }
             return List.of();
         }
 

@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-
 import enterprises.iwakura.docs.config.DocumentationConfig;
 import enterprises.iwakura.docs.config.DocumentationIndexConfig;
 import enterprises.iwakura.docs.config.TopicConfig;
@@ -141,6 +139,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
 
             try {
                 var topic = topicConfig.toTopic(documentation);
+                topic.setTopicFilePath(file);
                 pathToTopic.put(file, topic);
                 topicMap.put(topic.getId(), topic);
             } catch (Exception exception) {

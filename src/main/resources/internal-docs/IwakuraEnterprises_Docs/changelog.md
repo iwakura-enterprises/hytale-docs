@@ -4,6 +4,18 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.4.0
+
+### Major
+- **Added support for images.** See **Formatting** topic for more information.
+- The interface is now rendered in specialized render threads.
+
+### Minor
+- Voile now remembers the last topic you've opened. When opening its interface again, it will display the last seen topic.
+- Improved the clarity of logs when (re)loading documentations.
+- Voile's **manifest.json** now properly specifies the supported server version.
+- Fixes and improvements.
+
 # 1.3.2
 
 ### Minor

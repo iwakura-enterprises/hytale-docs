@@ -4,6 +4,8 @@ description: Welcome to Voile!
 author: mayuna
 ---
 
+![Voile Banner](UI/Custom/Docs/Images/voile_banner.png)
+
 # Welcome to Voile!
 
  <gradient data="red:yellow:green">Thank you for installing Voile!</gradient>

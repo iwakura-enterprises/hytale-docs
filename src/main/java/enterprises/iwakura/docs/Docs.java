@@ -9,7 +9,9 @@ import enterprises.iwakura.docs.command.ReloadCommand;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
+import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
+import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.service.ServerService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
@@ -32,6 +34,8 @@ public class Docs {
     private final ValidatorService validatorService;
     private final PluginAssetLoaderService pluginAssetLoaderService;
     private final UpdateCheckerService updateCheckerService;
+    private final ImageService imageService;
+    private final RuntimeImageAssetService runtimeImageAssetService;
     private final ServerService serverService;
 
     private final DocsPlugin plugin;
@@ -44,6 +48,7 @@ public class Docs {
         configurationService.init();
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
+        imageService.init();
 
         if (!serverService.isRunningOnDedicatedServer()) {
             logger.info("We're running in singleplayer! Disabling OOBE...");
@@ -66,6 +71,8 @@ public class Docs {
     }
 
     public void start() {
+        runtimeImageAssetService.init();
+
         pluginAssetLoaderService.scanForDocumentationIndex();
         pluginAssetLoaderService.scanForDocumentationMarkdown();
         documentationService.reloadDocumentations();

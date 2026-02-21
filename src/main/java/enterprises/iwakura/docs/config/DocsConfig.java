@@ -20,6 +20,7 @@ public class DocsConfig {
     private final List<DocumentationType> enabledTypes = new ArrayList<>(DocumentationType.ALL);
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
+    private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
 
     @Data
     public static class Validator {
@@ -51,5 +52,14 @@ public class DocsConfig {
             private String name;
             private String topicIdentifier;
         }
+    }
+
+    @Data
+    public static class RuntimeImageAssets {
+
+        private boolean enabled = true;
+        private int maxImageDownloadFileSizeKb = 1024 * 2; // 2MB
+        private int inMemoryTimeToLiveSeconds = 3600; // Hour
+        private int downloadedImagesTimeToLiveSeconds = 86400; // Day
     }
 }

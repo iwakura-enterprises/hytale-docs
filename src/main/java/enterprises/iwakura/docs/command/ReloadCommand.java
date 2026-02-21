@@ -7,6 +7,8 @@ import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
+import enterprises.iwakura.docs.service.ImageService;
+import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -16,16 +18,22 @@ public class ReloadCommand extends CommandBase {
 
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
+    private final ImageService imageService;
+    private final RuntimeImageAssetService runtimeImageAssetService;
     private final Logger logger;
 
     public ReloadCommand(
         ConfigurationService configurationService,
         DocumentationService documentationService,
+        ImageService imageService,
+        RuntimeImageAssetService runtimeImageAssetService,
         Logger logger
     ) {
         super("voile-reload", "Reloads Voile's configuration and registered documentations");
         this.configurationService = configurationService;
         this.documentationService = documentationService;
+        this.imageService = imageService;
+        this.runtimeImageAssetService = runtimeImageAssetService;
         this.logger = logger;
 
         addAliases("docs-reload");
@@ -34,6 +42,8 @@ public class ReloadCommand extends CommandBase {
     @Override
     protected void executeSync(@NonNull CommandContext ctx) {
         try {
+            imageService.clearCache();
+            runtimeImageAssetService.clearCache();
             configurationService.reload();
             documentationService.reloadDocumentations();
             ChatInfo.SUCCESS.send(ctx, "Reload done.");

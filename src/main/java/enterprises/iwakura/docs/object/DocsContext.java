@@ -6,6 +6,7 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomUICommand;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBinding;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
@@ -25,14 +26,16 @@ public class DocsContext {
 
     protected final UICommandBuilder commandBuilder;
     protected final UIEventBuilder eventBuilder;
+    protected final PlayerRef playerRef;
 
     protected List<Documentation> documentations;
     protected Topic topic;
 
-    public static DocsContext of(List<Documentation> documentations, Topic topic) {
+    public static DocsContext of(PlayerRef playerRef, List<Documentation> documentations, Topic topic) {
         return new DocsContext(
             new UICommandBuilder(),
             new UIEventBuilder(),
+            playerRef,
             documentations,
             topic
         );
@@ -42,6 +45,7 @@ public class DocsContext {
         return new DocsContext(
             new UICommandBuilder(),
             new UIEventBuilder(),
+            docsContext.getPlayerRef(),
             docsContext.getDocumentations(),
             docsContext.getTopic()
         );

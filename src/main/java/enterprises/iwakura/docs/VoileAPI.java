@@ -45,8 +45,6 @@ public class VoileAPI {
         instance = this;
     }
 
-    // TODO: Specify proper documentation page
-
     /**
      * <p>Registers your {@link DocumentationLoader} that loads documentations.</p>
      * <p>

@@ -6,6 +6,7 @@ import enterprises.iwakura.docs.Version;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer.RenderData;
 import enterprises.iwakura.sigewine.core.annotations.Bean;

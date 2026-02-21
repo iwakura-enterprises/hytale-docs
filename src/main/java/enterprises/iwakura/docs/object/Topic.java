@@ -1,11 +1,13 @@
 package enterprises.iwakura.docs.object;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import enterprises.iwakura.docs.DocsPlugin;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,6 +63,11 @@ public class Topic {
      */
     @ToString.Exclude
     private Documentation documentation;
+
+    /**
+     * Non-null if topic was loaded from a file system.
+     */
+    private Path topicFilePath;
 
     /**
      * Checks whenever this topic is empty.

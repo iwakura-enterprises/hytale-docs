@@ -28,8 +28,8 @@ import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.renderer.NodeRenderer;
 import org.commonmark.renderer.markdown.MarkdownWriter;
-import org.springframework.javapoet.CodeBlock;
 
+import com.hypixel.hytale.math.vector.Vector2d;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -37,9 +37,11 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
+import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.util.ExceptionUtils;
 import enterprises.iwakura.docs.util.Logger;
+import enterprises.iwakura.docs.util.ResizeUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import io.github.insideranh.talemessage.TaleMessage;
 import lombok.Data;
@@ -48,6 +50,9 @@ import lombok.RequiredArgsConstructor;
 @Bean
 @RequiredArgsConstructor
 public class TopicContentRenderer implements Renderer<Topic> {
+
+    public static final Pattern IMAGE_RESIZE_HINT_PATTERN = Pattern.compile("\\{(\\d+)x(\\d+)}$");
+    public static final int MAX_IMAGE_SIZE = 900;
 
     public static final String FAILED_TO_PARSE_MARKDOWN =
         """
@@ -176,6 +181,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         """;
 
     private final MarkdownService markdownService;
+    private final RuntimeImageAssetService runtimeImageAssetService;
     private final Logger logger;
 
     @Override
@@ -315,7 +321,6 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(Paragraph paragraph) {
-            var textSelector = generateTextSelector();
             // Skips padding at the bottom if it is in list and is not the last item
             boolean shouldSkipPadding =
                 paragraph.getNext() instanceof BlockQuote ||
@@ -326,29 +331,51 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 (paragraph.getParent() instanceof Document &&
                     paragraph.getPrevious() == null && paragraph.getNext() == null);
 
-            writer.line();
-            writer.raw(
-                """
-                    // TopicContentRender#visit(Paragraph)
-                    Group {
-                        Padding: (Bottom: {{bottom-padding}});
-                        LayoutMode: Left;
+            boolean imageParagraph = paragraph.getFirstChild() instanceof Image;
 
-                        Label #{{label-selector}} {
-                            Style: (Wrap: true);
-                        }
-                    }
+            if (!imageParagraph) {
+                var textSelector = generateTextSelector();
+
+                // Paragraph's first child isn't an image, render the paragraph with text etc.
+                writer.line();
+                writer.raw(
                     """
-                    .replace("{{label-selector}}", textSelector)
-                    .replace("{{bottom-padding}}", shouldSkipPadding ? "0" : "8")
-            );
+                        // TopicContentRender#visit(Paragraph) @ TestParagraph
+                        Group {
+                            Padding: (Bottom: {{bottom-padding}});
+                            LayoutMode: Left;
+    
+                            Label #{{label-selector}} {
+                                Style: (Wrap: true);
+                            }
+                        }
+                        """
+                        .replace("{{label-selector}}", textSelector)
+                        .replace("{{bottom-padding}}", shouldSkipPadding ? "0" : "8")
+                );
 
-            // Prepare message for any text
-            message = Message.raw("");
-            visitChildren(paragraph);
-            docsContext.getCommandBuilder().set("#" + textSelector + ".TextSpans", message);
+                // Prepare message for any text
+                message = Message.raw("");
+                visitChildren(paragraph);
+                docsContext.getCommandBuilder().set("#" + textSelector + ".TextSpans", message);
 
-            writer.block();
+                writer.block();
+            } else {
+                // Paragraph with images has its children centered in the middle. Any text between those images
+                // are not supported.
+                writer.line();
+                writer.raw(
+                    """
+                        // TopicContentRender#visit(Paragraph) @ ImageParagraph
+                        Group {
+                            Padding: (Bottom: {{bottom-padding}});
+                            LayoutMode: LeftCenterWrap;
+                        """
+                        .replace("{{bottom-padding}}", shouldSkipPadding ? "0" : "8")
+                );
+                visitChildren(paragraph);
+                writer.raw("}");
+            }
         }
 
         @Override
@@ -661,6 +688,60 @@ public class TopicContentRenderer implements Renderer<Topic> {
             writer.block();
         }
 
+        @Override
+        public void visit(Image image) {
+            var altText = markdownService.extractText(image);
+            var resolvedAsset = runtimeImageAssetService.resolve(docsContext.getPlayerRef(), image.getDestination(), docsContext.getTopic().getTopicFilePath());
+            var imageSize = resolvedAsset.getImageSize();
+
+            if (altText != null) {
+                var imageResizeHintMatcher = IMAGE_RESIZE_HINT_PATTERN.matcher(altText.trim());
+                if (imageResizeHintMatcher.find()) {
+                    var alternativeWidth = imageResizeHintMatcher.group(1);
+                    var alternativeHeight = imageResizeHintMatcher.group(2);
+                    imageSize = ResizeUtils.resize(imageSize, alternativeWidth, alternativeHeight);
+                    altText = imageResizeHintMatcher.replaceFirst("").trim();
+                }
+            }
+
+            if (imageSize.getX() > MAX_IMAGE_SIZE) {
+                imageSize = ResizeUtils.resize(imageSize, String.valueOf(MAX_IMAGE_SIZE), "0");
+            }
+
+            var tooltip = altText != null && !altText.isBlank()
+                ? "TooltipText: \"%s\";".formatted(markdownService.escapeText(altText.trim()))
+                : "";
+
+            writer.line();
+            writer.raw(
+                """
+                    // TopicContentRender#visit(Image)
+                    Group {
+                        Padding: (Full: 4);
+                        {{tooltip}}
+
+                        Group {
+                            Padding: (Full: 8);
+                            Background: #121a24;
+                            OutlineColor: #203651;
+                            OutlineSize: 2;
+
+                            AssetImage {
+                                Anchor: (Width: {{width}}, Height: {{height}});
+                                AssetPath: "{{path}}";
+                            }
+                        }
+                    }
+                    """
+                    .replace("{{tooltip}}", tooltip)
+                    .replace("{{path}}", resolvedAsset.getCommonAssetPath())
+                    .replace("{{width}}", String.valueOf(imageSize.getX()))
+                    .replace("{{height}}", String.valueOf(imageSize.getY()))
+            );
+
+            writer.block();
+        }
+
         /**
          * Generates selector for text
          *
@@ -779,7 +860,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                                         CustomUIEventBindingType.Activating,
                                         "#" + buttonSelector,
                                         new EventData().append(PageData.OPEN_TOPIC_FIELD, attributeValue),
-                                        false
+                                        true
                                     );
                                 }
                             }

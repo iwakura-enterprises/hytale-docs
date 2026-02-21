@@ -51,6 +51,6 @@ public class TopicConfig {
             throw new IllegalArgumentException("Topic config cannot have empty author!");
         }
 
-        return new Topic(id, name, description, author, sortIndex, markdownContent, documentation);
+        return new Topic(id, name, description, author, sortIndex, markdownContent, documentation, null);
     }
 }
