@@ -4,6 +4,12 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.4.1
+
+### Minor
+- Headings now support text formatting.
+- Added support for anonymous telemetry using HStats
+
 # 1.4.0
 
 ### Major
