@@ -271,6 +271,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(Heading heading) {
+            var textSelector = generateTextSelector();
+
             var fontSize = switch (heading.getLevel()) {
                 case 1 -> 30;
                 case 2 -> 26; // 4
@@ -300,22 +302,27 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         LayoutMode: Top;
 
-                        Label {
-                            Text: "{{title}}";
+                        Label #{{label-selector}} {
                             Style: (
                                 FontSize: {{font-size}},
                                 RenderBold: true,
                                 Wrap: true
                             );
                         }
-                        
+
                         {{break}}
                     }
                     """
-                    .replace("{{title}}", markdownService.escapeText(markdownService.extractText(heading)))
+                    .replace("{{label-selector}}", textSelector)
                     .replace("{{font-size}}", String.valueOf(fontSize))
                     .replace("{{break}}", heading.getLevel() <= 2 ? breakUI : "")
             );
+
+            // Prepare message for heading text
+            message = Message.raw("");
+            visitChildren(heading);
+            docsContext.getCommandBuilder().set("#" + textSelector + ".TextSpans", message);
+
             writer.block();
         }
 
@@ -344,7 +351,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                         Group {
                             Padding: (Bottom: {{bottom-padding}});
                             LayoutMode: Left;
-    
+
                             Label #{{label-selector}} {
                                 Style: (Wrap: true);
                             }
