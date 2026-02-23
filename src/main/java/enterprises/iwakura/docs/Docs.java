@@ -1,7 +1,9 @@
 package enterprises.iwakura.docs;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
 import enterprises.iwakura.docs.command.DocsCommand;
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 @Bean
 @RequiredArgsConstructor
 public class Docs {
+
+    public static final String HSTATS_MOD_ID = "aef85708-98dd-42f4-b42a-0d49e3576b29";
 
     private final List<BaseGlobalListener<?>> globalListeners;
 
@@ -68,6 +72,8 @@ public class Docs {
 
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();
+
+        new HStats(HSTATS_MOD_ID, plugin.getManifest().getVersion().toString());
     }
 
     public void start() {
