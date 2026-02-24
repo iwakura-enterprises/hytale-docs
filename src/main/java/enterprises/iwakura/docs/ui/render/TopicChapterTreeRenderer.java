@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.ui.render;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
@@ -11,6 +12,7 @@ import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import io.github.insideranh.talemessage.TaleMessage;
 import lombok.RequiredArgsConstructor;
 
 @Bean
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class TopicChapterTreeRenderer implements Renderer<Topic> {
 
     public static final String TOPIC_CHAPTER_TREE_SELECTOR = "#TopicChapterTree";
+    public static final Pattern COLOR_CODE_PATTERN = Pattern.compile("[&|§][(\\d)|a-f]");
 
     private final MarkdownService markdownService;
 
@@ -66,7 +69,13 @@ public class TopicChapterTreeRenderer implements Renderer<Topic> {
         if (node != null) {
             for (Heading heading : markdownService.extractHeadings(node)) {
                 var padding = 15 * (heading.getLevel() - 1);
-                var title = markdownService.extractText(heading);
+                var title = markdownService.escapeText(
+                    COLOR_CODE_PATTERN.matcher(
+                        TaleMessage.strip(
+                            markdownService.extractText(heading)
+                        )
+                    ).replaceAll("")
+                );
 
                 chaptersUI.append(
                     """
