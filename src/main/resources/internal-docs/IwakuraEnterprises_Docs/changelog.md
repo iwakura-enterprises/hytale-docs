@@ -4,6 +4,11 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.5.0
+
+### Major
+- Added basic topic search. In future releases, full-text search will be added. (see VOILE-6)
+
 # 1.4.2
 
 ### Minor
@@ -14,7 +19,7 @@ it might be possible to have stylized text there as well. (see VOILE-24)
 
 ### Minor
 - Headings now support text formatting.
-- Added support for anonymous telemetry using HStats
+- Added support for anonymous telemetry using HStats.
 
 # 1.4.0
 
