@@ -124,4 +124,15 @@ public class Documentation {
     public int hashCode() {
         return Objects.hash(group, id);
     }
+
+    /**
+     * Checks if documentation has any topic that contains the search query
+     *
+     * @param topicSearchQuery Topic search query
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean hasTopicWithName(String topicSearchQuery) {
+        return topics.stream().anyMatch(topic -> topic.hasTopicWithName(topicSearchQuery));
+    }
 }

@@ -48,9 +48,11 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
 
         StringBuilder topicsUI = new StringBuilder();
 
-        topic.getTopics().forEach(childTopic -> {
-            topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic)));
-        });
+        topic.getTopics().stream()
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.hasTopicWithName(ctx.getTopicSearchQuery()))
+            .forEach(childTopic -> {
+                topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic)));
+            });
 
         ctx.getEventBuilder().addEventBinding(
             CustomUIEventBindingType.Activating,
@@ -64,9 +66,19 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
             true
         );
 
+        String buttonStyle;
+
+        if (Objects.equals(ctx.getTopic(), topic)) {
+            buttonStyle = CommandStyles.SELECTED_BUTTON_STYLE;
+        } else if (ctx.hasTopicSearchQuery() && topic.matchesTopicSearch(ctx.getTopicSearchQuery())) {
+            buttonStyle = CommandStyles.MATCHES_SEARCH_BUTTON_STYLE;
+        } else {
+            buttonStyle = CommandStyles.NORMAL_BUTTON_STYLE;
+        }
+
         return treeUI
             .replace("{{button-selector}}", buttonSelector)
-            .replace("{{button-style}}", Objects.equals(ctx.getTopic(), topic) ? CommandStyles.SELECTED_BUTTON_STYLE : CommandStyles.NORMAL_BUTTON_STYLE)
+            .replace("{{button-style}}", buttonStyle)
             .replace("{{name}}", topic.getName())
             .replace("{{topics}}", topicsUI);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import enterprises.iwakura.docs.DocsPlugin;
+import enterprises.iwakura.docs.util.LocaleUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -176,5 +176,31 @@ public class Topic {
         return "%s:%s:%s".formatted(
             documentation.getGroup(), documentation.getId(), id
         );
+    }
+
+    /**
+     * Checks if this topic's name or its sub topics' name is contained in the search query
+     *
+     * @param topicSearchQuery Topic search query
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean hasTopicWithName(String topicSearchQuery) {
+        if (matchesTopicSearch(topicSearchQuery)) {
+            return true;
+        } else {
+            return topics.stream().anyMatch(topic -> topic.hasTopicWithName(topicSearchQuery));
+        }
+    }
+
+    /**
+     * Checks whenever the search topic query is contained in ticket's name
+     *
+     * @param topicSearchQuery Topic search query
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean matchesTopicSearch(String topicSearchQuery) {
+        return LocaleUtils.normalize(name).contains(LocaleUtils.normalize(topicSearchQuery));
     }
 }

@@ -47,4 +47,25 @@ public class CommandStyles {
         );
         """;
 
+    public static final String MATCHES_SEARCH_BUTTON_STYLE =
+        """
+        (
+            Default: (LabelStyle: (TextColor: #9fdfed, Wrap: true)),
+            Hovered: (LabelStyle: (TextColor: #dff5ff, Wrap: true)),
+            Pressed: (LabelStyle: (TextColor: #b2c4cc, Wrap: true)),
+            Sounds: (
+                Activate: (
+                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                    MinPitch: -0.4,
+                    MaxPitch: 0.4,
+                    Volume: 4
+                ),
+                MouseHover: (
+                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                    Volume: 6
+                )
+            )
+        );
+        """;
+
 }

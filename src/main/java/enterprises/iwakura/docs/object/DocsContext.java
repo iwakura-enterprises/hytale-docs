@@ -2,18 +2,14 @@ package enterprises.iwakura.docs.object;
 
 import java.util.List;
 
-import com.hypixel.hytale.protocol.packets.interface_.CustomUICommand;
-import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBinding;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 
-import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.util.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 /**
@@ -31,13 +27,17 @@ public class DocsContext {
     protected List<Documentation> documentations;
     protected Topic topic;
 
+    protected String topicSearchQuery;
+    protected boolean searchActive;
+
     public static DocsContext of(PlayerRef playerRef, List<Documentation> documentations, Topic topic) {
         return new DocsContext(
             new UICommandBuilder(),
             new UIEventBuilder(),
             playerRef,
             documentations,
-            topic
+            topic,
+            "", false
         );
     }
 
@@ -47,7 +47,8 @@ public class DocsContext {
             new UIEventBuilder(),
             docsContext.getPlayerRef(),
             docsContext.getDocumentations(),
-            docsContext.getTopic()
+            docsContext.getTopic(),
+            docsContext.getTopicSearchQuery(), false
         );
     }
 
@@ -66,11 +67,21 @@ public class DocsContext {
         );
     }
 
+    /**
+     * Checks if topic search query is not empty
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean hasTopicSearchQuery() {
+        return topicSearchQuery != null && !topicSearchQuery.isBlank();
+    }
+
     @Override
     public String toString() {
         return "DocsContext{" +
             "documentations.size=" + documentations.size() +
             ", topic=" + topic +
+            ", topicSearchQuery=" + topicSearchQuery +
             '}';
     }
 }

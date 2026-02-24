@@ -36,9 +36,12 @@ public class DocumentationRenderer implements Renderer<Documentation> {
 
         StringBuilder topicsUI = new StringBuilder();
 
-        documentation.getTopics().forEach(topic -> {
-            topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic)));
-        });
+        documentation.getTopics()
+            .stream()
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.hasTopicWithName(ctx.getTopicSearchQuery()))
+            .forEach(topic -> {
+                topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic)));
+            });
 
         return treeUI
             .replace("{{name}}", documentation.getName())

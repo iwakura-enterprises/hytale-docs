@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import com.hypixel.hytale.common.util.CompletableFutureUtil;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -20,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.object.InterfacePreferences;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
@@ -38,7 +38,7 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class DocumentationViewerService {
 
-    private static final Map<UUID, String> lastOpenedTopicForPlayer = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<UUID, InterfacePreferences> lastInterfacePreferencesForPlayer = Collections.synchronizedMap(new HashMap<>());
     private static final Executor RENDER_EXECUTOR = Executors.newCachedThreadPool(r -> {
         Thread thread = new Thread(r);
         thread.setUncaughtExceptionHandler((t, e) -> {
@@ -69,7 +69,7 @@ public class DocumentationViewerService {
         var documentations = documentationService.getDocumentations();
         var topicToOpen = Optional.<Topic>empty();
 
-        var lastOpenedTopicIdentifier = Optional.ofNullable(lastOpenedTopicForPlayer.get(playerRef.getUuid()));
+        var lastOpenedTopicIdentifier = Optional.ofNullable(getInterfacePreferences(playerRef.getUuid()).getLastOpenedTopicIdentifier());
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
@@ -118,8 +118,11 @@ public class DocumentationViewerService {
      */
     @SneakyThrows
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, DocsContext docsContext) {
-        lastOpenedTopicForPlayer.put(playerRef.getUuid(), docsContext.getTopic().getTopicIdentifier());
+        var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
+        interfacePreferences.setLastOpenedTopicIdentifier(docsContext.getTopic().getTopicIdentifier());
+
         var docsContextRendered = DocsContext.of(docsContext);
+        docsContextRendered.setTopicSearchQuery(interfacePreferences.getLastTopicSearchQuery());
 
         var ref = playerRef.getReference();
 
@@ -160,7 +163,7 @@ public class DocumentationViewerService {
             }
 
             runtimeImageAssetService.sendPendingAssets(playerRef);
-            player.getPageManager().openCustomPage(ref, store, new DocumentationViewerPage(playerRef, this, docsContext));
+            player.getPageManager().openCustomPage(ref, store, new DocumentationViewerPage(playerRef, this, logger, docsContext));
             future.complete(true);
         });
 
@@ -176,33 +179,20 @@ public class DocumentationViewerService {
     @SneakyThrows
     public void replaceTopicContent(DocumentationViewerPage page, DocsContext context) {
         var playerRef = page.getPlayerRef();
-        var ref = playerRef.getReference();
-
-        if (ref == null || !ref.isValid()) {
-            logger.error("Player's Ref %s is null/invalid, cannot replace topic content".formatted(
-                playerRef.getUuid()
-            ));
-            return;
-        }
-
-        var store = ref.getStore();
-        var player = store.getComponent(ref, Player.getComponentType());
+        var player = page.getPlayer();
 
         if (player == null) {
-            logger.error("Cannot find Player component on player ref %s".formatted(
-                playerRef.getUuid()
-            ));
             return;
         }
 
-        if (player.getWorld() == null) {
-            logger.error("Player %s is in no world!".formatted(
-                playerRef.getUuid()
-            ));
-            return;
-        }
+        var ref = playerRef.getReference();
+        var store = ref.getStore();
 
         RENDER_EXECUTOR.execute(() -> {
+            var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
+            interfacePreferences.setLastOpenedTopicIdentifier(context.getTopic().getTopicIdentifier());
+            context.setTopicSearchQuery(interfacePreferences.getLastTopicSearchQuery());
+
             documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
             topicRenderer.clearAndAppendInline(context, context.getTopic());
             topicChapterTreeRenderer.clearAndAppendInline(context, context.getTopic());
@@ -214,16 +204,44 @@ public class DocumentationViewerService {
                 return;
             }
 
-            lastOpenedTopicForPlayer.put(playerRef.getUuid(), context.getTopic().getTopicIdentifier());
-
             // Pending assets won't be loaded when simply updating the UI. Then entire UI
             // has to be updated (page closed and opened) in order for the assets to take an effect.
             // The pending assets will be cached, so it won't be re-loading them.
             if (runtimeImageAssetService.hasPendingAssets(playerRef)) {
                 player.getWorld().execute(() -> openFor(playerRef, DocsContext.of(context)));
             } else {
-                page.replaceWithContext(context, false);
+                page.updateWithContext(context, false);
             }
+        });
+    }
+
+    /**
+     * Updates only the topic chapter tree in the interface
+     *
+     * @param page    Page
+     * @param context Context
+     */
+    public void updateDocumentationTree(DocumentationViewerPage page, DocsContext context) {
+        var playerRef = page.getPlayerRef();
+        var player = page.getPlayer();
+
+        if (player == null) {
+            return;
+        }
+
+        var ref = playerRef.getReference();
+        var store = ref.getStore();
+
+        RENDER_EXECUTOR.execute(() -> {
+            documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
+
+            if (!validatorService.validateUI(playerRef, context, context.getCommandBuilder())) {
+                ChatInfo.ERROR.send(playerRef, "The generated UI for Docs is invalid. See console for more information.");
+                player.getPageManager().setPage(ref, store, Page.None);
+                return;
+            }
+
+            page.updateWithContext(context, false);
         });
     }
 
@@ -243,12 +261,33 @@ public class DocumentationViewerService {
         DocsContext docsContext,
         PageData data
     ) {
+        var updatedDocsContext = DocsContext.of(docsContext);
+
         if (data.getOpenTopic() != null) {
-            var updatedDocsContext = DocsContext.of(docsContext);
             updatedDocsContext.setTopic(documentationService.findTopic(docsContext.getDocumentations(), data.getOpenTopic())
                 .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), data.getOpenTopic()))
             );
             replaceTopicContent(page, updatedDocsContext);
+            return;
         }
+
+        if (data.getTopicSearchQuery() != null) {
+            updatedDocsContext.setTopicSearchQuery(data.getTopicSearchQuery());
+            updatedDocsContext.setSearchActive(true);
+            getInterfacePreferences(page.getPlayerRef().getUuid()).setLastTopicSearchQuery(data.getTopicSearchQuery());
+            updateDocumentationTree(page, updatedDocsContext);
+            return;
+        }
+    }
+
+    /**
+     * Returns {@link InterfacePreferences} for specified player
+     *
+     * @param playerUuid Player UUID
+     *
+     * @return Never-null {@link InterfacePreferences}
+     */
+    public InterfacePreferences getInterfacePreferences(UUID playerUuid) {
+        return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, InterfacePreferences::new);
     }
 }
