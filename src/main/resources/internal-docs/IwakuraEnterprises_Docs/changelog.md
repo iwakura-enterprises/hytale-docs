@@ -4,6 +4,12 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.4.2
+
+### Minor
+- Strip any formatting for entries in topic chapter tree. In future releases,
+it might be possible to have stylized text there as well. (see VOILE-24)
+
 # 1.4.1
 
 ### Minor
