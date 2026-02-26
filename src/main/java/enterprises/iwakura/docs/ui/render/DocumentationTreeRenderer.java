@@ -85,7 +85,6 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
         }
 
         var documentationsUIContext = DocsContext.of(ctx);
-        documentationsUIContext.setTopic(ctx.getTopic());
         StringBuilder documentationsUI = new StringBuilder();
 
         DocumentationType lastType = null;

@@ -1,11 +1,14 @@
 package enterprises.iwakura.docs.object;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.hypixel.hytale.common.util.ListUtil;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 
+import enterprises.iwakura.docs.service.FallbackTopicService;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.util.ReflectionUtils;
 import lombok.AllArgsConstructor;
@@ -20,35 +23,26 @@ import lombok.SneakyThrows;
 @AllArgsConstructor
 public class DocsContext {
 
+    protected final PlayerRef playerRef;
     protected final UICommandBuilder commandBuilder;
     protected final UIEventBuilder eventBuilder;
-    protected final PlayerRef playerRef;
+    protected final InterfaceState interfaceState;
 
-    protected List<Documentation> documentations;
-    protected Topic topic;
-
-    protected String topicSearchQuery;
-    protected boolean searchActive;
-
-    public static DocsContext of(PlayerRef playerRef, List<Documentation> documentations, Topic topic) {
+    public static DocsContext of(PlayerRef playerRef, InterfaceState interfaceState) {
         return new DocsContext(
+            playerRef,
             new UICommandBuilder(),
             new UIEventBuilder(),
-            playerRef,
-            documentations,
-            topic,
-            "", false
+            interfaceState
         );
     }
 
     public static DocsContext of(DocsContext docsContext) {
         return new DocsContext(
+            docsContext.getPlayerRef(),
             new UICommandBuilder(),
             new UIEventBuilder(),
-            docsContext.getPlayerRef(),
-            docsContext.getDocumentations(),
-            docsContext.getTopic(),
-            docsContext.getTopicSearchQuery(), false
+            docsContext.getInterfaceState()
         );
     }
 
@@ -73,15 +67,43 @@ public class DocsContext {
      * @return True if yes, false otherwise
      */
     public boolean hasTopicSearchQuery() {
-        return topicSearchQuery != null && !topicSearchQuery.isBlank();
+        return interfaceState.getTopicSearchQuery() != null && !interfaceState.getTopicSearchQuery().isBlank();
+    }
+
+    /**
+     * Returns the topic that is currently open in the interface.
+     *
+     * @return The topic that is currently open in the interface
+     */
+    public Topic getTopic() {
+        return Optional.ofNullable(interfaceState.getTopic()).orElseGet(FallbackTopicService::noTopicSet);
+    }
+
+    /**
+     * Returns the list of documentations that are currently open in the interface. This is usually the list of
+     * documentations that are shown in the left sidebar of the interface.
+     *
+     * @return The list of documentations that are currently open in the interface
+     */
+    public List<Documentation> getDocumentations() {
+        return interfaceState.getDocumentations();
+    }
+
+    @Deprecated
+    public String getTopicSearchQuery() {
+        return interfaceState.getTopicSearchQuery();
+    }
+
+    @Deprecated
+    public boolean isSearchActive() {
+        return interfaceState.isSearchActive();
     }
 
     @Override
     public String toString() {
         return "DocsContext{" +
-            "documentations.size=" + documentations.size() +
-            ", topic=" + topic +
-            ", topicSearchQuery=" + topicSearchQuery +
+            "playerRef.uuid=" + playerRef.getUuid() +
+            ", state=" + interfaceState +
             '}';
     }
 }

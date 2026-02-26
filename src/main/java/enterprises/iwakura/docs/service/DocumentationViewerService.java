@@ -20,6 +20,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.InterfacePreferences;
+import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
@@ -100,11 +101,7 @@ public class DocumentationViewerService {
             return CompletableFuture.completedFuture(false);
         }
 
-        return openFor(playerRef, DocsContext.of(
-            playerRef,
-            documentations,
-            topicToOpen.get()
-        ));
+        return openFor(playerRef, DocsContext.of(playerRef, new InterfaceState(documentations, topicToOpen.get())));
     }
 
     /**
@@ -122,7 +119,7 @@ public class DocumentationViewerService {
         interfacePreferences.setLastOpenedTopicIdentifier(docsContext.getTopic().getTopicIdentifier());
 
         var docsContextRendered = DocsContext.of(docsContext);
-        docsContextRendered.setTopicSearchQuery(interfacePreferences.getLastTopicSearchQuery());
+        docsContextRendered.getInterfaceState().fromPreferences(interfacePreferences);
 
         var ref = playerRef.getReference();
 
@@ -191,7 +188,7 @@ public class DocumentationViewerService {
         RENDER_EXECUTOR.execute(() -> {
             var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
             interfacePreferences.setLastOpenedTopicIdentifier(context.getTopic().getTopicIdentifier());
-            context.setTopicSearchQuery(interfacePreferences.getLastTopicSearchQuery());
+            context.getInterfaceState().fromPreferences(interfacePreferences);
 
             documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
             topicRenderer.clearAndAppendInline(context, context.getTopic());
@@ -264,7 +261,7 @@ public class DocumentationViewerService {
         var updatedDocsContext = DocsContext.of(docsContext);
 
         if (data.getOpenTopic() != null) {
-            updatedDocsContext.setTopic(documentationService.findTopic(docsContext.getDocumentations(), data.getOpenTopic())
+            updatedDocsContext.getInterfaceState().setTopic(documentationService.findTopic(docsContext.getDocumentations(), data.getOpenTopic())
                 .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), data.getOpenTopic()))
             );
             replaceTopicContent(page, updatedDocsContext);
@@ -272,8 +269,8 @@ public class DocumentationViewerService {
         }
 
         if (data.getTopicSearchQuery() != null) {
-            updatedDocsContext.setTopicSearchQuery(data.getTopicSearchQuery());
-            updatedDocsContext.setSearchActive(true);
+            updatedDocsContext.getInterfaceState().setTopicSearchQuery(data.getTopicSearchQuery());
+            updatedDocsContext.getInterfaceState().setSearchActive(true);
             getInterfacePreferences(page.getPlayerRef().getUuid()).setLastTopicSearchQuery(data.getTopicSearchQuery());
             updateDocumentationTree(page, updatedDocsContext);
             return;

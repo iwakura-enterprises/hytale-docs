@@ -35,8 +35,6 @@ import enterprises.iwakura.sigewine.core.annotations.Bean;
 public class DocsCommand extends AbstractPlayerCommand {
 
     private final ConfigurationService configurationService;
-    private final DocumentationService documentationService;
-    private final FallbackTopicService fallbackTopicService;
     private final DocumentationViewerService documentationViewerService;
     private final Logger logger;
 
@@ -44,14 +42,11 @@ public class DocsCommand extends AbstractPlayerCommand {
 
     public DocsCommand(
         ConfigurationService configurationService,
-        DocumentationService documentationService, FallbackTopicService fallbackTopicService,
         DocumentationViewerService documentationViewerService,
         Logger logger
     ) {
         super("voile", "Opens Voile's interface");
         this.configurationService = configurationService;
-        this.documentationService = documentationService;
-        this.fallbackTopicService = fallbackTopicService;
         this.documentationViewerService = documentationViewerService;
         this.logger = logger;
 

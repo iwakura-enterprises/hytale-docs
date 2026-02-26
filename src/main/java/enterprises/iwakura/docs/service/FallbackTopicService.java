@@ -13,6 +13,23 @@ public class FallbackTopicService {
 
     private final MarkdownService markdownService;
 
+    public static Topic noTopicSet() {
+        return Topic.builder()
+            .id("internal_no_topic_set")
+            .name("No topic set")
+            .description("No topic has been set yet")
+            .author("Docs")
+            .markdownContent(
+                """
+                    # No topic set
+                    <red>We're sorry but no topic has been set yet.</red>
+                    
+                    Please open a topic from the documentation tree.
+                    """
+            )
+            .build();
+    }
+
     /**
      * Creates "not found topic" topic
      *
