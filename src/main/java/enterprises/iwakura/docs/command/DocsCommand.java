@@ -56,6 +56,7 @@ public class DocsCommand extends AbstractPlayerCommand {
         this.logger = logger;
 
         addAliases("docs");
+        addAliases("wiki");
 
         topicIdentifierArg = withOptionalArg("topic", "Topic identifier to open", ArgTypes.STRING);
     }
