@@ -38,7 +38,9 @@ import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
+import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
+import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.util.ExceptionUtils;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.ResizeUtils;
@@ -726,6 +728,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Full: 4);
                         {{tooltip}}
+                        TextTooltipStyle: {{tooltip-style}};
 
                         Group {
                             Padding: (Full: 8);
@@ -741,6 +744,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     }
                     """
                     .replace("{{tooltip}}", tooltip)
+                    .replace("{{tooltip-style}}", CommonStyles.TOOLTIP_STYLE)
                     .replace("{{path}}", resolvedAsset.getCommonAssetPath())
                     .replace("{{width}}", String.valueOf(imageSize.getX()))
                     .replace("{{height}}", String.valueOf(imageSize.getY()))
@@ -866,7 +870,9 @@ public class TopicContentRenderer implements Renderer<Topic> {
                                     docsContext.getEventBuilder().addEventBinding(
                                         CustomUIEventBindingType.Activating,
                                         "#" + buttonSelector,
-                                        new EventData().append(PageData.OPEN_TOPIC_FIELD, attributeValue),
+                                        new EventData()
+                                            .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_TOPIC)
+                                            .append(PageData.OPEN_TOPIC_FIELD, attributeValue),
                                         true
                                     );
                                 }

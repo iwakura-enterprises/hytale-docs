@@ -3,9 +3,9 @@ package enterprises.iwakura.docs.ui;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class CommandStyles {
+public class CommonStyles {
 
-    public static final String NORMAL_BUTTON_STYLE =
+    public static final String NORMAL_TOPIC_BUTTON_STYLE =
         """
         (
             Default: (LabelStyle: (TextColor: #bfbfbf, Wrap: true)),
@@ -26,7 +26,7 @@ public class CommandStyles {
         );
         """;
 
-    public static final String SELECTED_BUTTON_STYLE =
+    public static final String SELECTED_TOPIC_BUTTON_STYLE =
         """
         (
             Default: (LabelStyle: (TextColor: #fcca4c, Wrap: true)),
@@ -47,7 +47,7 @@ public class CommandStyles {
         );
         """;
 
-    public static final String MATCHES_SEARCH_BUTTON_STYLE =
+    public static final String MATCHES_SEARCH_TOPIC_BUTTON_STYLE =
         """
         (
             Default: (LabelStyle: (TextColor: #9fdfed, Wrap: true)),
@@ -68,4 +68,35 @@ public class CommandStyles {
         );
         """;
 
+    public static final String INTERFACE_BUTTON_STYLE =
+        """
+        (
+            Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Sounds: (
+                Activate: (
+                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                    MinPitch: -0.4,
+                    MaxPitch: 0.4,
+                    Volume: 4
+                ),
+                MouseHover: (
+                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                    Volume: 6
+                )
+            )
+        )
+        """;
+
+    public static final String TOOLTIP_STYLE =
+        """
+        (
+            Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),
+            MaxWidth: 500,
+            LabelStyle: (Wrap: true, FontSize: 16),
+            Padding: 24
+        )
+        """;
 }

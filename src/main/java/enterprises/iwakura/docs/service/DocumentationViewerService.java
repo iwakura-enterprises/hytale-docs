@@ -21,6 +21,7 @@ import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.InterfacePreferences;
 import enterprises.iwakura.docs.object.InterfaceState;
+import enterprises.iwakura.docs.object.InternalTopic;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
@@ -115,12 +116,11 @@ public class DocumentationViewerService {
      */
     @SneakyThrows
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, DocsContext docsContext) {
+        // Load docs context from preferences
         var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
-        interfacePreferences.setLastOpenedTopicIdentifier(docsContext.getTopic().getTopicIdentifier());
+        docsContext.getInterfaceState().loadFromPreferences(interfacePreferences);
 
         var docsContextRendered = DocsContext.of(docsContext);
-        docsContextRendered.getInterfaceState().fromPreferences(interfacePreferences);
-
         var ref = playerRef.getReference();
 
         if (ref == null) {
@@ -186,9 +186,9 @@ public class DocumentationViewerService {
         var store = ref.getStore();
 
         RENDER_EXECUTOR.execute(() -> {
+            // Sve docs context to interface preferences, incl. currently open topic
             var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
-            interfacePreferences.setLastOpenedTopicIdentifier(context.getTopic().getTopicIdentifier());
-            context.getInterfaceState().fromPreferences(interfacePreferences);
+            context.getInterfaceState().saveToPreferences(interfacePreferences);
 
             documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
             topicRenderer.clearAndAppendInline(context, context.getTopic());
@@ -258,23 +258,76 @@ public class DocumentationViewerService {
         DocsContext docsContext,
         PageData data
     ) {
+        var action = data.getInterfaceAction();
+        switch (action) {
+            case BACK -> {
+                if (docsContext.getInterfaceState().canGoBack()) {
+                    openTopicByIdentifier(page, docsContext, docsContext.getInterfaceState().getPreviousTopicAndMoveIndex());
+                }
+            }
+            case FORWARD -> {
+                if (docsContext.getInterfaceState().canGoForward()) {
+                    openTopicByIdentifier(page, docsContext, docsContext.getInterfaceState().getNextTopicAndMoveIndex());
+                }
+            }
+            case HOME -> {
+                var defaultTopic = documentationService.getDefaultTopic(docsContext.getDocumentations());
+                if (defaultTopic.isPresent()) {
+                    docsContext.getInterfaceState().resetHistory();
+                    docsContext.getInterfaceState().pushToHistory(defaultTopic.get(), true);
+                    openTopicByIdentifier(page, docsContext, defaultTopic.get().getTopicIdentifier());
+                } else {
+                    ChatInfo.ERROR.send(page.getPlayerRef(), "There is no default topic to open!");
+                }
+            }
+            case SEARCH -> {
+                if (data.getTopicSearchQuery() != null) {
+                    var updatedDocsContext = DocsContext.of(docsContext);
+                    updatedDocsContext.getInterfaceState().setTopicSearchQuery(data.getTopicSearchQuery());
+                    getInterfacePreferences(page.getPlayerRef().getUuid()).setLastTopicSearchQuery(data.getTopicSearchQuery());
+                    updateDocumentationTree(page, updatedDocsContext);
+                } else {
+                    logger.error("PageData with SEARCH action without search query to open!");
+                }
+            }
+            case OPEN_TOPIC -> {
+                // TODO: First try to find topic in current documentation
+                if (data.getOpenTopic() != null) {
+                    var previousTopic = docsContext.getTopic();
+                    var openedTopic = openTopicByIdentifier(page, docsContext, data.getOpenTopic());
+
+                    if (!(openedTopic instanceof InternalTopic)) {
+                        docsContext.getInterfaceState().pushToHistory(openedTopic, true);
+                    } else {
+                        // Dirty easy hack...
+                        // Allows the user to go back to the topic that caused to open internal topic
+                        docsContext.getInterfaceState().pushToHistory(previousTopic, false);
+                    }
+                } else {
+                    logger.error("PageData with OPEN_TOPIC action without topic identifier to open!");
+                }
+
+            }
+            default -> logger.error("No interface action specified in page data " + data);
+        }
+    }
+
+    /**
+     * Opens and returns topic specified by the topic identifier. If not found, returns {@link InternalTopic}
+     *
+     * @param page            Page
+     * @param docsContext     Context
+     * @param topicIdentifier Topic identifier
+     *
+     * @return Opened topic
+     */
+    private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-
-        if (data.getOpenTopic() != null) {
-            updatedDocsContext.getInterfaceState().setTopic(documentationService.findTopic(docsContext.getDocumentations(), data.getOpenTopic())
-                .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), data.getOpenTopic()))
-            );
-            replaceTopicContent(page, updatedDocsContext);
-            return;
-        }
-
-        if (data.getTopicSearchQuery() != null) {
-            updatedDocsContext.getInterfaceState().setTopicSearchQuery(data.getTopicSearchQuery());
-            updatedDocsContext.getInterfaceState().setSearchActive(true);
-            getInterfacePreferences(page.getPlayerRef().getUuid()).setLastTopicSearchQuery(data.getTopicSearchQuery());
-            updateDocumentationTree(page, updatedDocsContext);
-            return;
-        }
+        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier)
+            .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
+        updatedDocsContext.getInterfaceState().setTopic(topic);
+        replaceTopicContent(page, updatedDocsContext);
+        return topic;
     }
 
     /**
@@ -286,5 +339,9 @@ public class DocumentationViewerService {
      */
     public InterfacePreferences getInterfacePreferences(UUID playerUuid) {
         return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, InterfacePreferences::new);
+    }
+
+    public void clearPreferences() {
+        lastInterfacePreferencesForPlayer.clear();
     }
 }

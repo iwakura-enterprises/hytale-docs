@@ -94,11 +94,6 @@ public class DocsContext {
         return interfaceState.getTopicSearchQuery();
     }
 
-    @Deprecated
-    public boolean isSearchActive() {
-        return interfaceState.isSearchActive();
-    }
-
     @Override
     public String toString() {
         return "DocsContext{" +
