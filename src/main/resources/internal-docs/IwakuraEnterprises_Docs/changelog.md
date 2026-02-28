@@ -4,7 +4,13 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.6.1
+
+### Minor
+- Fixed partially cut topic in the topic tree list on specific screen resolutions.
+
 # 1.6.0
+
 ### Major
 - Added Back / Forward / Home navigation buttons
 - Code blocks are now rendered inside the `CodeEditor` elements. This enables you to select and copy text inside them.
