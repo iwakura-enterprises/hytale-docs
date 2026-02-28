@@ -603,7 +603,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(OrderedList orderedList) {
-            boolean isTopLevelList = listHolder == null;
+            boolean bottomPadding = listHolder == null &&
+                !(orderedList.getParent() instanceof BlockQuote && orderedList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -612,7 +613,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Left: 15, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", isTopLevelList ? "10" : "0")
+                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new OrderedListHolder(listHolder, orderedList);
             visitChildren(orderedList);
