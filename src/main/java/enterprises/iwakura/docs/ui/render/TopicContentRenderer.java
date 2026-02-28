@@ -582,7 +582,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(BulletList bulletList) {
-            boolean isTopLevelList = listHolder == null;
+            boolean bottomPadding = listHolder == null &&
+                !(bulletList.getParent() instanceof BlockQuote && bulletList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -591,7 +592,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Left: 15, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", isTopLevelList ? "10" : "0")
+                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new BulletListHolder(listHolder, bulletList);
             visitChildren(bulletList);
