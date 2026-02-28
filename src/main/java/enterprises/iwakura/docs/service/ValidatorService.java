@@ -217,7 +217,7 @@ public class ValidatorService {
         Validator validator;
         try {
             var root = new Parser(new Tokenizer(new StringReader(ui))).finish();
-            validator = new Validator(Map.of("inline.ui", root), false);
+            validator = new Validator(Map.of("inline.ui", root), false, null);
             validator.validate();
             return filterErrors(validator.getValidationErrors());
         } catch (Exception exception) {

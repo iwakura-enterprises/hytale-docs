@@ -18,7 +18,8 @@ repositories {
 }
 
 dependencies {
-    implementation (name: 'HytaleUIParser-2.1.0')
+    implementation (name: 'HytaleUIParser-3.0.1')
+    implementation (name: 'HytaleUIParser-Spec-3.0.1')
 
     // MiniMessage but Hytale
     implementation 'com.github.InsiderAnh:TaleMessage:1.0.2'

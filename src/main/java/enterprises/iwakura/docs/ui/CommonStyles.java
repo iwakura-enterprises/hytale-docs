@@ -99,4 +99,17 @@ public class CommonStyles {
             Padding: 24
         )
         """;
+
+    public static final String SCROLLBAR_STYLE =
+        """
+        (
+            Spacing: 6,
+            Size: 6,
+            Background: (TexturePath: "Common/Scrollbar.png", Border: 3),
+            Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3),
+            HoveredHandle: (TexturePath: "Common/ScrollbarHandleHovered.png", Border: 3),
+            DraggedHandle: (TexturePath: "Common/ScrollbarHandleDragged.png", Border: 3),
+            OnlyVisibleWhenHovered: false
+        )
+        """;
 }

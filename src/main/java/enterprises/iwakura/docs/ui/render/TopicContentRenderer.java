@@ -465,7 +465,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(FencedCodeBlock fencedCodeBlock) {
             var skipBottomPadding = fencedCodeBlock.getNext() == null;
-            var textSelector = generateTextSelector();
+            var codeSelector = generateTextSelector();
             var literal = fencedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -478,33 +478,40 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     // TopicContentRender#visit(FencedCodeBlock)
                     Group {
                         Padding: (Top: 8, Bottom: {{bottom-padding}});
-                        LayoutMode: Left;
 
                         Group {
+                            LayoutMode: Top;
                             Padding: (Full: 15);
                             Background: #121a24;
                             OutlineColor: #203651;
                             OutlineSize: 2;
 
-                            Label #{{label-selector}} {
-                                Style: (Wrap: true, FontName: "Mono", TextColor: #cccccc);
+                            CodeEditor #{{code-selector}} {
+                                Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
+                                IsReadOnly: true;
+                                LineNumberBackground: #000000(0.0);
+                                LineNumberTextColor: #000000(0.0);
+                                LineNumberWidth: 0;
+
+                                ScrollbarStyle: {{scrollbar-style}};
                             }
                         }
                     }
                     """
-                    .replace("{{label-selector}}", textSelector)
+                    .replace("{{code-selector}}", codeSelector)
                     .replace("{{bottom-padding}}", skipBottomPadding ? "0" : "8")
+                    .replace("{{scrollbar-style}}", CommonStyles.SCROLLBAR_STYLE)
             );
 
             writer.block();
 
-            docsContext.getCommandBuilder().set("#" + textSelector + ".Text", literal);
+            docsContext.getCommandBuilder().set("#" + codeSelector + ".Value", literal);
         }
 
         @Override
         public void visit(IndentedCodeBlock indentedCodeBlock) {
             var skipBottomPadding = indentedCodeBlock.getNext() == null;
-            var textSelector = generateTextSelector();
+            var codeSelector = generateTextSelector();
             var literal = indentedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -517,27 +524,34 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     // TopicContentRender#visit(IndentedCodeBlock)
                     Group {
                         Padding: (Top: 8, Bottom: {{bottom-padding}});
-                        LayoutMode: Left;
 
                         Group {
+                            LayoutMode: Top;
                             Padding: (Full: 15);
                             Background: #0e151d;
                             OutlineColor: #203651;
                             OutlineSize: 2;
 
-                            Label #{{label-selector}} {
-                                Style: (Wrap: true, FontName: "Mono", TextColor: #cccccc);
+                            CodeEditor #{{code-selector}} {
+                                Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
+                                IsReadOnly: true;
+                                LineNumberBackground: #000000(0.0);
+                                LineNumberTextColor: #000000(0.0);
+                                LineNumberWidth: 0;
+
+                                ScrollbarStyle: {{scrollbar-style}};
                             }
                         }
                     }
                     """
-                    .replace("{{label-selector}}", textSelector)
+                    .replace("{{code-selector}}", codeSelector)
                     .replace("{{bottom-padding}}", skipBottomPadding ? "0" : "8")
+                    .replace("{{scrollbar-style}}", CommonStyles.SCROLLBAR_STYLE)
             );
 
             writer.block();
 
-            docsContext.getCommandBuilder().set("#" + textSelector + ".Text", literal);
+            docsContext.getCommandBuilder().set("#" + codeSelector + ".Value", literal);
         }
 
         @Override
