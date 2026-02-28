@@ -75,7 +75,7 @@ public class DocumentationViewerService {
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get());
+            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null);
 
             // Fallback to not found topic
             if (notFoundTopicIfInvalid && topicToOpen.isEmpty()) {
@@ -87,7 +87,7 @@ public class DocumentationViewerService {
 
         // 2. Last opened topic
         if (topicToOpen.isEmpty() && lastOpenedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get());
+            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null);
         }
 
         // 3. Default config topic
@@ -291,7 +291,6 @@ public class DocumentationViewerService {
                 }
             }
             case OPEN_TOPIC -> {
-                // TODO: First try to find topic in current documentation
                 if (data.getOpenTopic() != null) {
                     var previousTopic = docsContext.getTopic();
                     var openedTopic = openTopicByIdentifier(page, docsContext, data.getOpenTopic());
@@ -323,7 +322,7 @@ public class DocumentationViewerService {
      */
     private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier)
+        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
         replaceTopicContent(page, updatedDocsContext);

@@ -2,7 +2,6 @@ package enterprises.iwakura.docs.ui.render;
 
 import java.util.List;
 
-import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -10,7 +9,6 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.DocsContext;
-import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.ui.CommonStyles;
@@ -276,7 +274,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             }
 
             for (int i = windowEnd; i >= windowStart; i--) {
-                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i));
+                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null);
                 if (optionalTopic.isPresent()) {
                     var topic = optionalTopic.get();
                     boolean shouldBeBold = i == currentIndex;
