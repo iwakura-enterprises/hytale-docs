@@ -154,7 +154,22 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                     OutlineColor: #203651;
                     OutlineSize: 2;
 
-                    Group {{documentation-tree-selector}} {
+                    Group {
+                        Padding: (Horizontal: 5, Top: 10);
+                        LayoutMode: TopScrolling;
+                        ScrollbarStyle: (
+                            Spacing: 6,
+                            Size: 6,
+                            Background: (TexturePath: "Common/Scrollbar.png", Border: 3),
+                            Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3),
+                            HoveredHandle: (TexturePath: "Common/ScrollbarHandleHovered.png", Border: 3),
+                            DraggedHandle: (TexturePath: "Common/ScrollbarHandleDragged.png", Border: 3),
+                            OnlyVisibleWhenHovered: true
+                        );
+
+                        Group {{documentation-tree-selector}} {
+
+                        }
                     }
                 }
             }
