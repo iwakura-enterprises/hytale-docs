@@ -116,13 +116,28 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
 
         public static final String OPEN_TOPIC_FIELD = "OpenTopic";
         public static final String TOPIC_SEARCH_QUERY_FIELD = "@TopicSearchQuery";
+        public static final String INTERFACE_ACTION_FIELD = "InterfaceAction";
 
         public static final BuilderCodec<PageData> CODEC = BuilderCodec.builder(PageData.class, PageData::new)
             .append(new KeyedCodec<>(OPEN_TOPIC_FIELD, Codec.STRING), PageData::setOpenTopic, PageData::getOpenTopic).add()
             .append(new KeyedCodec<>(TOPIC_SEARCH_QUERY_FIELD, Codec.STRING), PageData::setTopicSearchQuery, PageData::getTopicSearchQuery).add()
+            .append(new KeyedCodec<>(INTERFACE_ACTION_FIELD, Codec.STRING), PageData::setInterfaceActionValue, PageData::getInterfaceActionValue).add()
             .build();
 
         private String openTopic;
         private String topicSearchQuery;
+        private String interfaceActionValue;
+
+        public InterfaceAction getInterfaceAction() {
+            return interfaceActionValue != null ? InterfaceAction.valueOf(interfaceActionValue) : null;
+        }
+
+        public enum InterfaceAction {
+            BACK,
+            FORWARD,
+            HOME,
+            OPEN_TOPIC,
+            SEARCH;
+        }
     }
 }

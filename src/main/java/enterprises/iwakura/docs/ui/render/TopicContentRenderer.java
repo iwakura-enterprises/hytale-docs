@@ -38,7 +38,9 @@ import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
+import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
+import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.util.ExceptionUtils;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.ResizeUtils;
@@ -463,7 +465,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(FencedCodeBlock fencedCodeBlock) {
             var skipBottomPadding = fencedCodeBlock.getNext() == null;
-            var textSelector = generateTextSelector();
+            var codeSelector = generateTextSelector();
             var literal = fencedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -476,33 +478,40 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     // TopicContentRender#visit(FencedCodeBlock)
                     Group {
                         Padding: (Top: 8, Bottom: {{bottom-padding}});
-                        LayoutMode: Left;
 
                         Group {
+                            LayoutMode: Top;
                             Padding: (Full: 15);
                             Background: #121a24;
                             OutlineColor: #203651;
                             OutlineSize: 2;
 
-                            Label #{{label-selector}} {
-                                Style: (Wrap: true, FontName: "Mono", TextColor: #cccccc);
+                            CodeEditor #{{code-selector}} {
+                                Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
+                                IsReadOnly: true;
+                                LineNumberBackground: #000000(0.0);
+                                LineNumberTextColor: #000000(0.0);
+                                LineNumberWidth: 0;
+
+                                ScrollbarStyle: {{scrollbar-style}};
                             }
                         }
                     }
                     """
-                    .replace("{{label-selector}}", textSelector)
+                    .replace("{{code-selector}}", codeSelector)
                     .replace("{{bottom-padding}}", skipBottomPadding ? "0" : "8")
+                    .replace("{{scrollbar-style}}", CommonStyles.SCROLLBAR_STYLE)
             );
 
             writer.block();
 
-            docsContext.getCommandBuilder().set("#" + textSelector + ".Text", literal);
+            docsContext.getCommandBuilder().set("#" + codeSelector + ".Value", literal);
         }
 
         @Override
         public void visit(IndentedCodeBlock indentedCodeBlock) {
             var skipBottomPadding = indentedCodeBlock.getNext() == null;
-            var textSelector = generateTextSelector();
+            var codeSelector = generateTextSelector();
             var literal = indentedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -515,27 +524,34 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     // TopicContentRender#visit(IndentedCodeBlock)
                     Group {
                         Padding: (Top: 8, Bottom: {{bottom-padding}});
-                        LayoutMode: Left;
 
                         Group {
+                            LayoutMode: Top;
                             Padding: (Full: 15);
                             Background: #0e151d;
                             OutlineColor: #203651;
                             OutlineSize: 2;
 
-                            Label #{{label-selector}} {
-                                Style: (Wrap: true, FontName: "Mono", TextColor: #cccccc);
+                            CodeEditor #{{code-selector}} {
+                                Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
+                                IsReadOnly: true;
+                                LineNumberBackground: #000000(0.0);
+                                LineNumberTextColor: #000000(0.0);
+                                LineNumberWidth: 0;
+
+                                ScrollbarStyle: {{scrollbar-style}};
                             }
                         }
                     }
                     """
-                    .replace("{{label-selector}}", textSelector)
+                    .replace("{{code-selector}}", codeSelector)
                     .replace("{{bottom-padding}}", skipBottomPadding ? "0" : "8")
+                    .replace("{{scrollbar-style}}", CommonStyles.SCROLLBAR_STYLE)
             );
 
             writer.block();
 
-            docsContext.getCommandBuilder().set("#" + textSelector + ".Text", literal);
+            docsContext.getCommandBuilder().set("#" + codeSelector + ".Value", literal);
         }
 
         @Override
@@ -566,7 +582,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(BulletList bulletList) {
-            boolean isTopLevelList = listHolder == null;
+            boolean bottomPadding = listHolder == null &&
+                !(bulletList.getParent() instanceof BlockQuote && bulletList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -575,7 +592,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Left: 15, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", isTopLevelList ? "10" : "0")
+                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new BulletListHolder(listHolder, bulletList);
             visitChildren(bulletList);
@@ -586,7 +603,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(OrderedList orderedList) {
-            boolean isTopLevelList = listHolder == null;
+            boolean bottomPadding = listHolder == null &&
+                !(orderedList.getParent() instanceof BlockQuote && orderedList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -595,7 +613,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Left: 15, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", isTopLevelList ? "10" : "0")
+                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new OrderedListHolder(listHolder, orderedList);
             visitChildren(orderedList);
@@ -726,6 +744,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     Group {
                         Padding: (Full: 4);
                         {{tooltip}}
+                        TextTooltipStyle: {{tooltip-style}};
 
                         Group {
                             Padding: (Full: 8);
@@ -741,6 +760,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     }
                     """
                     .replace("{{tooltip}}", tooltip)
+                    .replace("{{tooltip-style}}", CommonStyles.TOOLTIP_STYLE)
                     .replace("{{path}}", resolvedAsset.getCommonAssetPath())
                     .replace("{{width}}", String.valueOf(imageSize.getX()))
                     .replace("{{height}}", String.valueOf(imageSize.getY()))
@@ -866,7 +886,9 @@ public class TopicContentRenderer implements Renderer<Topic> {
                                     docsContext.getEventBuilder().addEventBinding(
                                         CustomUIEventBindingType.Activating,
                                         "#" + buttonSelector,
-                                        new EventData().append(PageData.OPEN_TOPIC_FIELD, attributeValue),
+                                        new EventData()
+                                            .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_TOPIC)
+                                            .append(PageData.OPEN_TOPIC_FIELD, attributeValue),
                                         true
                                     );
                                 }

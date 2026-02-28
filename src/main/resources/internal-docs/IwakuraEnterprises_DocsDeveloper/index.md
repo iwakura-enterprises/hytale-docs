@@ -28,19 +28,19 @@ In this topic, we'll focus on the first way. For the second way, please see **Ad
 Simply create a Markdown file in your mod's resources at **Common/Docs/{ModGroup}_{ModName}.md** where the **ModGroup**
 is your mod's group and **ModName** your mod's name. **The file name is case-sensitive.**
 
-> **Common/Docs/MyGroup_MyMod.md**
-> 
-> ```md
-> ---
-> name: My Mod Name
-> description: This is a description for my mod!
-> author: Me & myself
-> ---
-> 
-> # My Mod
-> 
-> My Mod adds .... and .......
-> ```
+### `Common/Docs/MyGroup_MyMod.md`
+
+```md
+---
+name: My Mod Name
+description: This is a description for my mod!
+author: Me & myself
+---
+
+# My Mod
+
+My Mod adds .... and .......
+```
 
 **That's it.** Voile will show your Markdown file (topic) under documentation named **Various Mods**.
 

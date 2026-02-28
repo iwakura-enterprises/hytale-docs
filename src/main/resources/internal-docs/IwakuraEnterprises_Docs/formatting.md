@@ -19,7 +19,7 @@ information on Markdown syntax, see Markdown Cheat Sheet (https://www.markdowngu
 > - Footnotes
 > - Definition List
 > - Task List
-> - Subscript and superscript *(won't supported due to Hytale's font limitations)*
+> - Subscript and superscript *(won't be supported due to Hytale's font limitations)*
 
 ## Images
 

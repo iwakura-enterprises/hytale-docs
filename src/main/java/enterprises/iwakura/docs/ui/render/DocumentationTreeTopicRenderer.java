@@ -9,8 +9,9 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
-import enterprises.iwakura.docs.ui.CommandStyles;
+import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
+import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import enterprises.iwakura.sigewine.core.utils.BeanAccessor;
@@ -58,6 +59,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
             CustomUIEventBindingType.Activating,
             "#" + buttonSelector,
             new EventData()
+                .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_TOPIC)
                 .append(PageData.OPEN_TOPIC_FIELD, "%s:%s:%s".formatted(
                     documentation.getGroup(),
                     documentation.getId(),
@@ -69,11 +71,11 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
         String buttonStyle;
 
         if (Objects.equals(ctx.getTopic(), topic)) {
-            buttonStyle = CommandStyles.SELECTED_BUTTON_STYLE;
+            buttonStyle = CommonStyles.SELECTED_TOPIC_BUTTON_STYLE;
         } else if (ctx.hasTopicSearchQuery() && topic.matchesTopicSearch(ctx.getTopicSearchQuery())) {
-            buttonStyle = CommandStyles.MATCHES_SEARCH_BUTTON_STYLE;
+            buttonStyle = CommonStyles.MATCHES_SEARCH_TOPIC_BUTTON_STYLE;
         } else {
-            buttonStyle = CommandStyles.NORMAL_BUTTON_STYLE;
+            buttonStyle = CommonStyles.NORMAL_TOPIC_BUTTON_STYLE;
         }
 
         return treeUI

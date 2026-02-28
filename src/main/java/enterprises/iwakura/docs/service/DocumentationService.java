@@ -1,14 +1,12 @@
 package enterprises.iwakura.docs.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
@@ -136,7 +134,7 @@ public class DocumentationService {
 
         var docsConfig = configurationService.getDocsConfig();
         if (docsConfig.getDefaultTopicIdentifier() != null) {
-            var defaultTopic = findTopic(documentations, docsConfig.getDefaultTopicIdentifier());
+            var defaultTopic = findTopic(documentations, docsConfig.getDefaultTopicIdentifier(), null);
             if (defaultTopic.isPresent()) {
                 return defaultTopic;
             }
@@ -163,14 +161,20 @@ public class DocumentationService {
      *   ID</li>
      * </ul>
      *
-     * @param documentations  Documentations to search in
-     * @param topicIdentifier the topic identifier string, using colons as delimiters
+     * @param documentations         Documentations to search in
+     * @param topicIdentifier        the topic identifier string, using colons as delimiters
+     * @param preferredDocumentation The preferred documentation to look first if topic identifier does not specify
+     *                               documentation group or id
      *
      * @return an {@link Optional} containing the found {@link Topic}, or empty if not found
      *
      * @see #findTopic(List, String, String, String, boolean)
      */
-    public Optional<Topic> findTopic(List<Documentation> documentations, String topicIdentifier) {
+    public Optional<Topic> findTopic(
+        List<Documentation> documentations,
+        String topicIdentifier,
+        Documentation preferredDocumentation
+    ) {
         boolean documentationGroupOrId = false;
         String documentationGroup = null;
         String documentationId = null;
@@ -179,6 +183,10 @@ public class DocumentationService {
 
         if (openTopicData.length == 1) {
             topicId = openTopicData[0];
+            if (preferredDocumentation != null) {
+                documentationGroup = preferredDocumentation.getGroup();
+                documentationId = preferredDocumentation.getId();
+            }
         } else if (openTopicData.length == 2) {
             documentationGroup = openTopicData[0];
             documentationId = openTopicData[0];
@@ -190,7 +198,14 @@ public class DocumentationService {
             topicId = openTopicData[2];
         }
 
-        return findTopic(documentations, documentationGroup, documentationId, topicId, documentationGroupOrId);
+        var optionalTopic = findTopic(documentations, documentationGroup, documentationId, topicId, documentationGroupOrId);
+
+        if (optionalTopic.isEmpty() && openTopicData.length == 1) {
+            // try searching without the preferred documentation
+            optionalTopic = findTopic(documentations, null, null, topicId, false);
+        }
+
+        return optionalTopic;
     }
 
     /**
