@@ -337,6 +337,7 @@ public class DocumentationViewerService {
      * @return Never-null {@link InterfacePreferences}
      */
     public InterfacePreferences getInterfacePreferences(UUID playerUuid) {
+        // FIXME: Load the current docsContext into newly created InterfacePreferences and/or just use InterfaceState.
         return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, InterfacePreferences::new);
     }
 

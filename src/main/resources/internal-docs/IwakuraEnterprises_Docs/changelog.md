@@ -4,6 +4,24 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.6.0
+### Major
+- Added Back / Forward / Home navigation buttons
+- Code blocks are now rendered inside the `CodeEditor` elements. This enables you to select and copy text inside them.
+  - There have been some visual and logic issues with these `CodeEditor` elements. The most worrying one is that upon
+    selecting one-liner text using a double click *may* crash your client. Thus, in future releases if there
+    would be any severe problems, this new change might get reverted.
+
+### Minor
+- Improved tooltip textures for images
+- Fixed scroll reset on topic tree list when opening new topic
+- Fixed ordered/bullet lists' bottom padding in a block quote when there are no other elements under them
+- Fixed opening a topic using a topic button that references a topic with just an ID that can be found in different
+documentations. Now it prefers the currently opened documentation and then searches in the other documentations.
+- Added `InterfaceState` that allows to remember certain interface state that can be later loaded
+- Added `/wiki` command alias
+- Various fixes and improvements to the rendering and feel of Voile
+
 # 1.5.0
 
 ### Major
