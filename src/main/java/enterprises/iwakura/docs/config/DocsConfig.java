@@ -21,6 +21,7 @@ public class DocsConfig {
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
+    private Integration integration = new Integration();
 
     @Data
     public static class Validator {
@@ -62,5 +63,17 @@ public class DocsConfig {
         private int maxImageDownloadFileSizeKb = 1024 * 2; // 2MB
         private int inMemoryTimeToLiveSeconds = 3600; // Hour
         private int downloadedImagesTimeToLiveSeconds = 86400; // Day
+    }
+
+    @Data
+    public static class Integration {
+
+        private HytaleModdingWiki hytaleModdingWiki = new HytaleModdingWiki();
+
+        @Data
+        public static class HytaleModdingWiki {
+
+            private boolean enabled = true;
+        }
     }
 }

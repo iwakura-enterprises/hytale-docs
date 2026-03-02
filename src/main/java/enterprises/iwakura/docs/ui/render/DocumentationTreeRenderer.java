@@ -206,7 +206,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                         Padding: (Bottom: 5);
                     
                         Label {
-                            Text: "—— {{type}} docs ——";
+                            Text: "—— {{type}} ——";
                             Style: (
                                 TextColor: #4b6b96,
                                 HorizontalAlignment: Center

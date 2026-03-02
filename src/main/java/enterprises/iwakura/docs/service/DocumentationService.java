@@ -19,6 +19,7 @@ import enterprises.iwakura.docs.object.LoaderContext;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
 import enterprises.iwakura.docs.service.loader.FileSystemDocumentationLoader;
+import enterprises.iwakura.docs.integration.hytalemodding.HMWikiDocumentationLoader;
 import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;

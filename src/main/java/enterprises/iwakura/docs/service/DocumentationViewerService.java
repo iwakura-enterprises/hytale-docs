@@ -141,6 +141,8 @@ public class DocumentationViewerService {
         RENDER_EXECUTOR.execute(() -> {
             String ui;
 
+            docsContext.getTopic().invokeOpenedCallback(docsContext);
+
             try {
                 ui = documentationViewerRenderer.render(docsContextRendered, new RenderData(docsContext.getDocumentations(), docsContext.getTopic()));
                 docsContext.getCommandBuilder().appendInline(DocumentationViewerPage.MAIN_CONTENT_SELECTOR, ui);
@@ -189,6 +191,8 @@ public class DocumentationViewerService {
             // Sve docs context to interface preferences, incl. currently open topic
             var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
             context.getInterfaceState().saveToPreferences(interfacePreferences);
+
+            context.getTopic().invokeOpenedCallback(context);
 
             documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
             topicRenderer.clearAndAppendInline(context, context.getTopic());

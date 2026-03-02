@@ -15,15 +15,19 @@ public enum DocumentationType {
     /**
      * Server-specific documentation. This is the default type for documentation made by the server owner.
      */
-    SERVER("Server"),
+    SERVER("Server wiki"),
     /**
      * Mod-specific documentation. This is the default type for documentation supplied by mods.
      */
-    MOD("Mod"),
+    MOD("Mod wiki"),
+    /**
+     * Hytale modding wiki
+     */
+    HYTALE_MODDING_WIKI("Hytale Modding Wiki"),
     /**
      * Reserved for internal documentation.
      */
-    INTERNAL("Internal");
+    INTERNAL("Internal docs");
 
     private final String humanReadable;
 

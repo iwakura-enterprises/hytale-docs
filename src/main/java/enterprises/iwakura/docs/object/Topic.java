@@ -6,8 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+
+import com.google.protobuf.ExperimentalApi;
 
 import enterprises.iwakura.docs.util.LocaleUtils;
+import jdk.jfr.Experimental;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -70,6 +74,12 @@ public class Topic {
     private Path topicFilePath;
 
     /**
+     * Callback that is invoked when the topic is opened by the player.
+     */
+    @Experimental
+    private Consumer<DocsContext> topicOpenedCallback;
+
+    /**
      * Checks whenever this topic is empty.
      *
      * @return True if yes, false otherwise
@@ -96,6 +106,18 @@ public class Topic {
      */
     public Topic addTopics(@NonNull Topic... topics) {
         this.topics.addAll(Arrays.asList(topics));
+        return this;
+    }
+
+    /**
+     * Adds topics
+     *
+     * @param topics Topics
+     *
+     * @return Current instance
+     */
+    public Topic addTopics(List<Topic> topics) {
+        this.topics.addAll(topics);
         return this;
     }
 
@@ -202,5 +224,16 @@ public class Topic {
      */
     public boolean matchesTopicSearch(String topicSearchQuery) {
         return LocaleUtils.normalize(name).contains(LocaleUtils.normalize(topicSearchQuery));
+    }
+
+    /**
+     * Invokes the {@link #topicOpenedCallback} if non-null
+     *
+     * @param context DocsContext
+     */
+    public void invokeOpenedCallback(DocsContext context) {
+        if (topicOpenedCallback != null) {
+            topicOpenedCallback.accept(context);
+        }
     }
 }
