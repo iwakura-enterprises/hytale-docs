@@ -1,13 +1,13 @@
 package enterprises.iwakura.docs;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
 import enterprises.iwakura.docs.command.DocsCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
+import enterprises.iwakura.docs.integration.hytalemodding.HMWikiService;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
@@ -41,6 +41,7 @@ public class Docs {
     private final ImageService imageService;
     private final RuntimeImageAssetService runtimeImageAssetService;
     private final ServerService serverService;
+    private final HMWikiService hytaleModdingWikiService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -72,6 +73,7 @@ public class Docs {
 
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();
+        hytaleModdingWikiService.init();
 
         new HStats(HSTATS_MOD_ID, plugin.getManifest().getVersion().toString());
     }

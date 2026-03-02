@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
@@ -25,6 +26,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
     @Bean
     private final BeanAccessor<DocumentationTreeTopicRenderer> documentationTreeTopicRenderer =
         new BeanAccessor<>(DocumentationTreeTopicRenderer.class);
+    private final MarkdownService markdownService;
 
     @Override
     public String render(DocsContext ctx, RenderData renderData) {
@@ -81,7 +83,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
         return treeUI
             .replace("{{button-selector}}", buttonSelector)
             .replace("{{button-style}}", buttonStyle)
-            .replace("{{name}}", topic.getName())
+            .replace("{{name}}", markdownService.escapeText(topic.getName()))
             .replace("{{topics}}", topicsUI);
     }
 
