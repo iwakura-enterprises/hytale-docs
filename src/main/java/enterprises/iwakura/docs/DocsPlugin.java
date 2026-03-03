@@ -15,7 +15,7 @@ public class DocsPlugin extends JavaPlugin {
     private final Sigewine sigewine = new Sigewine();
 
     private Docs docsInstance;
-    private Logger logger = new Logger("Docs");
+    private Logger logger = new Logger("Voile");
 
     public DocsPlugin(@NonNull JavaPluginInit init) {
         super(init);
