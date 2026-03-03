@@ -6,8 +6,10 @@ import java.util.UUID;
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
+import enterprises.iwakura.docs.command.CommandShortcutCommand;
 import enterprises.iwakura.docs.command.DocsCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
+import enterprises.iwakura.docs.config.DocsConfig.CommandShortcuts.Command;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
@@ -60,7 +62,7 @@ public class Docs {
         }
 
         logger.info("Registering commands...");
-        docsCommand.initAliases();
+        registerCommandShortcuts();
         plugin.getCommandRegistry().registerCommand(docsCommand);
         plugin.getCommandRegistry().registerCommand(reloadCommand);
 
@@ -74,6 +76,30 @@ public class Docs {
         documentationService.registerDocumentationLoaders();
 
         new HStats(HSTATS_MOD_ID, plugin.getManifest().getVersion().toString());
+    }
+
+    /**
+     * Registers command shortcuts
+     */
+    private void registerCommandShortcuts() {
+        var commandShortcutsConfig = configurationService.getDocsConfig().getCommandShortcuts();
+
+        if (commandShortcutsConfig.isEnabled()) {
+            if (!commandShortcutsConfig.isOverrideHytaleCommands()) {
+                docsCommand.initAliases();
+            } else {
+                logger.warn("Command shortcuts' Hytale command override is enabled. Voile will be able to override Hytale's default commands. These commands will have their own permission nodes.");
+                logger.info("Found %d command shortcuts for /voile, registering them as standalone commands...".formatted(commandShortcutsConfig.getCommands().size()));
+                for (Command command : configurationService.getDocsConfig().getCommandShortcuts().getCommands()) {
+                    logger.info("[COMMAND-SHORTCUT] /%s -> topic %s (iwakuraenterprises.voile.command.%s)".formatted(
+                        command.getName(), command.getTopicIdentifier(), command.getName()
+                    ));
+                    plugin.getCommandRegistry().registerCommand(new CommandShortcutCommand(command.getName(), docsCommand));
+                }
+            }
+        } else {
+            logger.warn("Command shortcuts are disabled, /voile will not have any aliases. You must restart the server if you have enabled the feature.");
+        }
     }
 
     public void start() {

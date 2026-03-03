@@ -37,6 +37,7 @@ public class DocsConfig {
     public static class CommandShortcuts {
 
         private boolean enabled = true;
+        private boolean overrideHytaleCommands = false;
         private final List<Command> commands = new ArrayList<>();
 
         public Optional<String> getTopicIdentifierForCommand(String commandName) {

@@ -42,6 +42,7 @@ even without Kytale.
 Command shortcuts allow you to create quick-and-easy commands to open various documentation topics.
 
 - **enabled** - enables/disables command shortcuts
+- **overrideHytaleCommands** - command shortcuts will be registered as their own standalone commands, this will ensure Hytale's commands are overridden.
 - **commands** - contains list of command shortcuts (<gray>the following fields are for specific command shortcut</gray>)
   - **name** - name of the command shortcut. This is what the player types in chat (e.g. **rules** -> **/rules**)
   - **topicIdentifier** - the identifier for topic to be opened by the command shortcut. For more information about topic identifiers, see below.

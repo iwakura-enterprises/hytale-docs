@@ -61,17 +61,12 @@ public class DocsCommand extends AbstractPlayerCommand {
      */
     public void initAliases() {
         var commandShortcuts = configurationService.getDocsConfig().getCommandShortcuts();
-
-        if (commandShortcuts.isEnabled()) {
-            logger.info("Found %d command shortcuts for /docs".formatted(commandShortcuts.getCommands().size()));
-            for (Command command : configurationService.getDocsConfig().getCommandShortcuts().getCommands()) {
-                logger.info("[COMMAND-SHORTCUT] /docs -> /%s -> topic %s".formatted(
-                    command.getName(), command.getTopicIdentifier()
-                ));
-                addAliases(command.getName());
-            }
-        } else {
-            logger.warn("Command shortcuts are disabled, /docs will not have any aliases. You must restart the server if you have enabled the feature.");
+        logger.info("Found %d command shortcuts for /voile, registering them as alias...".formatted(commandShortcuts.getCommands().size()));
+        for (Command command : configurationService.getDocsConfig().getCommandShortcuts().getCommands()) {
+            logger.info("[COMMAND-SHORTCUT] /voile -> /%s -> topic %s".formatted(
+                command.getName(), command.getTopicIdentifier()
+            ));
+            addAliases(command.getName());
         }
     }
 
@@ -86,7 +81,7 @@ public class DocsCommand extends AbstractPlayerCommand {
         var docsConfig = configurationService.getDocsConfig();
 
         if (!docsConfig.isEnabled()) {
-            logger.warn("Player %s tried opening the /docs interface but it is disabled (config -> enabled == false)".formatted(
+            logger.warn("Player %s tried opening the /voile interface but it is disabled (config -> enabled == false)".formatted(
                 playerRef.getUsername()
             ));
             ChatInfo.ERROR.send(playerRef, "This command is disabled.");
