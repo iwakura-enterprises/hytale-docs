@@ -4,6 +4,13 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.6.2
+
+### Minor
+- Added ability to override Hytale commands with command shorcuts (see **Configuration** topic)
+- Fixed old references to Docs
+- Renamed Voile's logger to Voile instead of Docs
+
 # 1.6.1
 
 ### Minor
