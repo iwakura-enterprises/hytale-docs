@@ -6,6 +6,7 @@ import enterprises.iwakura.docs.Version;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer.RenderData;
@@ -22,6 +23,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
     private final TopicRenderer topicRenderer;
     private final TopicChapterTreeRenderer topicChapterTreeRenderer;
     private final UpdateCheckerService updateCheckerService;
+    private final MarkdownService markdownService;
 
     @Override
     public String render(DocsContext ctx, RenderData renderData) {
@@ -107,7 +109,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 .replace("{{hytale-common}}", hytaleCommonUI)
                 .replace("{{documentation-tree}}", documentationTreeUI)
                 .replace("{{topic}}", topicUI)
-                .replace("{{topic-title}}", renderData.getTopic().getName())
+                .replace("{{topic-title}}", markdownService.escapeText(renderData.getTopic().getName()))
                 .replace("{{chapter-tree}}", topicChapterTreeUI)
                 .replace("{{version}}", Version.VERSION)
                 .replace("{{update-available-text}}", updateCheckerService.isUpdateAvailable() ? "Update available: " + updateCheckerService.getUpdateVersion() : "");

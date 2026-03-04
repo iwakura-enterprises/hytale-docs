@@ -44,6 +44,7 @@ public class ConfigurationService {
      * @return {@link DocsConfig}
      */
     public DocsConfig getDocsConfig() {
+        // TODO: Somehow validate config and if invalid, reset so players in singleplayer don't have to delete the config
         var docsConfig = jean.getOrLoad("config", DocsConfig.class);
         docsConfig.getFileSystemCache().ensureAllTypes();
         jean.save("config", docsConfig);

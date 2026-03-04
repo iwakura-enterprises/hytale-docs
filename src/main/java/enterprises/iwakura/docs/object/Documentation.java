@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,6 +50,10 @@ public class Documentation {
      * User defined sorting index
      */
     private Integer sortIndex;
+    /**
+     * Additional information for the documentation.
+     */
+    private final AdditionalInfo additionalInfo = new AdditionalInfo();
 
     /**
      * Adds topics to this documentation.
@@ -134,5 +139,15 @@ public class Documentation {
      */
     public boolean hasTopicWithName(String topicSearchQuery) {
         return topics.stream().anyMatch(topic -> topic.hasTopicWithName(topicSearchQuery));
+    }
+
+    /**
+     * Various information for the documentation. Includes classes from various integrations.
+     */
+    @Data
+    public static class AdditionalInfo {
+
+        private HMWikiMod hytaleModdingWikiMod;
+
     }
 }

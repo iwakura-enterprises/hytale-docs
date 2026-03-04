@@ -1,6 +1,7 @@
 package enterprises.iwakura.docs.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,6 @@ import enterprises.iwakura.docs.object.LoaderContext;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
 import enterprises.iwakura.docs.service.loader.FileSystemDocumentationLoader;
-import enterprises.iwakura.docs.integration.hytalemodding.HMWikiDocumentationLoader;
 import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -111,10 +111,25 @@ public class DocumentationService {
      *
      * @return Unmodifiable list of documentations
      */
-    public List<Documentation> getDocumentations() {
+    public List<Documentation> getEnabledDocumentations() {
         var docsConfig = configurationService.getDocsConfig();
+        // TODO: Only ALL, excl. hytale modding ones
+        return getDocumentations(Arrays.asList(DocumentationType.values()).stream()
+            .filter(type -> !docsConfig.getDisabledDocumentationTypes().contains(type))
+            .toList()
+        );
+    }
+
+    /**
+     * Returns unmodifiable list of documentations filtered by the specified types
+     *
+     * @param documentationTypes Documentation types
+     *
+     * @return Unmodifiable list of documentations
+     */
+    public List<Documentation> getDocumentations(List<DocumentationType> documentationTypes) {
         return loadedDocumentations.stream()
-            .filter(documentation -> docsConfig.getEnabledTypes().contains(documentation.getType()))
+            .filter(documentation -> documentationTypes.contains(documentation.getType()))
             .sorted(Comparator.comparing((Documentation doc) -> doc.getType().ordinal())
                 .thenComparing(Documentation::getSortIndex, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(Documentation::getName))

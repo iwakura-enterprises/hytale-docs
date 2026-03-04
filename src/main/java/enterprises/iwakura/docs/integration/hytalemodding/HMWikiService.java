@@ -2,10 +2,14 @@ package enterprises.iwakura.docs.integration.hytalemodding;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
+import enterprises.iwakura.docs.object.Documentation;
+import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.util.Logger;
@@ -17,6 +21,10 @@ import lombok.RequiredArgsConstructor;
 public class HMWikiService {
 
     public static final String HM_WIKI_CACHE_DIRECTORY = "integration/hytale-modding-wiki";
+
+    private static final Timer timer = new Timer();
+
+    private final HMWikiDocumentationLoader hmWikiDocumentationLoader;
 
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
@@ -47,7 +55,34 @@ public class HMWikiService {
             }
         }
 
-        VoileAPI.get().register(plugin, new HMWikiDocumentationLoader(this, hmWikiApi));
+        VoileAPI.get().register(plugin, hmWikiDocumentationLoader);
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    checkAndPreloadMod();
+                } catch (Exception exception) {
+                    logger.error("Failed to preload mod pages!", exception);
+                }
+            }
+        }, 0, 10_000); // 10 seconds
+    }
+
+    private void checkAndPreloadMod() {
+        var config = configurationService.getDocsConfig().getIntegration().getHytaleModdingWiki();
+
+        if (!config.isPreLoadModsInBackground()) {
+            return;
+        }
+
+        for (Documentation documentation : documentationService.getDocumentations(DocumentationType.ALL_HYTALE_MODDING_WIKI)) {
+            var mod = documentation.getAdditionalInfo().getHytaleModdingWikiMod();
+
+            if (mod != null && hmWikiDocumentationLoader.preloadDocumentation(documentation, mod, false) != null) {
+                break;
+            }
+        }
     }
 
     private Path getCacheDirectory() {

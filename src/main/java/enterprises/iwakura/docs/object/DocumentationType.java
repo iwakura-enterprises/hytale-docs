@@ -21,9 +21,13 @@ public enum DocumentationType {
      */
     MOD("Mod wiki"),
     /**
+     * Hytale modding wiki type for installed mods
+     */
+    HYTALE_MODDING_WIKI_INSTALLED("Installed Mods"),
+    /**
      * Hytale modding wiki
      */
-    HYTALE_MODDING_WIKI("Hytale Modding Wiki"),
+    HYTALE_MODDING_WIKI("Mods"),
     /**
      * Reserved for internal documentation.
      */
@@ -34,5 +38,10 @@ public enum DocumentationType {
     /**
      * All documentation types
      */
-    public static final List<DocumentationType> ALL = Arrays.asList(DocumentationType.values());
+    public static final List<DocumentationType> ALL = List.of(DocumentationType.SERVER, DocumentationType.MOD, DocumentationType.INTERNAL);
+
+    /**
+     * All documentation types for Hytale Modding Wiki
+     */
+    public static final List<DocumentationType> ALL_HYTALE_MODDING_WIKI = List.of(DocumentationType.HYTALE_MODDING_WIKI, DocumentationType.HYTALE_MODDING_WIKI_INSTALLED);
 }

@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import dev.mayuna.mayusjsonutils.ObjectLoader;
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.CacheIndex;
-import enterprises.iwakura.docs.object.CacheIndex.Entry.Type;
+import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.CacheIndex.LoadedEntry;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -28,7 +28,7 @@ public class FileSystemCacheService {
 
     public static final String CACHE_DIRECTORY_NAME = "cache";
     public static final String CACHE_INDEX_FILE_NAME = "index.json";
-    public static final String CACHE_FILE_FORMAT = "%s.voile";
+    public static final String CACHE_FILE_SUFFIX = ".voile";
 
     private static final Timer timer = new Timer();
 
@@ -92,13 +92,13 @@ public class FileSystemCacheService {
      * file with the name but the type does not equal, empty optional is returned.
      *
      * @param fileName File name
-     * @param type Type of the file
+     * @param cacheFileType Type of the file
      * @param <T> Type of the file. If specifies byte array or String, it is directly returned without any serialization.
      * @return Optional of T
      */
-    public <T> Optional<LoadedEntry<T>> getByName(String fileName, Type type) {
+    public <T> Optional<LoadedEntry<T>> getByName(String fileName, CacheFileType cacheFileType) {
         return cacheIndex.getEntryByName(fileName)
-            .filter(entry -> entry.getType() == type)
+            .filter(entry -> entry.getCacheFileType() == cacheFileType)
             .map(entry -> {
                 var filePath = getCacheFilePath(entry.getFileId());
 
@@ -118,12 +118,12 @@ public class FileSystemCacheService {
      * could not be read. If there's a file with the name but the type does not equal, empty optional is returned.
      *
      * @param fileName File name
-     * @param type Type of the file
+     * @param cacheFileType Type of the file
      * @param <T> Type of the file. If specifies byte array or String, it is directly returned without any serialization.
      * @return Optional of T
      */
-    public <T> Optional<LoadedEntry<T>> loadByName(String fileName, Type type, Class<T> clazz) {
-        var loadedEntry = getByName(fileName, type)
+    public <T> Optional<LoadedEntry<T>> loadByName(String fileName, CacheFileType cacheFileType, Class<T> clazz) {
+        var loadedEntry = getByName(fileName, cacheFileType)
             .map(entry -> {
                 var filePath = entry.getFilePath();
 
@@ -131,17 +131,16 @@ public class FileSystemCacheService {
                     var fileBytes = Files.readAllBytes(filePath);
 
                     if (clazz == byte[].class) {
-                        entry.setData((T) fileBytes);
+                        entry.setData(fileBytes);
                     } else {
                         var string = new String(fileBytes, StandardCharsets.UTF_8);
                         if (clazz == String.class) {
-                            //noinspection unchecked
-                            entry.setData((T) string);
+                            entry.setData(string);
                         } else {
                             entry.setData(gson.fromJson(string, clazz));
                         }
                     }
-                } catch (IOException readException) {
+                } catch (Exception readException) {
                     logger.error("Failed to read cache file at " + filePath, readException);
                     cacheIndex.getNameToFileId().remove(fileName);
 
@@ -150,6 +149,8 @@ public class FileSystemCacheService {
                     } catch (IOException deleteException) {
                         logger.error("Failed to delete invalid cache file at " + filePath, deleteException);
                     }
+
+                    return null;
                 }
 
                 return entry;
@@ -168,13 +169,13 @@ public class FileSystemCacheService {
      * is of byte array or string, it is written without any serialization.
      *
      * @param fileName File name
-     * @param type     File type
+     * @param cacheFileType     File type
      * @param data     Data
      * @param <T> The class of the date
      * @return The created loaded entry, without the data serialized
      */
-    public <T> LoadedEntry<T> saveByName(String fileName, Type type, T data) {
-        var entry = cacheIndex.createEntry(fileName, type);
+    public <T> LoadedEntry<T> saveByName(String fileName, CacheFileType cacheFileType, T data) {
+        var entry = cacheIndex.createEntry(fileName, cacheFileType);
         var filePath = getCacheFilePath(entry.getFileId());
         byte[] bytes;
 
@@ -198,7 +199,7 @@ public class FileSystemCacheService {
         } catch (IOException exception) {
             cacheIndex.getNameToFileId().remove(fileName);
             throw new IllegalStateException("Failed to create cache file at %s with name %s (%s)".formatted(
-                filePath, fileName, type), exception
+                filePath, fileName, cacheFileType), exception
             );
         } finally {
             saveCacheIndex();
@@ -215,6 +216,7 @@ public class FileSystemCacheService {
     }
 
     private void refresh(boolean verbose) {
+        final var cacheDirectory = getCacheDirectory();
         var config = configurationService.getDocsConfig().getFileSystemCache();
         if (verbose) {
             logger.info("Refreshing the file system cache...");
@@ -226,10 +228,10 @@ public class FileSystemCacheService {
         cacheIndex.getNameToFileId().forEach((fileName, entry) -> {
             var filePath = getCacheFilePath(entry.getFileId());
 
-            if (!Files.exists(filePath) || entry.getType() == null || entry.getCreatedAt() == null) {
+            if (!Files.exists(filePath) || entry.getCacheFileType() == null || entry.getCreatedAt() == null) {
                 logger.warn("Could not find / invalid cache file " + filePath);
                 fileNamesToRemove.add(fileName);
-            } else if (entry.getCreatedAt().isBefore(now.minusSeconds(config.getCacheTypeTimeToLiveSeconds().get(entry.getType())))) {
+            } else if (entry.getCreatedAt().isBefore(now.minusSeconds(config.getCacheTypeTtlSafe(entry.getCacheFileType())))) {
                 logger.warn("Removing old cache file " + filePath);
                 fileNamesToRemove.add(fileName);
 
@@ -246,7 +248,31 @@ public class FileSystemCacheService {
             fileNamesToRemove.forEach(name -> cacheIndex.getNameToFileId().remove(name));
         }
 
-        // TODO: Check for dangling files
+        var existingFileIds = cacheIndex.getNameToFileId().values();
+        try (var files = Files.walk(cacheDirectory, 1)) {
+            files.forEach(cacheFile -> {
+                var fileName = cacheFile.getFileName().toString();
+                // Skip the cache directory itself and the index file
+                if (cacheFile.equals(cacheDirectory) || fileName.equals(CACHE_INDEX_FILE_NAME) || !fileName.endsWith(CACHE_FILE_SUFFIX)) {
+                    return;
+                }
+
+                var fileId = fileName.replace(CACHE_FILE_SUFFIX, "");
+                var isReferenced = existingFileIds.stream()
+                    .anyMatch(entry -> entry.getFileId().toString().equals(fileId));
+
+                if (!isReferenced) {
+                    logger.warn("Found dangling cache file " + cacheFile + ", removing...");
+                    try {
+                        Files.deleteIfExists(cacheFile);
+                    } catch (IOException exception) {
+                        logger.error("Failed to delete dangling cache file " + cacheFile, exception);
+                    }
+                }
+            });
+        } catch (IOException exception) {
+            logger.error("Failed to walk cache directory " + getCacheDirectory(), exception);
+        }
 
         if (verbose || !fileNamesToRemove.isEmpty()) {
             logger.info("Total file system cache size: " + cacheIndex.size());
@@ -258,6 +284,12 @@ public class FileSystemCacheService {
     }
 
     private Path getCacheFilePath(UUID id) {
-        return getCacheDirectory().resolve(CACHE_FILE_FORMAT.formatted(id));
+        return getCacheDirectory().resolve(id + CACHE_FILE_SUFFIX);
+    }
+
+    public void reset() {
+        logger.info("Resetting file system cache...");
+        cacheIndex = new CacheIndex();
+        saveCacheIndex();
     }
 }

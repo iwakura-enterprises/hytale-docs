@@ -68,7 +68,7 @@ public class DocumentationViewerService {
      * @return True if opened, false otherwise
      */
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, Optional<String> requestedTopicIdentifier, boolean notFoundTopicIfInvalid) {
-        var documentations = documentationService.getDocumentations();
+        var documentations = documentationService.getEnabledDocumentations();
         var topicToOpen = Optional.<Topic>empty();
 
         var lastOpenedTopicIdentifier = Optional.ofNullable(getInterfacePreferences(playerRef.getUuid()).getLastOpenedTopicIdentifier());

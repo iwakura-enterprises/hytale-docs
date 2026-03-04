@@ -14,4 +14,12 @@ public class HMWikiPage {
     private String slug;
     private List<HMWikiPage> children = new ArrayList<>();
     private HMWikiPage parent;
+
+    @Override
+    public String toString() {
+        return "HMWikiPage{" +
+            "id=" + id +
+            ", slug='" + slug + '\'' +
+            '}';
+    }
 }

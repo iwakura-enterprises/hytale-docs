@@ -1,13 +1,14 @@
 package enterprises.iwakura.docs.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import enterprises.iwakura.docs.object.CacheIndex;
-import enterprises.iwakura.docs.object.CacheIndex.Entry.Type;
+import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocumentationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class DocsConfig {
     private boolean updateCheckerEnabled = true;
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
-    private final List<DocumentationType> enabledTypes = new ArrayList<>(DocumentationType.ALL);
+    private final List<DocumentationType> disabledDocumentationTypes = new ArrayList<>();
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
@@ -78,23 +79,31 @@ public class DocsConfig {
         public static class HytaleModdingWiki {
 
             private boolean enabled = true;
+            private boolean preLoadModsInBackground = true;
         }
     }
 
     @Data
     public static class FileSystemCache {
 
-        public static final Map<Type, Long> DEFAULT_TTL = Map.of(
-            Type.IMAGE, 86400L,
-            Type.HYTALE_MODDING_MOD_INDEX, 86400L,
-            Type.HYTALE_MODDING_PAGE_CONTENT, 86400L
-        );
+        public static final Map<CacheFileType, Long> DEFAULT_TTL = Arrays.stream(CacheFileType.values())
+            .collect(Collectors.toMap(k -> k, CacheFileType::getDefaultTtlSeconds));
 
         private boolean enabled = true;
-        private Map<Type, Long> cacheTypeTimeToLiveSeconds = new HashMap<>(DEFAULT_TTL);
+        private Map<String, Long> cacheTypeTimeToLiveSeconds = new HashMap<>();
 
         public void ensureAllTypes() {
-            DEFAULT_TTL.forEach((type, ttl) -> cacheTypeTimeToLiveSeconds.putIfAbsent(type, ttl));
+            DEFAULT_TTL.forEach((type, ttl) -> cacheTypeTimeToLiveSeconds.putIfAbsent(type.name(), ttl));
+        }
+
+        public Long getCacheTypeTtlSafe(CacheFileType cacheFileType) {
+            var ttl = cacheTypeTimeToLiveSeconds.get(cacheFileType.name());
+
+            if (ttl == null) {
+                ttl = cacheFileType.getDefaultTtlSeconds();
+            }
+
+            return ttl;
         }
     }
 }

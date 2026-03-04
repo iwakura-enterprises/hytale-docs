@@ -10,14 +10,7 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,8 +20,7 @@ import javax.imageio.ImageIO;
 import com.hypixel.hytale.math.vector.Vector2d;
 
 import enterprises.iwakura.docs.DocsPlugin;
-import enterprises.iwakura.docs.object.CacheIndex.Entry.Type;
-import enterprises.iwakura.docs.object.DownloadedFile;
+import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +47,7 @@ public class ImageService {
     public CompletableFuture<Path> downloadImageFrom(String url) {
         var maxFileSizeBytes = configurationService.getDocsConfig().getRuntimeImageAssets().getMaxImageDownloadFileSizeKb() * 1024;
 
-        var loadedEntry = fileSystemCacheService.getByName(url, Type.IMAGE);
+        var loadedEntry = fileSystemCacheService.getByName(url, CacheFileType.IMAGE);
         if (loadedEntry.isPresent()) {
             return CompletableFuture.completedFuture(loadedEntry.get().getFilePath());
         }
@@ -89,7 +81,7 @@ public class ImageService {
                     .build();
                 var response = HTTP_CLIENT.send(getRequest, limitedBodyHandler(maxFileSizeBytes));
                 var imageData = response.body();
-                var savedEntry = fileSystemCacheService.saveByName(url, Type.IMAGE, imageData);
+                var savedEntry = fileSystemCacheService.saveByName(url, CacheFileType.IMAGE, imageData);
                 return savedEntry.getFilePath();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to download image from: " + url, e);
