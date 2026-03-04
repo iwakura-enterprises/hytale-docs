@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.ui.render;
 
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class DocumentationRenderer implements Renderer<Documentation> {
 
     private final DocumentationTreeTopicRenderer documentationTreeTopicRenderer;
+    private final MarkdownService markdownService;
 
     @Override
     public String render(DocsContext ctx, Documentation documentation) {
@@ -44,7 +46,7 @@ public class DocumentationRenderer implements Renderer<Documentation> {
             });
 
         return treeUI
-            .replace("{{name}}", documentation.getName())
+            .replace("{{name}}", markdownService.escapeText(documentation.getName()))
             .replace("{{topics}}", topicsUI);
     }
 }

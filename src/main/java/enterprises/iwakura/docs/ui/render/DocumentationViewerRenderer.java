@@ -112,7 +112,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 .replace("{{topic-title}}", markdownService.escapeText(renderData.getTopic().getName()))
                 .replace("{{chapter-tree}}", topicChapterTreeUI)
                 .replace("{{version}}", Version.VERSION)
-                .replace("{{update-available-text}}", updateCheckerService.isUpdateAvailable() ? "Update available: " + updateCheckerService.getUpdateVersion() : "");
+                .replace("{{update-available-text}}", updateCheckerService.isUpdateAvailable() ? markdownService.escapeText("Update available: " + updateCheckerService.getUpdateVersion()) : "");
     }
 
     @Data
