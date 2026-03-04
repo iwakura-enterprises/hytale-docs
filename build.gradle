@@ -35,6 +35,7 @@ dependencies {
     implementation 'enterprises.iwakura:kirara-core:1.4.1'
     implementation 'enterprises.iwakura:kirara-gson:1.4.1'
     implementation 'enterprises.iwakura:kirara-httpclient:1.4.1'
+    implementation 'dev.mayuna:mayus-json-utilities:2.1'
 
     // For @Bean annotation IDEA support
     compileOnly 'org.springframework:spring-context:7.0.2'

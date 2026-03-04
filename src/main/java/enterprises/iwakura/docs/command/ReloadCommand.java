@@ -8,6 +8,7 @@ import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
+import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.util.ChatInfo;
@@ -20,7 +21,7 @@ public class ReloadCommand extends CommandBase {
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
     private final DocumentationViewerService documentationViewerService;
-    private final ImageService imageService;
+    private final FileSystemCacheService fileSystemCacheService;
     private final RuntimeImageAssetService runtimeImageAssetService;
     private final Logger logger;
 
@@ -28,7 +29,7 @@ public class ReloadCommand extends CommandBase {
         ConfigurationService configurationService,
         DocumentationService documentationService,
         DocumentationViewerService documentationViewerService,
-        ImageService imageService,
+        FileSystemCacheService fileSystemCacheService,
         RuntimeImageAssetService runtimeImageAssetService,
         Logger logger
     ) {
@@ -36,7 +37,7 @@ public class ReloadCommand extends CommandBase {
         this.configurationService = configurationService;
         this.documentationService = documentationService;
         this.documentationViewerService = documentationViewerService;
-        this.imageService = imageService;
+        this.fileSystemCacheService = fileSystemCacheService;
         this.runtimeImageAssetService = runtimeImageAssetService;
         this.logger = logger;
 
@@ -46,7 +47,7 @@ public class ReloadCommand extends CommandBase {
     @Override
     protected void executeSync(@NonNull CommandContext ctx) {
         try {
-            imageService.clearCache();
+            fileSystemCacheService.reload();
             runtimeImageAssetService.clearCache();
             documentationViewerService.clearPreferences();
             configurationService.reload();

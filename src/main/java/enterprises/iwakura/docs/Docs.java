@@ -13,6 +13,7 @@ import enterprises.iwakura.docs.integration.hytalemodding.HMWikiService;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
+import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
@@ -44,6 +45,7 @@ public class Docs {
     private final RuntimeImageAssetService runtimeImageAssetService;
     private final ServerService serverService;
     private final HMWikiService hytaleModdingWikiService;
+    private final FileSystemCacheService fileSystemCacheService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -56,6 +58,7 @@ public class Docs {
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
         imageService.init();
+        fileSystemCacheService.init();
 
         if (!serverService.isRunningOnDedicatedServer()) {
             logger.info("We're running in singleplayer! Disabling OOBE...");

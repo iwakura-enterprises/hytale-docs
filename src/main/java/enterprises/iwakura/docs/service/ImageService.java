@@ -7,24 +7,28 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.imageio.ImageIO;
 
 import com.hypixel.hytale.math.vector.Vector2d;
 
 import enterprises.iwakura.docs.DocsPlugin;
+import enterprises.iwakura.docs.object.CacheIndex.Entry.Type;
 import enterprises.iwakura.docs.object.DownloadedFile;
-import enterprises.iwakura.docs.object.RuntimeImageAsset;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -33,106 +37,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImageService {
 
-    public static final String RUNTIME_IMAGES_DIRECTORY = "runtime_images";
-    public static final String IMAGE_FORMAT_PNG = "png";
-
+    private static final String IMAGE_FORMAT_PNG = "png";
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
         .followRedirects(HttpClient.Redirect.NORMAL)
         .build();
-    private static final Map<String, DownloadedFile> DOWNLOAD_URL_TO_FILE = Collections.synchronizedMap(new HashMap<>());
-    private static final Timer timer = new Timer();
 
     private final ConfigurationService configurationService;
+    private final FileSystemCacheService fileSystemCacheService;
+
     private final Logger logger;
     private final DocsPlugin plugin;
 
     public void init() {
         logger.info("Initializing ImageDownloaderService...");
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    clearOldDownloadedImages();
-                } catch (Exception exception) {
-                    logger.error("Failed to clear old downloaded images!", exception);
-                }
-            }
-        }, 0, 10_000);
-
-        var runtimeImagesDirectory = getRuntimeImagesDirectory();
-        if (!Files.exists(runtimeImagesDirectory)) {
-            try {
-                Files.createDirectories(runtimeImagesDirectory);
-            } catch (Exception exception) {
-                throw new RuntimeException("Failed to create runtime images directory: " + runtimeImagesDirectory, exception);
-            }
-        }
-
-        try (var filesInDirectory = Files.walk(runtimeImagesDirectory, 1)) {
-            logger.info("Deleting old runtime images in " + runtimeImagesDirectory);
-            filesInDirectory.filter(Files::isRegularFile).forEach(file -> {
-                try {
-                    Files.deleteIfExists(file);
-                } catch (Exception exception) {
-                    logger.error("Failed to delete old runtime image: " + file, exception);
-                }
-            });
-        } catch (Exception exception) {
-            logger.error("Failed to clear runtime images directory: " + runtimeImagesDirectory, exception);
-        }
-    }
-
-    /**
-     * Clears old downloaded images from file system
-     */
-    private void clearOldDownloadedImages() {
-        var docsConfig = configurationService.getDocsConfig();
-        var minimumLastUsedAt = OffsetDateTime.now().minusSeconds(
-            docsConfig.getRuntimeImageAssets().getDownloadedImagesTimeToLiveSeconds()
-        );
-
-        var runtimeImageAssets = DOWNLOAD_URL_TO_FILE.values();
-        var filesToDelete = runtimeImageAssets.stream()
-            .filter(runtimeImageAsset -> runtimeImageAsset.getLastUsedAt().isBefore(minimumLastUsedAt))
-            .toList();
-
-        if (!filesToDelete.isEmpty()) {
-            logger.info("Deleting %d downloaded images from file system".formatted(filesToDelete.size()));
-            filesToDelete.forEach(file -> DOWNLOAD_URL_TO_FILE.remove(file.getUrl()));
-            filesToDelete.forEach(file -> {
-                try {
-                    Files.deleteIfExists(file.getPath());
-                } catch (IOException exception) {
-                    logger.error("Failed to remove downloaded image %s from file system!".formatted(
-                        file.getPath()
-                    ), exception);
-                }
-            });
-        }
-    }
-
-    /**
-     * Clears ImageService's cache
-     */
-    public void clearCache() {
-        logger.info("Clearing ImageService's downloaded files cache...");
-        DOWNLOAD_URL_TO_FILE.clear();
-    }
-
-    private Path getRuntimeImagesDirectory() {
-        return plugin.getDataDirectory().resolve(RUNTIME_IMAGES_DIRECTORY);
     }
 
     public CompletableFuture<Path> downloadImageFrom(String url) {
         var maxFileSizeBytes = configurationService.getDocsConfig().getRuntimeImageAssets().getMaxImageDownloadFileSizeKb() * 1024;
 
-        synchronized (DOWNLOAD_URL_TO_FILE) {
-            var existingDownloadedFile = DOWNLOAD_URL_TO_FILE.get(url);
-            if (existingDownloadedFile != null && Files.exists(existingDownloadedFile.getPath())) {
-                existingDownloadedFile.setLastUsedAt(OffsetDateTime.now());
-                return CompletableFuture.completedFuture(existingDownloadedFile.getPath());
-            }
-            DOWNLOAD_URL_TO_FILE.remove(url);
+        var loadedEntry = fileSystemCacheService.getByName(url, Type.IMAGE);
+        if (loadedEntry.isPresent()) {
+            return CompletableFuture.completedFuture(loadedEntry.get().getFilePath());
         }
 
         return CompletableFuture.supplyAsync(() -> {
@@ -162,34 +87,10 @@ public class ImageService {
                     .header("User-Agent", "Mozilla/5.0")
                     .GET()
                     .build();
-                var response = HTTP_CLIENT.send(getRequest, HttpResponse.BodyHandlers.ofInputStream());
-
-                var filePath = getRuntimeImagesDirectory().resolve(UUID.randomUUID() + ".png");
-
-                try (var inputStream = response.body();
-                    // Creates & truncates existing files
-                    var outputStream = Files.newOutputStream(filePath)) {
-
-                    byte[] buffer = new byte[8192];
-                    long totalBytesDownloaded = 0;
-                    int bytesRead;
-
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        totalBytesDownloaded += bytesRead;
-
-                        if (totalBytesDownloaded > maxFileSizeBytes) {
-                            Files.deleteIfExists(filePath);
-                            throw new IllegalArgumentException(
-                                "Image size exceeded maximum allowed size of " + maxFileSizeBytes / 1024
-                                    + " kB during download");
-                        }
-
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                }
-
-                DOWNLOAD_URL_TO_FILE.put(url, new DownloadedFile(url, filePath));
-                return filePath;
+                var response = HTTP_CLIENT.send(getRequest, limitedBodyHandler(maxFileSizeBytes));
+                var imageData = response.body();
+                var savedEntry = fileSystemCacheService.saveByName(url, Type.IMAGE, imageData);
+                return savedEntry.getFilePath();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to download image from: " + url, e);
             }
@@ -261,5 +162,55 @@ public class ImageService {
 
         Files.write(filePath, pngData);
         return pngData;
+    }
+
+    private static HttpResponse.BodyHandler<byte[]> limitedBodyHandler(long maxBytes) {
+        return responseInfo -> {
+            var contentLength = responseInfo.headers().firstValueAsLong("Content-Length").orElse(-1L);
+            if (contentLength > maxBytes) {
+                throw new RuntimeException("Content-Length " + contentLength + " exceeds limit of " + maxBytes + " bytes");
+            }
+            return limitedBodySubscriber(maxBytes);
+        };
+    }
+
+    private static HttpResponse.BodySubscriber<byte[]> limitedBodySubscriber(long maxBytes) {
+        var delegate = HttpResponse.BodySubscribers.ofByteArray();
+        return new HttpResponse.BodySubscriber<>() {
+            private final AtomicLong received = new AtomicLong(0);
+            private Flow.Subscription subscription;
+
+            @Override
+            public void onSubscribe(Flow.Subscription subscription) {
+                this.subscription = subscription;
+                delegate.onSubscribe(subscription);
+            }
+
+            @Override
+            public void onNext(List<ByteBuffer> buffers) {
+                long chunk = buffers.stream().mapToLong(ByteBuffer::remaining).sum();
+                if (received.addAndGet(chunk) > maxBytes) {
+                    subscription.cancel();
+                    delegate.onError(new RuntimeException("Response body exceeds limit of " + maxBytes + " bytes"));
+                    return;
+                }
+                delegate.onNext(buffers);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                delegate.onError(throwable);
+            }
+
+            @Override
+            public void onComplete() {
+                delegate.onComplete();
+            }
+
+            @Override
+            public CompletableFuture<byte[]> getBody() {
+                return delegate.getBody().toCompletableFuture();
+            }
+        };
     }
 }

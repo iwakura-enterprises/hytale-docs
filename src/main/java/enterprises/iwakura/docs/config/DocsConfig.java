@@ -1,9 +1,13 @@
 package enterprises.iwakura.docs.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import enterprises.iwakura.docs.object.CacheIndex;
+import enterprises.iwakura.docs.object.CacheIndex.Entry.Type;
 import enterprises.iwakura.docs.object.DocumentationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +26,7 @@ public class DocsConfig {
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
     private Integration integration = new Integration();
+    private FileSystemCache fileSystemCache = new FileSystemCache();
 
     @Data
     public static class Validator {
@@ -62,7 +67,6 @@ public class DocsConfig {
         private boolean enabled = true;
         private int maxImageDownloadFileSizeKb = 1024 * 2; // 2MB
         private int inMemoryTimeToLiveSeconds = 3600; // Hour
-        private int downloadedImagesTimeToLiveSeconds = 86400; // Day
     }
 
     @Data
@@ -74,6 +78,23 @@ public class DocsConfig {
         public static class HytaleModdingWiki {
 
             private boolean enabled = true;
+        }
+    }
+
+    @Data
+    public static class FileSystemCache {
+
+        public static final Map<Type, Long> DEFAULT_TTL = Map.of(
+            Type.IMAGE, 86400L,
+            Type.HYTALE_MODDING_MOD_INDEX, 86400L,
+            Type.HYTALE_MODDING_PAGE_CONTENT, 86400L
+        );
+
+        private boolean enabled = true;
+        private Map<Type, Long> cacheTypeTimeToLiveSeconds = new HashMap<>(DEFAULT_TTL);
+
+        public void ensureAllTypes() {
+            DEFAULT_TTL.forEach((type, ttl) -> cacheTypeTimeToLiveSeconds.putIfAbsent(type, ttl));
         }
     }
 }

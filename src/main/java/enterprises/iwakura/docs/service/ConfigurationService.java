@@ -44,7 +44,10 @@ public class ConfigurationService {
      * @return {@link DocsConfig}
      */
     public DocsConfig getDocsConfig() {
-        return jean.getOrLoad("config", DocsConfig.class);
+        var docsConfig = jean.getOrLoad("config", DocsConfig.class);
+        docsConfig.getFileSystemCache().ensureAllTypes();
+        jean.save("config", docsConfig);
+        return docsConfig;
     }
 
     /**
