@@ -113,8 +113,7 @@ public class DocumentationService {
      */
     public List<Documentation> getEnabledDocumentations() {
         var docsConfig = configurationService.getDocsConfig();
-        // TODO: Only ALL, excl. hytale modding ones
-        return getDocumentations(Arrays.asList(DocumentationType.values()).stream()
+        return getDocumentations(DocumentationType.ALL.stream()
             .filter(type -> !docsConfig.getDisabledDocumentationTypes().contains(type))
             .toList()
         );

@@ -90,7 +90,27 @@ public class CommonStyles {
         )
         """;
 
-    public static final String TOOLTIP_STYLE =
+    public static final String TOOLTIP_STYLE_SHORT =
+        """
+        (
+            Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),
+            MaxWidth: 300,
+            LabelStyle: (Wrap: true, FontSize: 16),
+            Padding: 24
+        )
+        """;
+
+    public static final String TOOLTIP_STYLE_MEDIUM =
+        """
+        (
+            Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),
+            MaxWidth: 400,
+            LabelStyle: (Wrap: true, FontSize: 16),
+            Padding: 24
+        )
+        """;
+
+    public static final String TOOLTIP_STYLE_WIDE =
         """
         (
             Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),

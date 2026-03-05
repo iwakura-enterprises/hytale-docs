@@ -97,6 +97,11 @@ public class FileSystemCacheService {
      * @return Optional of T
      */
     public <T> Optional<LoadedEntry<T>> getByName(String fileName, CacheFileType cacheFileType) {
+        if (!configurationService.getDocsConfig().getFileSystemCache().isEnabled()) {
+            // File system cache is disabled
+            return Optional.empty();
+        }
+
         return cacheIndex.getEntryByName(fileName)
             .filter(entry -> entry.getCacheFileType() == cacheFileType)
             .map(entry -> {

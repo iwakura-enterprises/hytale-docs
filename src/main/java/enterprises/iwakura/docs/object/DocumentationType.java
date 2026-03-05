@@ -38,10 +38,6 @@ public enum DocumentationType {
     /**
      * All documentation types
      */
-    public static final List<DocumentationType> ALL = List.of(DocumentationType.SERVER, DocumentationType.MOD, DocumentationType.INTERNAL);
+    public static final List<DocumentationType> ALL = Arrays.asList(DocumentationType.values());
 
-    /**
-     * All documentation types for Hytale Modding Wiki
-     */
-    public static final List<DocumentationType> ALL_HYTALE_MODDING_WIKI = List.of(DocumentationType.HYTALE_MODDING_WIKI, DocumentationType.HYTALE_MODDING_WIKI_INSTALLED);
 }

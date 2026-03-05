@@ -7,7 +7,6 @@ import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
-import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer.RenderData;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -29,7 +28,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
     public String render(DocsContext ctx, RenderData renderData) {
         var hytaleCommonUI = hytaleCommonRenderer.render(ctx, null);
 
-        var documentationTreeUI = documentationTreeRenderer.render(ctx, renderData.getDocumentations());
+        var documentationTreeUI = documentationTreeRenderer.render(ctx, ctx.getDocumentations());
         var topicUI = topicRenderer.render(ctx, renderData.getTopic());
         var topicChapterTreeUI = topicChapterTreeRenderer.render(ctx, renderData.getTopic());
 

@@ -29,7 +29,6 @@ import org.commonmark.node.ThematicBreak;
 import org.commonmark.renderer.NodeRenderer;
 import org.commonmark.renderer.markdown.MarkdownWriter;
 
-import com.hypixel.hytale.math.vector.Vector2d;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -760,7 +759,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     }
                     """
                     .replace("{{tooltip}}", tooltip)
-                    .replace("{{tooltip-style}}", CommonStyles.TOOLTIP_STYLE)
+                    .replace("{{tooltip-style}}", CommonStyles.TOOLTIP_STYLE_WIDE)
                     .replace("{{path}}", resolvedAsset.getCommonAssetPath())
                     .replace("{{width}}", String.valueOf(imageSize.getX()))
                     .replace("{{height}}", String.valueOf(imageSize.getY()))

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocumentationType;
+import enterprises.iwakura.docs.object.InterfaceMode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +29,12 @@ public class DocsConfig {
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
     private Integration integration = new Integration();
     private FileSystemCache fileSystemCache = new FileSystemCache();
+
+    public List<InterfaceMode> getAvailableInterfaceModes() {
+        return InterfaceMode.ALL.stream()
+            .filter(mode -> mode != InterfaceMode.HYTALE_MODDING_WIKI || integration.getHytaleModdingWiki().isEnabled())
+            .toList();
+    }
 
     @Data
     public static class Validator {

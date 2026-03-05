@@ -2,7 +2,6 @@ package enterprises.iwakura.docs.object;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.Data;
 
@@ -12,6 +11,11 @@ import lombok.Data;
  */
 @Data
 public class InterfaceState {
+
+    /**
+     * Default state w/o documentations and topic. Is used when loading default settings.
+     */
+    public static final InterfaceState DEFAULT_STATE = new InterfaceState();
 
     /**
      * The topic identifier history as topics were opened. This is used to implement the back/forward button.
@@ -26,6 +30,7 @@ public class InterfaceState {
      */
     private int topicIdentifierHistoryIndex = -1;
 
+    private InterfaceMode mode = InterfaceMode.VOILE;
     private List<Documentation> documentations;
     private Topic topic;
 
@@ -35,6 +40,12 @@ public class InterfaceState {
         this.documentations = documentations;
         this.topic = topic;
         pushToHistory(topic, true);
+    }
+
+    /**
+     * Reserved for default state w/o active documentations and topic
+     */
+    private InterfaceState() {
     }
 
     public void pushToHistory(Topic topic, boolean preventDuplicates) {
@@ -133,10 +144,13 @@ public class InterfaceState {
      * @param preferences The preferences to save to
      */
     public void saveToPreferences(InterfacePreferences preferences) {
-        preferences.setLastOpenedTopicIdentifier(topic.getTopicIdentifier());
+        if (topic != null) {
+            preferences.setLastOpenedTopicIdentifier(topic.getTopicIdentifier());
+        }
         preferences.setLastTopicSearchQuery(topicSearchQuery);
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
+        preferences.setLastInterfaceMode(mode);
     }
 
     /**
@@ -146,6 +160,7 @@ public class InterfaceState {
      */
     public void loadFromPreferences(InterfacePreferences interfacePreferences) {
         topicSearchQuery = interfacePreferences.getLastTopicSearchQuery();
+        mode = interfacePreferences.getLastInterfaceMode();
         if (interfacePreferences.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
             topicIdentifierHistory.addAll(interfacePreferences.getTopicIdentifierHistory());
