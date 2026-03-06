@@ -47,6 +47,7 @@ public class DocumentationViewerService {
         Thread thread = new Thread(r);
         thread.setUncaughtExceptionHandler((t, e) -> {
             HytaleLogger.get("Docs-Render").atSevere().withCause(e).log("Exception occurred in render thread!");
+            SentryService.captureException(e);
         });
         return thread;
     });

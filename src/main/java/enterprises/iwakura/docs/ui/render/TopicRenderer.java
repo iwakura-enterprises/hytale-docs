@@ -1,5 +1,7 @@
 package enterprises.iwakura.docs.ui.render;
 
+import java.util.Optional;
+
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
@@ -91,9 +93,9 @@ public class TopicRenderer implements Renderer<Topic> {
         var topicContentUI = topicContentRenderer.render(topicUIContext, topic);
         ctx.getCommandBuilder().clear(TOPIC_CONTENT_SELECTOR);
         ctx.getCommandBuilder().set(TOPIC_CONTENT_SELECTOR + ".LayoutMode", "Top");
-        ctx.getCommandBuilder().set(TOPIC_TITLE_SELECTOR + ".Text", topic.getName());
-        ctx.getCommandBuilder().set(TOPIC_DESCRIPTION_SELECTOR + ".Text", topic.getDescription());
-        ctx.getCommandBuilder().set(TOPIC_AUTHOR_SELECTOR + ".Text", "Written by " + topic.getAuthor());
+        ctx.getCommandBuilder().set(TOPIC_TITLE_SELECTOR + ".Text", Optional.ofNullable(topic.getName()).orElse("N/A"));
+        ctx.getCommandBuilder().set(TOPIC_DESCRIPTION_SELECTOR + ".Text", Optional.ofNullable(topic.getDescription()).orElse("N/A"));
+        ctx.getCommandBuilder().set(TOPIC_AUTHOR_SELECTOR + ".Text", "Written by " + Optional.ofNullable(topic.getAuthor()).orElse("N/A"));
         ctx.getCommandBuilder().appendInline(TOPIC_CONTENT_SELECTOR, topicContentUI);
         topicUIContext.mergeInto(ctx);
     }

@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.integration.hytalemodding;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.hypixel.hytale.server.core.plugin.PluginBase;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
@@ -99,7 +100,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         var topic = Topic.builder()
             .id(UNLOADED_INDEX_TOPIC_ID_PREFIX + mod.getSlug())
             .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
-            .description(mod.getDescription())
+            .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
             .documentation(documentation)
             .markdownContent("If you see this, it means that the mod does not have any pages set up. Bummer!")
             .build();
@@ -136,10 +137,10 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         //logger.info("└ Creating topic for page " + page.getSlug());
 
         var topic = Topic.builder()
-            .id(page.getSlug())
+            .id(Optional.ofNullable(page.getSlug()).orElseGet(() -> UUID.randomUUID().toString()))
             .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
-            .name(page.getTitle())
-            .description(mod.getDescription())
+            .name(Optional.ofNullable(page.getTitle()).orElse("Unnamed page"))
+            .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
             .documentation(documentation)
             .sortIndex(mod.getIndexPage() != null && Objects.equals(mod.getIndexPage().getId(), page.getId()) ? -1 : 0)
             .build();

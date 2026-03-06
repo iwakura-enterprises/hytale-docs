@@ -132,6 +132,9 @@ public class MarkdownService {
      * @return Escaped text
      */
     public String escapeText(String text) {
+        if (text == null) {
+            return "";
+        }
         return text.replace("\"", "\\\"");
     }
 
