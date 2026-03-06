@@ -30,6 +30,7 @@ import enterprises.iwakura.docs.object.ResolvedImageCommonAsset;
 import enterprises.iwakura.docs.object.RuntimeImageAsset;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Bean
@@ -44,8 +45,11 @@ public class RuntimeImageAssetService {
     public static final int RUNTIME_ASSET_COUNT = 100;
     public static final int MAX_PACKET_SIZE = 2621440;
 
+    @Getter
     private static final Map<Integer, CommonAsset> COMMON_ASSET_MAP = Collections.synchronizedMap(new HashMap<>());
+    @Getter
     private static final Map<UUID, RuntimeImageAsset> RUNTIME_IMAGE_ASSET_MAP = Collections.synchronizedMap(new HashMap<>()); // UUID is RuntimeImageAsset.id
+    @Getter
     private static final Map<UUID, PlayerRuntimeImageAssets> PLAYER_RUNTIME_IMAGE_ASSETS_MAP = Collections.synchronizedMap(new HashMap<>()); // UUID is playerRef.uuid
     private static final Timer timer = new Timer();
 

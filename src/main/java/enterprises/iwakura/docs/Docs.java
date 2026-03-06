@@ -18,6 +18,7 @@ import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
+import enterprises.iwakura.docs.service.SentryService;
 import enterprises.iwakura.docs.service.ServerService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
@@ -48,6 +49,7 @@ public class Docs {
     private final ServerService serverService;
     private final HMWikiService hytaleModdingWikiService;
     private final FileSystemCacheService fileSystemCacheService;
+    private final SentryService sentryService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -57,6 +59,7 @@ public class Docs {
         logger.info("Made by Iwakura Enterprises");
 
         configurationService.init();
+        sentryService.init();
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
         imageService.init();

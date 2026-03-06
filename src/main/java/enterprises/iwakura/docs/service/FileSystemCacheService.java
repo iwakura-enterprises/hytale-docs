@@ -20,6 +20,7 @@ import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.CacheIndex.LoadedEntry;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Bean
@@ -38,6 +39,7 @@ public class FileSystemCacheService {
     private final DocsPlugin plugin;
     private final Logger logger;
 
+    @Getter
     private CacheIndex cacheIndex;
 
     /**

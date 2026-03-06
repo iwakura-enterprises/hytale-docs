@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
@@ -29,6 +30,7 @@ public class DocsConfig {
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
     private Integration integration = new Integration();
     private FileSystemCache fileSystemCache = new FileSystemCache();
+    private Sentry sentry = new Sentry();
 
     public List<InterfaceMode> getAvailableInterfaceModes() {
         return InterfaceMode.ALL.stream()
@@ -114,5 +116,13 @@ public class DocsConfig {
 
             return ttl;
         }
+    }
+
+    @Data
+    public static class Sentry {
+
+        private boolean enabled = true;
+        private UUID serverId = UUID.randomUUID();
+        private String dsnOverride = null;
     }
 }

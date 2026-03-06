@@ -51,12 +51,12 @@ public class ReloadCommand extends CommandBase {
     @Override
     protected void executeSync(@NonNull CommandContext ctx) {
         try {
+            configurationService.reload();
             hmWikiApi.init();
             fileSystemCacheService.reset();
             fileSystemCacheService.reload();
             runtimeImageAssetService.clearCache();
             documentationViewerService.clearPreferences();
-            configurationService.reload();
             documentationService.reloadDocumentations();
             ChatInfo.SUCCESS.send(ctx, "Reload done.");
         } catch (Exception exception) {
