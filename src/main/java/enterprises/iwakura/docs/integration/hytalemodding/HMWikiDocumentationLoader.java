@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.hypixel.hytale.server.core.plugin.PluginBase;
+import com.hypixel.hytale.server.core.plugin.PluginManager;
+
+import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
 import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
 import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod.User;
@@ -20,6 +24,7 @@ import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
+import enterprises.iwakura.docs.util.StringUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +44,9 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
+        var installedModNames = PluginManager.get().getPlugins().stream()
+            .map(plugin -> plugin.getIdentifier().getName())
+            .toList();
         logger.info("└ Loading documentations from Hytale Modding Wiki...");
 
         HMWikiModListResponse modList;
@@ -71,10 +79,13 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
         return modList.getMods().stream()
             .map(mod -> {
+                var isInstalled = installedModNames.stream()
+                    .anyMatch(installedModName -> StringUtils.isSimilar(installedModName, mod.getName()));
+
                 var documentation = Documentation.builder()
-                    .type(DocumentationType.HYTALE_MODDING_WIKI)
+                    .type(isInstalled ? DocumentationType.HYTALE_MODDING_WIKI_INSTALLED : DocumentationType.HYTALE_MODDING_WIKI)
                     .group("voile_hm_wiki")
-                    .id("hm_wiki_%s_%s".formatted(mod.getSlug(), mod.getId()))
+                    .id("%s_%s".formatted(mod.getSlug(), mod.getId()))
                     .name(mod.getName())
                     .build();
                 documentation.getAdditionalInfo().setHytaleModdingWikiMod(mod);

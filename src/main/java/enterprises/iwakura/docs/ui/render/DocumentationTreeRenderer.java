@@ -180,7 +180,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                 }
 
                 Group {
-                    Padding: (Top: 5, Left: 10, Right: 10, Bottom: 10);
+                    Padding: (Left: 10, Right: 10, Bottom: 10);
                     Anchor: (Height: 750);
                     Background: #121a24;
                     OutlineColor: #203651;
@@ -223,6 +223,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.hasTopicWithName(ctx.getInterfaceState().getTopicSearchQuery()))
             .toList();
 
+        boolean firstType = true;
         var currentInterfaceMode = ctx.getInterfaceState().getMode();
         var availableInterfaceModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
         // Enable the change mode button if there are more modes than one or player has mode
@@ -244,7 +245,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                         Padding: (Bottom: 5);
                     
                         Label {
-                            Text: "—— {{type}} ——";
+                            Text: "——— {{type}} ———";
                             Style: (
                                 TextColor: #4b6b96,
                                 HorizontalAlignment: Center
@@ -275,7 +276,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
         var ui = """
             // DocumentationTreeRenderer#clearAndAppendInline()
             Group {
-                Padding: (Horizontal: 5, Top: 10);
+                Padding: (Horizontal: 5);
                 LayoutMode: Top;
 
                 {{documentations}}

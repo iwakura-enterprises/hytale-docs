@@ -5,6 +5,7 @@ import java.util.List;
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
+import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
 import enterprises.iwakura.docs.command.DocsCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
@@ -36,6 +37,7 @@ public class Docs {
     private final ReloadCommand reloadCommand;
 
     private final VoileAPI voileAPI;
+    private final HMWikiApi hmWikiApi;
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
     private final ValidatorService validatorService;
@@ -75,6 +77,9 @@ public class Docs {
 
         logger.info("Initializing VoileAPI...");
         voileAPI.init();
+
+        logger.info("Initializing APIs...");
+        hmWikiApi.init();
 
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();

@@ -27,15 +27,27 @@ public class HMWikiModListResponse extends HMWikiResponse {
             Type type,
             JsonDeserializationContext jsonDeserializationContext
         ) throws JsonParseException {
-            HMWikiModListResponse response = new HMWikiModListResponse();
-            List<HMWikiMod> mods = new ArrayList<>();
+            if (jsonElement.isJsonArray()) {
+                HMWikiModListResponse response = new HMWikiModListResponse();
+                List<HMWikiMod> mods = new ArrayList<>();
 
-            for (JsonElement element : jsonElement.getAsJsonArray()) {
-                mods.add(jsonDeserializationContext.deserialize(element, HMWikiMod.class));
+                for (JsonElement element : jsonElement.getAsJsonArray()) {
+                    mods.add(jsonDeserializationContext.deserialize(element, HMWikiMod.class));
+                }
+
+                response.setMods(mods);
+                return response;
+            } else if (jsonElement.isJsonObject()) {
+                var jsonObject = jsonElement.getAsJsonObject();
+                if (jsonObject.has("error")) {
+                    var errorResponse = (HMWikiResponse)jsonDeserializationContext.deserialize(jsonObject, HMWikiResponse.class);
+                    var response = new HMWikiModListResponse();
+                    response.setError(errorResponse.getError());
+                    return response;
+                }
             }
 
-            response.setMods(mods);
-            return response;
+            throw new IllegalStateException("Could not deserialize as HMWikiModListResponse: " + jsonElement);
         }
     }
 }

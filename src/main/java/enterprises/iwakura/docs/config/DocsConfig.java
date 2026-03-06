@@ -87,6 +87,8 @@ public class DocsConfig {
 
             private boolean enabled = true;
             private boolean preLoadModsInBackground = true;
+            private String urlOverride = null;
+            private String apiTokenOverride = null;
         }
     }
 

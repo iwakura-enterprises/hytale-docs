@@ -5,6 +5,7 @@ import org.jspecify.annotations.NonNull;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 
+import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
@@ -23,6 +24,7 @@ public class ReloadCommand extends CommandBase {
     private final DocumentationViewerService documentationViewerService;
     private final FileSystemCacheService fileSystemCacheService;
     private final RuntimeImageAssetService runtimeImageAssetService;
+    private final HMWikiApi hmWikiApi;
     private final Logger logger;
 
     public ReloadCommand(
@@ -31,6 +33,7 @@ public class ReloadCommand extends CommandBase {
         DocumentationViewerService documentationViewerService,
         FileSystemCacheService fileSystemCacheService,
         RuntimeImageAssetService runtimeImageAssetService,
+        HMWikiApi hmWikiApi,
         Logger logger
     ) {
         super("voile-reload", "Reloads Voile's configuration and registered documentations");
@@ -39,6 +42,7 @@ public class ReloadCommand extends CommandBase {
         this.documentationViewerService = documentationViewerService;
         this.fileSystemCacheService = fileSystemCacheService;
         this.runtimeImageAssetService = runtimeImageAssetService;
+        this.hmWikiApi = hmWikiApi;
         this.logger = logger;
 
         addAliases("docs-reload");
@@ -47,6 +51,7 @@ public class ReloadCommand extends CommandBase {
     @Override
     protected void executeSync(@NonNull CommandContext ctx) {
         try {
+            hmWikiApi.init();
             fileSystemCacheService.reset();
             fileSystemCacheService.reload();
             runtimeImageAssetService.clearCache();
