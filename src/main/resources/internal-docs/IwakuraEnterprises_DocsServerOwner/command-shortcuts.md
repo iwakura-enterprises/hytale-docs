@@ -87,3 +87,15 @@ We must define the command's name (here **rules**) and what topic it will open. 
 ```
 
 **After restarting the server**, you should be able to run **/rules** command that will open the **Server Rules** topic.
+
+### Hytale command overriding
+
+You may override default Hytale commands by setting **overrideHytaleCommands** to true in the config. This will
+register all command shortcuts as standalone commands. **This means that all command shortcuts will have their specific
+permission!**
+
+For example, shortcut **/rules** will have permission `iwakuraenterprises.voile.command.rules`
+
+<buttons>
+  <button topic="Docs:configuration">Configuration</button>
+</buttons>

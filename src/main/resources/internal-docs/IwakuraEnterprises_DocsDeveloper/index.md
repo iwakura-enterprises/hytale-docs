@@ -6,11 +6,11 @@ author: mayuna
 
 # Voile for Developers
 
-Simple or complex documentations, you don't have to install any dependencies. Voile will load documentations
+Simple or complex wiki, you don't have to install any dependencies. Voile will load documentations
 straight from your mod's resources. This allows you to focus on the documentation, rather than on adding a
 mod support.
 
-There are currently **two** ways to add documentations:
+There are currently **two** ways to add wiki:
 1. Create simple documentation inside a single Markdown file
 2. Create documentation with unlimited number of topics & sub-topics
 
@@ -57,4 +57,5 @@ For additional information, see the following topics.
   <button topic="DocsDeveloper:advanced">Advanced</button>
   <button topic="Docs:formatting">Formatting</button>
   <button topic="Docs:topic-identifiers">Topic Identifiers</button>
+  <button topic="Docs:front-matter">Topic front-matter</button>
 </buttons>

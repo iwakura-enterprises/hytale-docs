@@ -13,7 +13,8 @@ You don't have to install any dependencies, Voile will load documentations strai
 Firstly you need to tell Voile what documentations you want to add. This is done by creating an index file in **Common/Docs**
 directory in your mod's resources. Voile searches for JSON files named in format of **{ModGroup}_{ModName}.json**.
 
-Let's say your mod has group **MyGroup** and name **MyMod**. In that case you would create index file at **Common/Docs/MyGroup_MyMod.json**.
+Let's say your mod has group **MyGroup** and name **MyMod**. In that case you would create index file at **Common/Docs/MyGroup_MyMod.json**
+in your **mod's resources** (NOT the data directory!)
 
 The index file has the following structure:
 
@@ -57,12 +58,13 @@ This will:
 The directory structure will look something like this:
 
 ```
-Common/Docs/
-  MyGroup_MyMod.json
-  MyGroup_MyDocumentation/
-    index.md
-    tutorial/
-      first-steps.md
+src/main/resources
+  Common/Docs/
+    MyGroup_MyMod.json
+    MyGroup_MyDocumentation/
+      index.md
+      tutorial/
+        first-steps.md
 ```
 
 ## Writing topics
@@ -112,4 +114,5 @@ is recommended. You can also check out the **Formatting** topic for additional f
 <buttons>
   <button topic="Docs:topic-identifiers">Topic Identifiers</button>
   <button topic="Docs:formatting">Formatting</button>
+  <button topic="Docs:front-matter">Topic front-matter</button>
 </buttons>

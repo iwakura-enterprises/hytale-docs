@@ -16,10 +16,18 @@
           ]
         },
         {
+          "file": "user-interface.md"
+        },
+        {
           "file": "topic-identifiers.md"
         },
         {
-          "file": "formatting.md"
+          "file": "formatting.md",
+          "subTopics": [
+            {
+              "file": "front-matter.md"
+            }
+          ]
         },
         {
           "file": "configuration.md"
