@@ -36,6 +36,9 @@
           "file": "misc/index.md",
           "subTopics": [
             {
+              "file": "integrations.md"
+            },
+            {
               "file": "misc/markdown-stress-test.md"
             }
           ]
