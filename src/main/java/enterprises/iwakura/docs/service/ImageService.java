@@ -82,6 +82,7 @@ public class ImageService {
                 var response = HTTP_CLIENT.send(getRequest, limitedBodyHandler(maxFileSizeBytes));
                 var imageData = response.body();
                 var savedEntry = fileSystemCacheService.saveByName(url, CacheFileType.IMAGE, imageData);
+                logger.info("Downloaded image from " + url);
                 return savedEntry.getFilePath();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to download image from: " + url, e);
