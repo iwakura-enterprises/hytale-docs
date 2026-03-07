@@ -16,10 +16,18 @@
           ]
         },
         {
+          "file": "user-interface.md"
+        },
+        {
           "file": "topic-identifiers.md"
         },
         {
-          "file": "formatting.md"
+          "file": "formatting.md",
+          "subTopics": [
+            {
+              "file": "front-matter.md"
+            }
+          ]
         },
         {
           "file": "configuration.md"
@@ -27,6 +35,9 @@
         {
           "file": "misc/index.md",
           "subTopics": [
+            {
+              "file": "integrations.md"
+            },
             {
               "file": "misc/markdown-stress-test.md"
             }
@@ -66,6 +77,9 @@
         },
         {
           "file": "command-shortcuts.md"
+        },
+        {
+          "file": "permissions.md"
         }
       ]
     }

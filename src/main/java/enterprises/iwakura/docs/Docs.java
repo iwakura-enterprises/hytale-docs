@@ -1,21 +1,24 @@
 package enterprises.iwakura.docs;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
+import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
 import enterprises.iwakura.docs.command.DocsCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
 import enterprises.iwakura.docs.config.DocsConfig.CommandShortcuts.Command;
+import enterprises.iwakura.docs.integration.hytalemodding.HMWikiService;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
+import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
+import enterprises.iwakura.docs.service.SentryService;
 import enterprises.iwakura.docs.service.ServerService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
@@ -35,6 +38,7 @@ public class Docs {
     private final ReloadCommand reloadCommand;
 
     private final VoileAPI voileAPI;
+    private final HMWikiApi hmWikiApi;
     private final ConfigurationService configurationService;
     private final DocumentationService documentationService;
     private final ValidatorService validatorService;
@@ -43,6 +47,9 @@ public class Docs {
     private final ImageService imageService;
     private final RuntimeImageAssetService runtimeImageAssetService;
     private final ServerService serverService;
+    private final HMWikiService hytaleModdingWikiService;
+    private final FileSystemCacheService fileSystemCacheService;
+    private final SentryService sentryService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -52,9 +59,11 @@ public class Docs {
         logger.info("Made by Iwakura Enterprises");
 
         configurationService.init();
+        sentryService.init();
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
         imageService.init();
+        fileSystemCacheService.init();
 
         if (!serverService.isRunningOnDedicatedServer()) {
             logger.info("We're running in singleplayer! Disabling OOBE...");
@@ -72,8 +81,12 @@ public class Docs {
         logger.info("Initializing VoileAPI...");
         voileAPI.init();
 
+        logger.info("Initializing APIs...");
+        hmWikiApi.init();
+
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();
+        hytaleModdingWikiService.init();
 
         new HStats(HSTATS_MOD_ID, plugin.getManifest().getVersion().toString());
     }

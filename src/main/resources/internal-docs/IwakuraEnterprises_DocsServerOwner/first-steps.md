@@ -176,6 +176,9 @@ You have successfully created your first documentation. You can now apply skills
 documentations for your server! You may also see other topics that will teach you more advanced skills, such as
 color formatting or adding topic-linking buttons.
 
-
-
+<buttons>
+  <button topic="Docs:formatting">Formatting</button>
+  <button topic="Docs:topic-identifiers">Topic Identifiers</button>
+  <button topic="Docs:front-matter">Topic front-matter</button>
+</buttons>
 

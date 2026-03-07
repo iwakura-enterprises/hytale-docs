@@ -11,6 +11,7 @@ public class InternalTopic extends Topic {
             0,
             content,
             null,
+            null,
             null
         );
     }

@@ -36,6 +36,10 @@ public class MarkdownService {
      * @return Resulting document node (null if catchException is set to true and parsing failed)
      */
     public Node parseMarkdown(String content, boolean catchException) {
+        if (content == null) {
+            content = "<red>No content.</red>";
+        }
+
         try {
             var parser = Parser.builder()
                 .extensions(List.of(YamlFrontMatterExtension.create()))
@@ -128,6 +132,9 @@ public class MarkdownService {
      * @return Escaped text
      */
     public String escapeText(String text) {
+        if (text == null) {
+            return "";
+        }
         return text.replace("\"", "\\\"");
     }
 

@@ -133,6 +133,7 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
         }
 
         public enum InterfaceAction {
+            CHANGE_MODE,
             BACK,
             FORWARD,
             HOME,

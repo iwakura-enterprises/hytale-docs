@@ -3,11 +3,13 @@ package enterprises.iwakura.docs.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -45,9 +47,12 @@ public class DocumentationViewerService {
         Thread thread = new Thread(r);
         thread.setUncaughtExceptionHandler((t, e) -> {
             HytaleLogger.get("Docs-Render").atSevere().withCause(e).log("Exception occurred in render thread!");
+            SentryService.captureException(e);
         });
         return thread;
     });
+
+    private final ConfigurationService configurationService;
     private final ValidatorService validatorService;
     private final DocumentationService documentationService;
     private final FallbackTopicService fallbackTopicService;
@@ -68,10 +73,10 @@ public class DocumentationViewerService {
      * @return True if opened, false otherwise
      */
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, Optional<String> requestedTopicIdentifier, boolean notFoundTopicIfInvalid) {
-        var documentations = documentationService.getDocumentations();
+        var documentations = documentationService.getEnabledDocumentations();
         var topicToOpen = Optional.<Topic>empty();
 
-        var lastOpenedTopicIdentifier = Optional.ofNullable(getInterfacePreferences(playerRef.getUuid()).getLastOpenedTopicIdentifier());
+        var lastOpenedTopicIdentifier = Optional.ofNullable(getInterfacePreferences(playerRef.getUuid(), null).getLastOpenedTopicIdentifier());
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
@@ -117,7 +122,7 @@ public class DocumentationViewerService {
     @SneakyThrows
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, DocsContext docsContext) {
         // Load docs context from preferences
-        var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
+        var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), docsContext.getInterfaceState());
         docsContext.getInterfaceState().loadFromPreferences(interfacePreferences);
 
         var docsContextRendered = DocsContext.of(docsContext);
@@ -140,6 +145,8 @@ public class DocumentationViewerService {
 
         RENDER_EXECUTOR.execute(() -> {
             String ui;
+
+            docsContext.getTopic().invokeOpenedCallback(docsContext);
 
             try {
                 ui = documentationViewerRenderer.render(docsContextRendered, new RenderData(docsContext.getDocumentations(), docsContext.getTopic()));
@@ -187,8 +194,10 @@ public class DocumentationViewerService {
 
         RENDER_EXECUTOR.execute(() -> {
             // Sve docs context to interface preferences, incl. currently open topic
-            var interfacePreferences = getInterfacePreferences(playerRef.getUuid());
+            var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), context.getInterfaceState());
             context.getInterfaceState().saveToPreferences(interfacePreferences);
+
+            context.getTopic().invokeOpenedCallback(context);
 
             documentationTreeRenderer.clearAndAppendInline(context, context.getDocumentations());
             topicRenderer.clearAndAppendInline(context, context.getTopic());
@@ -258,23 +267,44 @@ public class DocumentationViewerService {
         DocsContext docsContext,
         PageData data
     ) {
+        var state = docsContext.getInterfaceState();
         var action = data.getInterfaceAction();
         switch (action) {
+            case CHANGE_MODE -> {
+                var currentMode = state.getMode();
+                var availableModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
+                var nextMode = availableModes.stream()
+                    .filter(mode -> currentMode != null && mode.ordinal() > currentMode.ordinal())
+                    .findFirst()
+                    .or(() -> availableModes.stream().findFirst())
+                    .orElse(null);
+
+                if (nextMode != null) {
+                    var updatedDocsContext = DocsContext.of(docsContext);
+                    state.setMode(nextMode);
+                    getInterfacePreferences(page.getPlayerRef().getUuid(), state).setLastInterfaceMode(nextMode);
+                    updateDocumentationTree(page, updatedDocsContext);
+                }
+            }
             case BACK -> {
-                if (docsContext.getInterfaceState().canGoBack()) {
-                    openTopicByIdentifier(page, docsContext, docsContext.getInterfaceState().getPreviousTopicAndMoveIndex());
+                if (state.canGoBack()) {
+                    openTopicByIdentifier(page, docsContext, state.getPreviousTopicAndMoveIndex());
                 }
             }
             case FORWARD -> {
-                if (docsContext.getInterfaceState().canGoForward()) {
-                    openTopicByIdentifier(page, docsContext, docsContext.getInterfaceState().getNextTopicAndMoveIndex());
+                if (state.canGoForward()) {
+                    openTopicByIdentifier(page, docsContext, state.getNextTopicAndMoveIndex());
                 }
             }
             case HOME -> {
-                var defaultTopic = documentationService.getDefaultTopic(docsContext.getDocumentations());
+                var documentations = docsContext.getDocumentations().stream()
+                    .filter(documentation -> docsContext.getInterfaceState().getMode() == null || docsContext.getInterfaceState().getMode().has(documentation.getType()))
+                    .toList();
+
+                var defaultTopic = documentationService.getDefaultTopic(documentations);
                 if (defaultTopic.isPresent()) {
-                    docsContext.getInterfaceState().resetHistory();
-                    docsContext.getInterfaceState().pushToHistory(defaultTopic.get(), true);
+                    state.resetHistory();
+                    state.pushToHistory(defaultTopic.get(), true);
                     openTopicByIdentifier(page, docsContext, defaultTopic.get().getTopicIdentifier());
                 } else {
                     ChatInfo.ERROR.send(page.getPlayerRef(), "There is no default topic to open!");
@@ -283,8 +313,8 @@ public class DocumentationViewerService {
             case SEARCH -> {
                 if (data.getTopicSearchQuery() != null) {
                     var updatedDocsContext = DocsContext.of(docsContext);
-                    updatedDocsContext.getInterfaceState().setTopicSearchQuery(data.getTopicSearchQuery());
-                    getInterfacePreferences(page.getPlayerRef().getUuid()).setLastTopicSearchQuery(data.getTopicSearchQuery());
+                    state.setTopicSearchQuery(data.getTopicSearchQuery());
+                    getInterfacePreferences(page.getPlayerRef().getUuid(), state).setLastTopicSearchQuery(data.getTopicSearchQuery());
                     updateDocumentationTree(page, updatedDocsContext);
                 } else {
                     logger.error("PageData with SEARCH action without search query to open!");
@@ -296,11 +326,11 @@ public class DocumentationViewerService {
                     var openedTopic = openTopicByIdentifier(page, docsContext, data.getOpenTopic());
 
                     if (!(openedTopic instanceof InternalTopic)) {
-                        docsContext.getInterfaceState().pushToHistory(openedTopic, true);
+                        state.pushToHistory(openedTopic, true);
                     } else {
                         // Dirty easy hack...
                         // Allows the user to go back to the topic that caused to open internal topic
-                        docsContext.getInterfaceState().pushToHistory(previousTopic, false);
+                        state.pushToHistory(previousTopic, false);
                     }
                 } else {
                     logger.error("PageData with OPEN_TOPIC action without topic identifier to open!");
@@ -333,12 +363,16 @@ public class DocumentationViewerService {
      * Returns {@link InterfacePreferences} for specified player
      *
      * @param playerUuid Player UUID
+     * @param defaultState Default state to load
      *
      * @return Never-null {@link InterfacePreferences}
      */
-    public InterfacePreferences getInterfacePreferences(UUID playerUuid) {
-        // FIXME: Load the current docsContext into newly created InterfacePreferences and/or just use InterfaceState.
-        return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, InterfacePreferences::new);
+    public InterfacePreferences getInterfacePreferences(UUID playerUuid, InterfaceState defaultState) {
+        return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, k -> {
+            var preferences = new InterfacePreferences(k);
+            Objects.requireNonNullElse(defaultState, InterfaceState.DEFAULT_STATE).saveToPreferences(preferences);
+            return preferences;
+        });
     }
 
     public void clearPreferences() {

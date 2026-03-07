@@ -21,6 +21,12 @@ information on Markdown syntax, see Markdown Cheat Sheet (https://www.markdowngu
 > - Task List
 > - Subscript and superscript *(won't be supported due to Hytale's font limitations)*
 
+Topics also have front-matter at the beginning of the file. See **Topic front-matter** topic for more information.
+
+<buttons>
+    <button topic="Docs:front-matter">Topic front-matter</button>
+</buttons>
+
 ## Images
 
 As of version **1.4.0** Voile supports images. Image syntax follows the standard Markdown syntax with an additional

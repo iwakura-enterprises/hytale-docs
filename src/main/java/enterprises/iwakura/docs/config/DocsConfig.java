@@ -1,10 +1,17 @@
 package enterprises.iwakura.docs.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
+import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocumentationType;
+import enterprises.iwakura.docs.object.InterfaceMode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,10 +24,19 @@ public class DocsConfig {
     private boolean updateCheckerEnabled = true;
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
-    private final List<DocumentationType> enabledTypes = new ArrayList<>(DocumentationType.ALL);
+    private final List<DocumentationType> disabledDocumentationTypes = new ArrayList<>();
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
+    private Integration integration = new Integration();
+    private FileSystemCache fileSystemCache = new FileSystemCache();
+    private Sentry sentry = new Sentry();
+
+    public List<InterfaceMode> getAvailableInterfaceModes() {
+        return InterfaceMode.ALL.stream()
+            .filter(mode -> mode != InterfaceMode.HYTALE_MODDING_WIKI || integration.getHytaleModdingWiki().isEnabled())
+            .toList();
+    }
 
     @Data
     public static class Validator {
@@ -61,6 +77,52 @@ public class DocsConfig {
         private boolean enabled = true;
         private int maxImageDownloadFileSizeKb = 1024 * 2; // 2MB
         private int inMemoryTimeToLiveSeconds = 3600; // Hour
-        private int downloadedImagesTimeToLiveSeconds = 86400; // Day
+    }
+
+    @Data
+    public static class Integration {
+
+        private HytaleModdingWiki hytaleModdingWiki = new HytaleModdingWiki();
+
+        @Data
+        public static class HytaleModdingWiki {
+
+            private boolean enabled = true;
+            private boolean preLoadModsInBackground = true;
+            private String urlOverride = null;
+            private String apiTokenOverride = null;
+        }
+    }
+
+    @Data
+    public static class FileSystemCache {
+
+        public static final Map<CacheFileType, Long> DEFAULT_TTL = Arrays.stream(CacheFileType.values())
+            .collect(Collectors.toMap(k -> k, CacheFileType::getDefaultTtlSeconds));
+
+        private boolean enabled = true;
+        private Map<String, Long> cacheTypeTimeToLiveSeconds = new HashMap<>();
+
+        public void ensureAllTypes() {
+            DEFAULT_TTL.forEach((type, ttl) -> cacheTypeTimeToLiveSeconds.putIfAbsent(type.name(), ttl));
+        }
+
+        public Long getCacheTypeTtlSafe(CacheFileType cacheFileType) {
+            var ttl = cacheTypeTimeToLiveSeconds.get(cacheFileType.name());
+
+            if (ttl == null) {
+                ttl = cacheFileType.getDefaultTtlSeconds();
+            }
+
+            return ttl;
+        }
+    }
+
+    @Data
+    public static class Sentry {
+
+        private boolean enabled = true;
+        private UUID serverId = UUID.randomUUID();
+        private String dsnOverride = null;
     }
 }

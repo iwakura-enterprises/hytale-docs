@@ -16,5 +16,6 @@ public class InterfacePreferences {
     private String lastTopicSearchQuery;
     private List<String> topicIdentifierHistory;
     private int topicIdentifierHistoryIndex;
+    private InterfaceMode lastInterfaceMode;
 
 }
