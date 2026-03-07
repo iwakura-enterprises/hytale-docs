@@ -4,9 +4,15 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.7.1
+
+### Minor
+- Fixed opening default topic in the current interface mode when opening the interface for the first time.
+- Fixed navigation buttons not changing to topic's interface mode based on its documentation type.
+
 # 1.7.0
 
-The 1.7.0 update adds brand new integration with Hytale Modding Wiki and more UI/UX improvements.
+The 1.7.0 update adds brand-new integration with Hytale Modding Wiki and more UI/UX improvements.
 
 ### Major
 - Added support for interface modes
