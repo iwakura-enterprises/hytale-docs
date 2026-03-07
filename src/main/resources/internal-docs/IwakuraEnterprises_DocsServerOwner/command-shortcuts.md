@@ -98,4 +98,5 @@ For example, shortcut **/rules** will have permission `iwakuraenterprises.voile.
 
 <buttons>
   <button topic="Docs:configuration">Configuration</button>
+  <button topic="DocsServerOwner:permissions">Permissions</button>
 </buttons>
