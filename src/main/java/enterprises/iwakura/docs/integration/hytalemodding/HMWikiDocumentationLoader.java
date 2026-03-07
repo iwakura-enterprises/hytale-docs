@@ -46,6 +46,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
         var installedModNames = PluginManager.get().getPlugins().stream()
+            .filter(plugin -> !plugin.getIdentifier().getGroup().equals("Hytale"))
             .map(plugin -> plugin.getIdentifier().getName())
             .toList();
         logger.info("└ Loading documentations from Hytale Modding Wiki...");
