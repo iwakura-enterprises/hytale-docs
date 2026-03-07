@@ -4,6 +4,13 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.7.2
+
+### Minor
+- Fixed few NPEs when opening internal not found topic, etc.
+- Fixed checking for installing mods in Hytale Modding Wiki for Hytale default mods
+- Added error logging when error occurs in handlePageData
+
 # 1.7.1
 
 ### Minor
