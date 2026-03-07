@@ -374,6 +374,7 @@ public class DocumentationViewerService {
         var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
+        InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setMode(mode));
         replaceTopicContent(page, updatedDocsContext);
         return topic;
     }
