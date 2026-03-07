@@ -4,6 +4,14 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.7.3
+
+### Minor
+- Added support for webp images
+- Improved Sentry logging
+  - Breadcrumbs from Voile logger
+  - Disabled sending default PII
+
 # 1.7.2
 
 ### Minor
