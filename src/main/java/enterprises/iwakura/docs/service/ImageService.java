@@ -10,12 +10,14 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 
 import com.hypixel.hytale.math.vector.Vector2d;
 
@@ -42,6 +44,16 @@ public class ImageService {
 
     public void init() {
         logger.info("Initializing ImageDownloaderService...");
+
+        // Use Voile's class loader when scanning for plugins, otherwise
+        // ImageIO won't find webp and other plugins.
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(plugin.getClassLoader());
+            ImageIO.scanForPlugins();
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
+        }
     }
 
     public CompletableFuture<Path> downloadImageFrom(String url) {
@@ -142,7 +154,17 @@ public class ImageService {
             var image = ImageIO.read(inputStream);
 
             if (image == null) {
-                throw new IOException("Failed to read image data from " + filePath);
+                String mimeType;
+
+                try {
+                    mimeType = Files.probeContentType(filePath);
+                } catch (IOException exception) {
+                    mimeType = "Unknown (error: " + exception.getMessage() + ")";
+                }
+
+                throw new IOException("Failed to read image data from %s (format unknown to ImageIO: %s)".formatted(
+                    filePath, mimeType
+                ));
             }
 
             try (var baos = new ByteArrayOutputStream()) {

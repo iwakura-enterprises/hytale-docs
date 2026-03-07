@@ -8,8 +8,12 @@ import enterprises.iwakura.docs.Version;
 import enterprises.iwakura.docs.object.CacheIndex;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import io.sentry.Breadcrumb;
+import io.sentry.IScope;
 import io.sentry.ISentryClient;
+import io.sentry.Scope;
 import io.sentry.SentryClient;
+import io.sentry.SentryLevel;
 import io.sentry.SentryOptions;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +29,7 @@ public class SentryService {
     private final Logger logger;
 
     private static ISentryClient sentryClient;
+    private static IScope sentryScope;
 
     /**
      * Initializes SentryService
@@ -46,8 +51,15 @@ public class SentryService {
         var options = new SentryOptions();
         options.setDsn(dsn);
         options.setEnableExternalConfiguration(false);
-        options.setDebug(true);
-        options.setFlushTimeoutMillis(10);
+        options.setMaxBreadcrumbs(50);
+        options.setAttachStacktrace(true);
+        options.setAttachThreads(false);
+        options.setSendDefaultPii(false); // Don't send personally identifiable info
+        options.setMaxQueueSize(30);
+        options.setFlushTimeoutMillis(2000);
+        options.setEnableShutdownHook(true);
+        options.setShutdownTimeoutMillis(2000);
+        options.setServerName(String.valueOf(config.getServerId()));
 
         options.setBeforeSend((event, hint) -> {
             try {
@@ -55,7 +67,6 @@ public class SentryService {
                 event.setTag("java.vendor", System.getProperty("java.vendor"));
                 event.setTag("os.name", System.getProperty("os.name"));
                 event.setTag("os.arch", System.getProperty("os.arch"));
-                event.setTag("hytale.server-id", String.valueOf(config.getServerId()));
                 event.setTag("hytale.dedicated-server", String.valueOf(serverService.isRunningOnDedicatedServer()));
 
                 event.setExtra("hytale.online-players", String.valueOf(Universe.get().getPlayerCount()));
@@ -72,12 +83,21 @@ public class SentryService {
         options.setEnvironment("production");
 
         sentryClient = new SentryClient(options);
+        sentryScope = new Scope(options);
         logger.info("Voile sentry initialized.");
+    }
+
+    public static void addBreadcrumb(String message, SentryLevel level) {
+        if (sentryScope != null) {
+            Breadcrumb breadcrumb = new Breadcrumb(message);
+            breadcrumb.setLevel(level);
+            sentryScope.addBreadcrumb(breadcrumb);
+        }
     }
 
     public static void captureException(Throwable throwable) {
         if (sentryClient != null) {
-            sentryClient.captureException(throwable);
+            sentryClient.captureException(throwable, sentryScope);
         }
     }
 }

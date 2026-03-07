@@ -28,6 +28,10 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.27.1'
     implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.27.1'
 
+    // webp support for ImageIO
+    implementation 'com.twelvemonkeys.imageio:imageio-core:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-webp:3.13.1'
+
     // Runtime Dependency injection + configs + api
     implementation 'enterprises.iwakura:sigewine-core:2.4.1'
     implementation 'enterprises.iwakura:jean-core:1.1.1'
@@ -52,6 +56,7 @@ dependencies {
 shadowJar {
     archiveFileName = "voile-${version}.jar"
     exclude 'fonts/**'
+    mergeServiceFiles()
 }
 
 test {
