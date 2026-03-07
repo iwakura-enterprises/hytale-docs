@@ -70,7 +70,11 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
         @NonNull Store<EntityStore> store,
         DocumentationViewerPage.@NonNull PageData data
     ) {
-        documentationViewerService.handlePageData(this, ref, store, docsContext, data);
+        try {
+            documentationViewerService.handlePageData(this, ref, store, docsContext, data);
+        } catch (Exception exception) {
+            logger.error("Failed to handle page data event: " + data, exception);
+        }
     }
 
     public PlayerRef getPlayerRef() {
