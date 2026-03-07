@@ -26,20 +26,20 @@ public class Documentation {
     /**
      * Group supplying the documentation. E.g. Mod's group or the server's name.
      */
-    private final String group;
+    private final @NonNull String group;
     /**
      * Unique ID for the documentation. Should be without spaces.
      */
-    private final String id;
+    private final @NonNull String id;
     /**
      * Human-readable name for the documentation. It is shown in the UI.
      */
-    private final String name;
+    private final @NonNull String name;
 
     /**
      * The documentation type.
      */
-    private final DocumentationType type;
+    private final @NonNull DocumentationType type;
 
     /**
      * List of topics supplied by the documentation.
@@ -49,7 +49,7 @@ public class Documentation {
     /**
      * User defined sorting index
      */
-    private Integer sortIndex;
+    private int sortIndex;
     /**
      * Additional information for the documentation.
      */

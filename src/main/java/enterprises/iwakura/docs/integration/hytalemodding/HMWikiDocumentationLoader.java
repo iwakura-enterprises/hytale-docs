@@ -100,6 +100,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     private Topic createIndexTopic(Documentation documentation, HMWikiMod mod) {
         var topic = Topic.builder()
             .id(UNLOADED_INDEX_TOPIC_ID_PREFIX + mod.getSlug())
+            .name(Optional.ofNullable(mod.getName()).orElse("Unknown mod"))
             .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
             .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
             .documentation(documentation)

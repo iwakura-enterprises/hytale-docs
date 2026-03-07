@@ -41,19 +41,19 @@ public class Topic {
     /**
      * Unique ID for the topic within the {@link Documentation}
      */
-    private String id;
+    private @NonNull String id;
     /**
      * Human-readable name for the topic.
      */
-    private String name;
+    private @NonNull String name;
     /**
      * The description for the topic.
      */
-    private String description;
+    private @NonNull String description;
     /**
      * The author for the topic.
      */
-    private String author;
+    private @NonNull String author;
     /**
      * The sort index for ordering topics within their branch.
      */
