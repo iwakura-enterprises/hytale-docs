@@ -4,6 +4,33 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.7.0
+
+The 1.7.0 update adds brand new integration with Hytale Modding Wiki and more UI/UX improvements.
+
+### Major
+- Added support for interface modes
+  - Interface modes allows Voile to group certain documentation types within one mode, ensuring good UX.
+  - Interface modes can be switched with top-left button in the interface.
+- Added integration with Hytale Modding Wiki, accessible with new interface mode.
+  - Added two documentation types: **HYTALE_MODDING_WIKI** and **HYTALE_MODDING_WIKI_INSTALLED**
+  - The Hytale Modding Wiki integration can be disabled in the config.
+  - On the first load, Voile will fetch all page in 10 second interval in the background.
+- Added File System Cache
+  - Images and other data can now be cached on the disk.
+  - The file system cache can be reconfigured in the config.
+  - By default, images and Hytale Modding Wiki content is stored for one day.
+
+### Minor
+- Updated Voile's internal docs with new content
+- Fixes & text sanitization when rendering the interface
+- Fixed various NPEs and UI issues when rendering invalid topics
+- Fixed issue when loading config with unknown enum value in map key
+- Removed `enabledTypes` config in favor of `disabledDocumentationTypes`
+- Improved logic when downloading images from the internet
+- Added Sentry
+- Adjusted left padding for lists
+
 # 1.6.2
 
 ### Minor

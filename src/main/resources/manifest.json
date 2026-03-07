@@ -1,11 +1,11 @@
 {
   "Group": "IwakuraEnterprises",
   "Name": "Voile",
-  "Version": "1.6.2-wiki-experiment-2",
-  "Description": "In-game documentation",
+  "Version": "1.7.0",
+  "Description": "In-game wiki",
   "Authors": [
     {
-      "Name": "Mayuna",
+      "Name": "mayuna",
       "Email": "mayuna@iwakura.enterprises"
     }
   ],
