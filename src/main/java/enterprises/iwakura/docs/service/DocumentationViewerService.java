@@ -21,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.object.InterfacePreferences;
 import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.object.InternalTopic;
@@ -76,7 +77,9 @@ public class DocumentationViewerService {
         var documentations = documentationService.getEnabledDocumentations();
         var topicToOpen = Optional.<Topic>empty();
 
-        var lastOpenedTopicIdentifier = Optional.ofNullable(getInterfacePreferences(playerRef.getUuid(), null).getLastOpenedTopicIdentifier());
+        Optional<InterfaceMode> switchToInterfaceMode = Optional.empty();
+        var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), null);
+        var lastOpenedTopicIdentifier = Optional.ofNullable(interfacePreferences.getLastOpenedTopicIdentifier());
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
@@ -97,7 +100,21 @@ public class DocumentationViewerService {
 
         // 3. Default config topic
         if (topicToOpen.isEmpty()) {
-            topicToOpen = documentationService.getDefaultTopic(documentations);
+            var currentInterfaceMode = Optional.ofNullable(interfacePreferences.getLastInterfaceMode())
+                .orElse(InterfaceMode.VOILE);
+            switchToInterfaceMode = Optional.of(currentInterfaceMode);
+            topicToOpen = documentationService.getDefaultTopic(documentations.stream()
+                .filter(documentation -> currentInterfaceMode.has(documentation.getType()))
+                .toList()
+            );
+
+            if (topicToOpen.isEmpty()) {
+                topicToOpen = documentationService.getDefaultTopic(documentations);
+
+                if (topicToOpen.isPresent()) {
+                    switchToInterfaceMode = InterfaceMode.forType(topicToOpen.get().getDocumentation().getType());
+                }
+            }
         }
 
         if (topicToOpen.isEmpty()) {
@@ -107,7 +124,9 @@ public class DocumentationViewerService {
             return CompletableFuture.completedFuture(false);
         }
 
-        return openFor(playerRef, DocsContext.of(playerRef, new InterfaceState(documentations, topicToOpen.get())));
+        var interfaceState = new InterfaceState(documentations, topicToOpen.get());
+        switchToInterfaceMode.ifPresent(interfaceState::setMode);
+        return openFor(playerRef, DocsContext.of(playerRef, interfaceState));
     }
 
     /**

@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.object;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,9 @@ public enum InterfaceMode {
 
     public boolean has(DocumentationType type) {
         return documentationTypes.contains(type);
+    }
+
+    public static Optional<InterfaceMode> forType(DocumentationType type) {
+        return ALL.stream().filter(mode -> mode.has(type)).findFirst();
     }
 }
