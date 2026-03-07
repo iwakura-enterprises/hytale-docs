@@ -589,7 +589,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 """
                     // TopicContentRender#visit(BulletList)
                     Group {
-                        Padding: (Left: 15, Bottom: {{bottom-padding}});
+                        Padding: (Left: 30, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
                     """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
@@ -610,7 +610,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 """
                     // TopicContentRender#visit(OrderedList)
                     Group {
-                        Padding: (Left: 15, Bottom: {{bottom-padding}});
+                        Padding: (Left: 30, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
                     """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
