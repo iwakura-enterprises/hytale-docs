@@ -100,4 +100,10 @@ public class SentryService {
             sentryClient.captureException(throwable, sentryScope);
         }
     }
+
+    public static void captureMessage(String message, SentryLevel level) {
+        if (sentryClient != null) {
+            sentryClient.captureMessage(message, level);
+        }
+    }
 }

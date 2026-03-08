@@ -36,6 +36,7 @@ import enterprises.iwakura.docs.ui.render.TopicRenderer;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import io.sentry.SentryLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -288,6 +289,13 @@ public class DocumentationViewerService {
     ) {
         var state = docsContext.getInterfaceState();
         var action = data.getInterfaceAction();
+
+        if (action == null) {
+            logger.error("Received page data without action! " + data);
+            SentryService.captureMessage("Received page data without action! " + data, SentryLevel.ERROR);
+            return;
+        }
+
         switch (action) {
             case CHANGE_MODE -> {
                 var currentMode = state.getMode();
