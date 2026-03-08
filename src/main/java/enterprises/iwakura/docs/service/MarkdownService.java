@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Heading;
 import org.commonmark.node.HtmlInline;
 import org.commonmark.node.Node;
@@ -42,7 +43,10 @@ public class MarkdownService {
 
         try {
             var parser = Parser.builder()
-                .extensions(List.of(YamlFrontMatterExtension.create()))
+                .extensions(List.of(
+                    YamlFrontMatterExtension.create(),
+                    TablesExtension.create()
+                ))
                 .build();
             return parser.parse(content);
         } catch (Exception exception) {

@@ -4,6 +4,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.commonmark.ext.gfm.tables.TableBlock;
+import org.commonmark.ext.gfm.tables.TableBody;
+import org.commonmark.ext.gfm.tables.TableCell;
+import org.commonmark.ext.gfm.tables.TableCell.Alignment;
+import org.commonmark.ext.gfm.tables.TableHead;
+import org.commonmark.ext.gfm.tables.TableRow;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.BulletList;
@@ -219,7 +225,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
             logger.error("Failed to write parsed markdown content into Hytale UI markup language!", exception);
             return FAILED_TO_WRITE_MARKDOWN
                 .replace("{{topic-id}}", topic.getId())
-                .replace("{{exception-message}}", exception.getMessage());
+                .replace("{{exception-message}}", markdownService.escapeText(exception.getMessage()));
         }
     }
 
@@ -231,6 +237,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         private ListHolder listHolder;
         private Message message;
+        private boolean tableRenderingHead;
 
         @Override
         public Set<Class<? extends Node>> getNodeTypes() {
@@ -254,13 +261,13 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 SoftLineBreak.class,
                 StrongEmphasis.class,
                 Text.class,
-                ThematicBreak.class
+                ThematicBreak.class,
+                TableBlock.class,
+                TableHead.class,
+                TableBody.class,
+                TableRow.class,
+                TableCell.class
             );
-        }
-
-        @Override
-        public void render(Node node) {
-            node.accept(this);
         }
 
         @Override
@@ -268,6 +275,33 @@ public class TopicContentRenderer implements Renderer<Topic> {
             // No rendering itself
             visitChildren(document);
             writer.line();
+        }
+
+        @Override
+        protected void visitChildren(Node parent) {
+            Node child = parent.getFirstChild();
+            while (child != null) {
+                Node next = child.getNext();
+                render(child);
+                child = next;
+            }
+        }
+
+        @Override
+        public void render(Node node) {
+            if (node instanceof TableBlock) {
+                visit((TableBlock) node);
+            } else if (node instanceof TableHead) {
+                visit((TableHead) node);
+            } else if (node instanceof TableBody) {
+                visit((TableBody) node);
+            } else if (node instanceof TableRow) {
+                visit((TableRow) node);
+            } else if (node instanceof TableCell) {
+                visit((TableCell) node);
+            } else {
+                node.accept(this);
+            }
         }
 
         @Override
@@ -335,9 +369,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 paragraph.getNext() instanceof FencedCodeBlock ||
                 paragraph.getNext() instanceof IndentedCodeBlock ||
                 paragraph.getParent() instanceof ListItem ||
-                paragraph.getParent() instanceof BlockQuote ||
-                (paragraph.getParent() instanceof Document &&
-                    paragraph.getPrevious() == null && paragraph.getNext() == null);
+                paragraph.getNext() == null ||
+                (paragraph.getParent() instanceof Document && paragraph.getPrevious() == null && paragraph.getNext() == null);
 
             boolean imageParagraph = paragraph.getFirstChild() instanceof Image;
 
@@ -764,6 +797,107 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     .replace("{{width}}", String.valueOf(imageSize.getX()))
                     .replace("{{height}}", String.valueOf(imageSize.getY()))
             );
+
+            writer.block();
+        }
+
+        protected void visit(TableBlock tableBlock) {
+            // Prep the table group
+            writer.raw(
+                """
+                    // TopicContentRender#visit(TableBlock)
+                    Group {
+                        LayoutMode: MiddleCenter;
+                        Padding: (Bottom: 10);
+
+                        Group {
+                            LayoutMode: Top;
+                            Padding: (Left: 2, Right: 2, Top: 2, Bottom: 3); // what. For some reason, bottom outline is cut out by 1 pixel.
+                            OutlineColor: #203651;
+                            OutlineSize: 2;
+
+                """
+            );
+
+            // Visits TableHead and optionally TableBody
+            visitChildren(tableBlock);
+
+            writer.raw("}}");
+            writer.block();
+        }
+
+        protected void visit(TableHead tableHead) {
+            tableRenderingHead = true;
+            visitChildren(tableHead);
+            tableRenderingHead = false;
+        }
+
+        protected void visit(TableBody tableBody) {
+            visitChildren(tableBody);
+        }
+
+        protected void visit(TableRow tableRow) {
+            writer.raw(
+                """
+                    // TopicContentRender#visit(TableRow)
+                    Group {
+                        LayoutMode: Left;
+                """
+
+            );
+
+            visitChildren(tableRow);
+            writer.raw("}");
+            writer.block();
+        }
+
+        protected void visit(TableCell tableCell) {
+            String backgroundColor = tableRenderingHead ?
+                "#0e151d"
+                : "#121a24";
+
+            var textSelector = generateTextSelector();
+            var cellAlignment = tableCell.getAlignment();
+
+            if (cellAlignment == null) {
+                if (tableRenderingHead) {
+                    cellAlignment = Alignment.CENTER;
+                } else {
+                    cellAlignment = Alignment.LEFT;
+                }
+            }
+
+            var contentAlignment = switch (cellAlignment) {
+                case LEFT -> "Left";
+                case CENTER -> "CenterMiddle";
+                case RIGHT -> "Right";
+            };
+
+            writer.raw(
+                """
+                // TopicContentRender#visit(TableCell)
+                Group {
+                    Anchor: (MaxWidth: 500); // Magic value: 500 max width fixes wrapping of labels. Why? I don't know.
+                    Padding: (Horizontal: 15, Vertical: 10);
+                    LayoutMode: {{content-alignment}};
+                    FlexWeight: 1;
+                    Background: {{background-color}};
+
+                    Label #{{text-selector}} {
+                        Style: (Wrap: true, RenderBold: {{render-bold}});
+                    }
+                }
+                """
+                .replace("{{text-selector}}", textSelector)
+                .replace("{{content-alignment}}", contentAlignment)
+                .replace("{{render-bold}}", String.valueOf(tableRenderingHead))
+                .replace("{{background-color}}", backgroundColor)
+            );
+
+            // Prepare message for any text
+            message = Message.raw("");
+            visitChildren(tableCell);
+            docsContext.getCommandBuilder().set("#" + textSelector + ".TextSpans", message);
 
             writer.block();
         }

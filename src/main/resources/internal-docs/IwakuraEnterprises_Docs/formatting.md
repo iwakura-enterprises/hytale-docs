@@ -151,6 +151,57 @@ either when starting the server or when their TTL expires (defaults to one day).
 > **Important note:** Online images should be used only in the server documentations. Mod developers **should always**
 > prefer referencing images from assets. This greatly improves loading time and UX.
 
+## Tables
+
+As of version **1.8.0** Voile supports tables. Table syntax follows the standard Markdown syntax.
+Tables are always rendered in the middle of the topic.
+
+```md
+| Header 1 | Header 2 | Header 3 |
+|:---------|:--------:|---------:|
+| a        |    b     |        c |
+| d        |    e     |        f |
+```
+
+You may adjust cell's alignment using the header divider.
+
+| Divider | Alignment                            |
+|:-------:|--------------------------------------|
+|  `---`  | Default, header center, content left |
+| `:---`  | Header and content left              |
+| `---:`  | Header and content right             |
+| `:---:` | Header and content center            |
+
+Table's headers are always rendered as bold and with darker background. All formatting inside the table cells
+is supported, including colors.
+
+> **Warning:** Due to Hytale's UI limitations, there's no easy way to format the table in such a way that
+> it won't cover the full topic's width.
+> 
+> Also, there are some edge cases, such as large amounts of columns or long cell contents, that may yield
+> incorrectly rendered text. Best practice is to limit the number of columns and the content's length.
+
+Another example table can be seen here:
+
+| Class       | Name            | Guild              | Level |
+|:------------|:----------------|:-------------------|------:|
+| Warrior     | Aldric Ironfist | Iron Vanguard      |    42 |
+| Mage        | Seraphine Ash   | Arcane Brotherhood |    38 |
+| Rogue       | Vex Shadowstep  | Shadow Syndicate   |    55 |
+| Paladin     | Orynn Lightbane | Order of the Dawn  |    29 |
+| Necromancer | Mara Duskwell   | Cult of the Grave  |    67 |
+
+```md
+| Class       | Name            | Guild              | Level |
+|:------------|:----------------|:-------------------|------:|
+| Warrior     | Aldric Ironfist | Iron Vanguard      |    42 |
+| Mage        | Seraphine Ash   | Arcane Brotherhood |    38 |
+| Rogue       | Vex Shadowstep  | Shadow Syndicate   |    55 |
+| Paladin     | Orynn Lightbane | Order of the Dawn  |    29 |
+| Necromancer | Mara Duskwell   | Cult of the Grave  |    67 |
+```
+
+
 ## Colors
 
 The markdown renderer supports various color formatting. This is done thanks to
