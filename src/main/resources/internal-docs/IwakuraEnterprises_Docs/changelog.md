@@ -4,6 +4,19 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.8.0
+
+### Major
+- Added initial support for Markdown tables.
+  - Due to Hytale's UI limitations, the tables may render incorrectly. This is initial
+  implementation that isn't perfect.
+  - Currently, there's no way to manually resize table's columns.
+
+### Minor
+- Fixed text escape when exception occurs during Markdown rendering and the error has quotation marks.
+- Fixed paragraph padding in multiline blockquote.
+- Fixed NPE when handling page data with null action
+
 # 1.7.3
 
 ### Minor
