@@ -28,6 +28,7 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.27.1'
     implementation 'org.commonmark:commonmark-ext-yaml-front-matter:0.27.1'
     implementation 'org.commonmark:commonmark-ext-gfm-tables:0.27.1'
+    implementation 'fr.brouillard.oss:commonmark-ext-notifications:2.0.0-beta1'
 
     // webp support for ImageIO
     implementation 'com.twelvemonkeys.imageio:imageio-core:3.13.1'

@@ -21,6 +21,7 @@ import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import fr.brouillard.oss.commonmark.ext.notifications.NotificationsExtension;
 import lombok.RequiredArgsConstructor;
 
 @Bean
@@ -46,7 +47,8 @@ public class MarkdownService {
             var parser = Parser.builder()
                 .extensions(List.of(
                     YamlFrontMatterExtension.create(),
-                    TablesExtension.create()
+                    TablesExtension.create(),
+                    NotificationsExtension.create()
                 ))
                 .build();
             return parser.parse(content);

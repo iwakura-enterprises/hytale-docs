@@ -50,6 +50,7 @@ import enterprises.iwakura.docs.util.ExceptionUtils;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.ResizeUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import fr.brouillard.oss.commonmark.ext.notifications.NotificationBlock;
 import io.github.insideranh.talemessage.TaleMessage;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -266,7 +267,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 TableHead.class,
                 TableBody.class,
                 TableRow.class,
-                TableCell.class
+                TableCell.class,
+                NotificationBlock.class
             );
         }
 
@@ -299,6 +301,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 visit((TableRow) node);
             } else if (node instanceof TableCell) {
                 visit((TableCell) node);
+            } else if (node instanceof NotificationBlock) {
+                visit((NotificationBlock) node);
             } else {
                 node.accept(this);
             }
@@ -366,6 +370,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
             // Skips padding at the bottom if it is in list and is not the last item
             boolean shouldSkipPadding =
                 paragraph.getNext() instanceof BlockQuote ||
+                paragraph.getNext() instanceof NotificationBlock ||
                 paragraph.getNext() instanceof FencedCodeBlock ||
                 paragraph.getNext() instanceof IndentedCodeBlock ||
                 paragraph.getParent() instanceof ListItem ||
@@ -462,6 +467,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         public void visit(BlockQuote blockQuote) {
             boolean shouldSkipTopPadding =
                 blockQuote.getPrevious() instanceof BlockQuote ||
+                blockQuote.getPrevious() instanceof NotificationBlock ||
                     blockQuote.getPrevious() instanceof Heading;
 
             writer.line();
@@ -615,7 +621,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(BulletList bulletList) {
             boolean bottomPadding = listHolder == null &&
-                !(bulletList.getParent() instanceof BlockQuote && bulletList.getNext() == null);
+                !((bulletList.getParent() instanceof BlockQuote
+                    || bulletList.getParent() instanceof NotificationBlock) && bulletList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -636,7 +643,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(OrderedList orderedList) {
             boolean bottomPadding = listHolder == null &&
-                !(orderedList.getParent() instanceof BlockQuote && orderedList.getNext() == null);
+                !((orderedList.getParent() instanceof BlockQuote
+                    || orderedList.getParent() instanceof NotificationBlock) && orderedList.getNext() == null);
 
             writer.line();
             writer.raw(
@@ -899,6 +907,52 @@ public class TopicContentRenderer implements Renderer<Topic> {
             visitChildren(tableCell);
             docsContext.getCommandBuilder().set("#" + textSelector + ".TextSpans", message);
 
+            writer.block();
+        }
+
+        public void visit(NotificationBlock notificationBlock) {
+            boolean shouldSkipTopPadding =
+                notificationBlock.getPrevious() instanceof BlockQuote ||
+                notificationBlock.getPrevious() instanceof NotificationBlock ||
+                    notificationBlock.getPrevious() instanceof Heading;
+
+            String backgroundColor = switch (notificationBlock.getType()) {
+                case INFO -> "#00529b";
+                case SUCCESS -> "#4f8a10";
+                case WARNING -> "#9f6000";
+                case ERROR -> "#d8000c";
+            };
+
+            String outlineColor = switch (notificationBlock.getType()) {
+                case INFO -> "#1a6db5";
+                case SUCCESS -> "#6aad1e";
+                case WARNING -> "#c47d00";
+                case ERROR -> "#f21a29";
+            };
+            
+            writer.line();
+            writer.raw(
+                """
+                    // TopicContentRender#visit(NotificationBlock)
+                    Group {
+                        Padding: (Horizontal: 15, Bottom: 16, Top: {{top-padding}});
+                        LayoutMode: Left;
+
+                        Group {
+                            LayoutMode: Top;
+                            Padding: (Full: 15);
+                            Background: {{background-color}}(0.4);
+                            OutlineColor: {{outline-color}};
+                            OutlineSize: 2;
+                    """
+                    .replace("{{background-color}}", backgroundColor)
+                    .replace("{{outline-color}}", outlineColor)
+                    .replace("{{top-padding}}", shouldSkipTopPadding ? "0" : "16")
+            );
+
+            visitChildren(notificationBlock);
+
+            writer.raw("}}");
             writer.block();
         }
 

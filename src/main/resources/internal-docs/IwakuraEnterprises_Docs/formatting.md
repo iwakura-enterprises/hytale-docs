@@ -201,6 +201,30 @@ Another example table can be seen here:
 | Necromancer | Mara Duskwell   | Cult of the Grave  |    67 |
 ```
 
+## Admonitions
+
+As of version **1.8.1** Voile supports admonitions. They are used to convey some kind of a warning to the player. There
+are four types of admonitions: info, success, warning, error. Admonitions act in the same way as block quotes (`>`).
+
+! This is an info message.
+
+!v This is a success message.
+
+!! This is a warning message.
+
+!x This is an error message.
+
+```md
+! This is an info message.
+
+!v This is a success message.
+
+!! This is a warning message.
+
+!x This is an error message.
+```
+
+!! As of now, admonitions can have only one paragraph.
 
 ## Colors
 
