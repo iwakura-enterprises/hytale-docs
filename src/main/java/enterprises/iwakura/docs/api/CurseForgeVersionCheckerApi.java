@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 
+import enterprises.iwakura.docs.api.kirara.VoileGsonSerializer;
 import enterprises.iwakura.kirara.core.ApiRequest;
 import enterprises.iwakura.kirara.core.Kirara;
 import enterprises.iwakura.kirara.core.PathParameter;
@@ -24,7 +25,7 @@ public class CurseForgeVersionCheckerApi extends Kirara {
     public static final Pattern VERSION_PATTERN = Pattern.compile(".*-(\\d+\\.\\d+\\.\\d+)\\.jar$");
 
     public CurseForgeVersionCheckerApi(Gson gson) {
-        super(new HttpClientHttpCore(), new GsonSerializer(gson));
+        super(new HttpClientHttpCore(), new VoileGsonSerializer(gson));
         setApiUrl("https://www.curseforge.com/api/v1");
     }
 

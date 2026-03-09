@@ -291,8 +291,7 @@ public class DocumentationViewerService {
         var action = data.getInterfaceAction();
 
         if (action == null) {
-            logger.error("Received page data without action! " + data);
-            SentryService.captureMessage("Received page data without action! " + data, SentryLevel.ERROR);
+            logger.warn("Received page data without action! " + data);
             return;
         }
 

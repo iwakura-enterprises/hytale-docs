@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiPageContentResponse;
 import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModListResponse;
 import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModResponse;
+import enterprises.iwakura.docs.api.kirara.VoileGsonSerializer;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.kirara.core.ApiRequest;
@@ -43,7 +44,7 @@ public class HMWikiApi extends Kirara {
     private final Logger logger;
 
     public HMWikiApi(Gson gson, ConfigurationService configurationService, Logger logger) {
-        super(new HttpClientHttpCore(HTTP_CLIENT), new GsonSerializer(gson));
+        super(new HttpClientHttpCore(HTTP_CLIENT), new VoileGsonSerializer(gson));
         this.configurationService = configurationService;
         this.logger = logger;
     }

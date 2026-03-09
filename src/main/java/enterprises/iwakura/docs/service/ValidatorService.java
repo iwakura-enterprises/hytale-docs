@@ -32,6 +32,7 @@ import enterprises.iwakura.docs.util.ExceptionUtils;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.ReflectionUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import io.sentry.SentryLevel;
 import lombok.RequiredArgsConstructor;
 
 @Bean
