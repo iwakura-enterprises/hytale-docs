@@ -4,6 +4,16 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.8.1
+
+### Minor
+- Added blur behind Voile's interface.
+- Added initial admonition support, check **Formatting** topic for more info.
+- Fixed code stylization in headings not showing up as text in chapter tree list.
+- Improved Sentry logging.
+  - Specifying server version and installed plugins.
+  - Ignoring some SSL-related exceptions.
+
 # 1.8.0
 
 ### Major
