@@ -127,8 +127,6 @@ public class SentryService {
         sentryClient = new SentryClient(options);
         sentryScope = new Scope(options);
         logger.info("Voile sentry initialized.");
-
-        captureMessage("Testing message", SentryLevel.ERROR);
     }
 
     public static void addBreadcrumb(String message, SentryLevel level) {

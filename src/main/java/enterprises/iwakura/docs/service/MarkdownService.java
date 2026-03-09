@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.Code;
 import org.commonmark.node.Heading;
 import org.commonmark.node.HtmlInline;
 import org.commonmark.node.Node;
@@ -96,10 +97,12 @@ public class MarkdownService {
         StringBuilder text = new StringBuilder();
         Node child = node.getFirstChild();
         while (child != null) {
-            if (child instanceof Text) {
-                text.append(((Text) child).getLiteral());
+            if (child instanceof Text textNode) {
+                text.append(textNode.getLiteral());
             } else if (child instanceof SoftLineBreak) {
                 text.append(" ");
+            } else if (child instanceof Code code) {
+                text.append(code.getLiteral());
             } else {
                 text.append(extractText(child));
             }
