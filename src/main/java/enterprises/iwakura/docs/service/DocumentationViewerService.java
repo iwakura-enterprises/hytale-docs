@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -26,6 +25,7 @@ import enterprises.iwakura.docs.object.InterfacePreferences;
 import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.object.InternalTopic;
 import enterprises.iwakura.docs.object.Topic;
+import enterprises.iwakura.docs.ui.AboutVoilePage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeRenderer;
@@ -36,7 +36,6 @@ import enterprises.iwakura.docs.ui.render.TopicRenderer;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
-import io.sentry.SentryLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -63,6 +62,7 @@ public class DocumentationViewerService {
     private final TopicRenderer topicRenderer;
     private final TopicChapterTreeRenderer topicChapterTreeRenderer;
     private final RuntimeImageAssetService runtimeImageAssetService;
+    private final DebugService debugService;
     private final Logger logger;
 
     /**
@@ -242,6 +242,25 @@ public class DocumentationViewerService {
     }
 
     /**
+     * Opens about voile page
+     *
+     * @param page Page
+     */
+    private void openAboutVoilePage(DocumentationViewerPage page) {
+        var playerRef = page.getPlayerRef();
+        var player = page.getPlayer();
+
+        if (player == null) {
+            return;
+        }
+
+        var ref = playerRef.getReference();
+        var store = ref.getStore();
+
+        player.getPageManager().openCustomPage(ref, store, new AboutVoilePage(playerRef, false, debugService));
+    }
+
+    /**
      * Updates only the topic chapter tree in the interface
      *
      * @param page    Page
@@ -363,7 +382,10 @@ public class DocumentationViewerService {
                 }
 
             }
-            default -> logger.error("No interface action specified in page data " + data);
+            case OPEN_ABOUT_VOILE_PAGE -> {
+                openAboutVoilePage(page);
+            }
+            default -> logger.error("Invalid interface action specified in page data " + data);
         }
     }
 

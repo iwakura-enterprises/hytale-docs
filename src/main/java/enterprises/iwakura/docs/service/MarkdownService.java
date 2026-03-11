@@ -190,44 +190,4 @@ public class MarkdownService {
         }
         return content;
     }
-
-    /**
-     * Creates Markdown tree for list of documentations
-     *
-     * @param documentations Documentations
-     *
-     * @return Markdown content
-     */
-    public String createDocumentationTreeMarkdown(List<Documentation> documentations) {
-        var markdown = new StringBuilder();
-
-        for (Documentation documentation : documentations) {
-            markdown.append("# %s:%s\n".formatted(documentation.getGroup(), documentation.getId()));
-
-            for (Topic topic : documentation.getTopics()) {
-                markdown.append(createTopicTreeMarkdown(topic, 2));
-            }
-        }
-
-        return markdown.toString();
-    }
-
-    /**
-     * Creates Markdown tree for topic
-     *
-     * @param topic  Topic
-     * @param indent Number of space indents before the topic
-     *
-     * @return Markdown content
-     */
-    public String createTopicTreeMarkdown(Topic topic, int indent) {
-        var markdown = new StringBuilder();
-        markdown.repeat(" ", indent).append("- %s\n".formatted(topic.getId()));
-
-        for (Topic subTopic : topic.getTopics()) {
-            markdown.append(createTopicTreeMarkdown(subTopic, indent + 2));
-        }
-
-        return markdown.toString();
-    }
 }

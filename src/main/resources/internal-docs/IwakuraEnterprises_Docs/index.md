@@ -31,13 +31,15 @@ Are you developing a mod that requires wiki? Voile is the perfect solution.
   <button topic="DocsDeveloper:index">Hello, World!</button>
 </buttons>
 
-## Support & suggestions
+## Support / Suggestions / Planned features
 
-There are more ways to get support:
-- Send me a message on Discord -> **mayuna_**
-- Join support Discord server -> **https://support.voile.dev**
-- Contact me via e-mail -> `mayuna@iwakura.enterprises`
+```
+* Download: https://download.voile.dev
+* Website: https://voile.dev
+* Documentation: https://docs.voile.dev
+* Support: https://support.voile.dev
+* Support e-mail: mauyna@iwakura.enterprises
+* Roadmap: https://youtrack.iwakura.enterprises
+```
 
-## Planned features and future plans
-
-You can check out planned features at **https://youtrack.iwakura.enterprises**
+!v You can click the top left Voile text to see debug information.

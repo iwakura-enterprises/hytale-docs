@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FallbackTopicService {
 
-    private final MarkdownService markdownService;
+    private final DebugService debugService;
 
     public static Topic noTopicSet() {
         return new InternalTopic(
@@ -37,7 +37,7 @@ public class FallbackTopicService {
      * @return Topic
      */
     public Topic createTopicNotFound(List<Documentation> documentations, String topicIdentifier) {
-        var documentationTree = markdownService.createDocumentationTreeMarkdown(documentations);
+        var documentationTree = debugService.createDocumentationTreeMarkdown(documentations);
 
         return new InternalTopic(
             "topic_not_found",

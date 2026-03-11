@@ -142,7 +142,8 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
             FORWARD,
             HOME,
             OPEN_TOPIC,
-            SEARCH;
+            SEARCH,
+            OPEN_ABOUT_VOILE_PAGE;
         }
     }
 }

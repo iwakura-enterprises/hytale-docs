@@ -37,7 +37,6 @@ public class SentryService {
 
     public static final String DEFAULT_DSN = "https://3c85b34fde4f402694826c65213c0dc4@glitchtip.iwakura.enterprises/4";
 
-    private static final Map<String, String> installedPluginsMap = new HashMap<>();
     private static final List<Class<? extends Throwable>> ignoredExceptions = List.of(
         SSLHandshakeException.class,
         UnresolvedAddressException.class,
@@ -47,6 +46,7 @@ public class SentryService {
 
     private final FileSystemCacheService fileSystemCacheService;
     private final ServerService serverService;
+    private final DebugService debugService;
     private final ConfigurationService configurationService;
     private final Logger logger;
 
@@ -63,13 +63,6 @@ public class SentryService {
             logger.warn("Voile sentry is disabled.");
             return;
         }
-
-        installedPluginsMap.putAll(PluginManager.get().getPlugins().stream()
-            .filter(plugin -> !plugin.getIdentifier().getGroup().equals("Hytale"))
-            .collect(Collectors.toMap(
-                k -> k.getIdentifier().toString(),
-                v -> v.getManifest().getVersion().toString()
-            )));
 
         var dsn = Optional.ofNullable(config.getDsnOverride()).orElse(DEFAULT_DSN);
 
@@ -110,8 +103,8 @@ public class SentryService {
                 event.setTag("hytale.version", ManifestUtil.getVersion());
 
                 event.setExtra("hytale.online-players", Universe.get().getPlayerCount());
-                event.setExtra("hytale.plugin-count", installedPluginsMap.size());
-                event.setExtra("hytale.plugins", installedPluginsMap);
+                event.setExtra("hytale.plugin-count", debugService.getInstalledPluginsMap().size());
+                event.setExtra("hytale.plugins", debugService.getInstalledPluginsMap());
                 event.setExtra("voile.file-system-cache.size", Optional.ofNullable(fileSystemCacheService.getCacheIndex()).map(CacheIndex::size).orElse(0));
                 event.setExtra("voile.runtime-image-asset.size", RuntimeImageAssetService.getRUNTIME_IMAGE_ASSET_MAP().size());
                 event.setExtra("voile.runtime-image-asset.players", RuntimeImageAssetService.getPLAYER_RUNTIME_IMAGE_ASSETS_MAP().size());

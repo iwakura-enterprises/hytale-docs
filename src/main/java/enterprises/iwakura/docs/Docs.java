@@ -6,6 +6,7 @@ import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
 import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
+import enterprises.iwakura.docs.command.AboutVoileCommand;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
 import enterprises.iwakura.docs.command.DocsCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
@@ -13,6 +14,7 @@ import enterprises.iwakura.docs.config.DocsConfig.CommandShortcuts.Command;
 import enterprises.iwakura.docs.integration.hytalemodding.HMWikiService;
 import enterprises.iwakura.docs.listener.BaseGlobalListener;
 import enterprises.iwakura.docs.service.ConfigurationService;
+import enterprises.iwakura.docs.service.DebugService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.ImageService;
@@ -36,6 +38,7 @@ public class Docs {
 
     private final DocsCommand docsCommand;
     private final ReloadCommand reloadCommand;
+    private final AboutVoileCommand aboutVoileCommand;
 
     private final VoileAPI voileAPI;
     private final HMWikiApi hmWikiApi;
@@ -50,6 +53,7 @@ public class Docs {
     private final HMWikiService hytaleModdingWikiService;
     private final FileSystemCacheService fileSystemCacheService;
     private final SentryService sentryService;
+    private final DebugService debugService;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -59,6 +63,7 @@ public class Docs {
         logger.info("Made by Iwakura Enterprises");
 
         configurationService.init();
+        debugService.init();
         sentryService.init();
         validatorService.init(plugin.getDataDirectory());
         updateCheckerService.init();
@@ -74,6 +79,7 @@ public class Docs {
         registerCommandShortcuts();
         plugin.getCommandRegistry().registerCommand(docsCommand);
         plugin.getCommandRegistry().registerCommand(reloadCommand);
+        plugin.getCommandRegistry().registerCommand(aboutVoileCommand);
 
         logger.info("Registering global listeners...");
         globalListeners.forEach(this::registerGlobalListener);
