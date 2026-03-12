@@ -63,7 +63,7 @@ public class AboutVoilePage extends InteractiveCustomUIPage<PageData> {
 
                     CodeEditor #DebugCodeEditor {
                         Anchor: (Left: -315, Top: 135, Width: 530, Height: 340);
-                        Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
+                        Style: (TextColor: #FAD7E9, FontSize: 16, FontName: "Mono");
                         IsReadOnly: true;
                         LineNumberBackground: #000000(0.0);
                         LineNumberTextColor: #000000(0.0);

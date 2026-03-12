@@ -63,13 +63,7 @@ public class FileSystemCacheService {
 
     public void reload() {
         var cacheDirectory = getCacheDirectory();
-        if (!Files.exists(cacheDirectory)) {
-            try {
-                Files.createDirectories(cacheDirectory);
-            } catch (Exception exception) {
-                throw new IllegalStateException("Failed to create cache directory at " + cacheDirectory, exception);
-            }
-        }
+        ensureCacheDirectoryExists();
 
         var cacheIndexPath = cacheDirectory.resolve(CACHE_INDEX_FILE_NAME);
         try {
@@ -87,6 +81,20 @@ public class FileSystemCacheService {
 
         logger.info("Loaded %d file system cache entries".formatted(cacheIndex.size()));
         refresh(true);
+    }
+
+    /**
+     * Ensures that the cache directory exists
+     */
+    private void ensureCacheDirectoryExists() {
+        var cacheDirectory = getCacheDirectory();
+        if (!Files.exists(cacheDirectory)) {
+            try {
+                Files.createDirectories(cacheDirectory);
+            } catch (Exception exception) {
+                throw new IllegalStateException("Failed to create cache directory at " + cacheDirectory, exception);
+            }
+        }
     }
 
     /**
@@ -135,6 +143,7 @@ public class FileSystemCacheService {
                 var filePath = entry.getFilePath();
 
                 try {
+                    ensureCacheDirectoryExists();
                     var fileBytes = Files.readAllBytes(filePath);
 
                     if (clazz == byte[].class) {
@@ -201,6 +210,7 @@ public class FileSystemCacheService {
         }
 
         try {
+            ensureCacheDirectoryExists();
             Files.write(filePath, bytes);
             return new LoadedEntry<>(entry, filePath, null);
         } catch (IOException exception) {
@@ -216,6 +226,7 @@ public class FileSystemCacheService {
     private void saveCacheIndex() {
         var indexFilePath = getCacheDirectory().resolve(CACHE_INDEX_FILE_NAME);
         try {
+            ensureCacheDirectoryExists();
             ObjectLoader.saveTo(cacheIndex, indexFilePath, gson);
         } catch (IOException exception) {
             logger.error("Failed to save cache index to " + indexFilePath, exception);
@@ -224,6 +235,8 @@ public class FileSystemCacheService {
 
     private void refresh(boolean verbose) {
         final var cacheDirectory = getCacheDirectory();
+        ensureCacheDirectoryExists();
+
         var config = configurationService.getDocsConfig().getFileSystemCache();
         if (verbose) {
             logger.info("Refreshing the file system cache...");
@@ -260,7 +273,7 @@ public class FileSystemCacheService {
             files.forEach(cacheFile -> {
                 var fileName = cacheFile.getFileName().toString();
                 // Skip the cache directory itself and the index file
-                if (cacheFile.equals(cacheDirectory) || fileName.equals(CACHE_INDEX_FILE_NAME) || !fileName.endsWith(CACHE_FILE_SUFFIX)) {
+                if (Files.isDirectory(cacheFile) || fileName.equals(CACHE_INDEX_FILE_NAME) || !fileName.endsWith(CACHE_FILE_SUFFIX)) {
                     return;
                 }
 
@@ -284,6 +297,8 @@ public class FileSystemCacheService {
         if (verbose || !fileNamesToRemove.isEmpty()) {
             logger.info("Total file system cache size: " + cacheIndex.size());
         }
+
+        ensureCacheDirectoryExists();
     }
 
     private Path getCacheDirectory() {
