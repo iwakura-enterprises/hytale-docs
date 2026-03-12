@@ -4,6 +4,14 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.8.2
+
+### Minor
+- Adjusted Voile's version text in the interface.
+- Added Voile About page when clicking the version text in the interface.
+- Added command /debug-voile that shows additional debug information useful for debugging issues.
+- Hardened cache directory existence, ensuring it exists when saving/loading/refreshing files.
+
 # 1.8.1
 
 ### Minor
