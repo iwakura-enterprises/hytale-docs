@@ -1,14 +1,14 @@
 package enterprises.iwakura.docs.integration.hytalemodding;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-import com.hypixel.hytale.server.core.plugin.PluginBase;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
 
-import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
 import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
 import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod.User;
@@ -42,13 +42,17 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     private final HMWikiApi hmWikiApi;
     private final Logger logger;
 
+    private final Set<String> installedModNames = new HashSet<>();
+
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
-        var installedModNames = PluginManager.get().getPlugins().stream()
+
+        installedModNames.clear();
+        installedModNames.addAll(PluginManager.get().getPlugins().stream()
             .filter(plugin -> !plugin.getIdentifier().getGroup().equals("Hytale"))
-            .map(plugin -> plugin.getIdentifier().getName())
-            .toList();
+            .map(plugin -> plugin.getIdentifier().getName()).toList());
+
         logger.info("└ Loading documentations from Hytale Modding Wiki...");
 
         HMWikiModListResponse modList;
@@ -70,7 +74,8 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
                         "Failed to fetch response from HM Wiki: " + modList.getError());
                 }
                 // Gotta return .getMods() as GSON deserializes list of mods
-                fileSystemCacheService.saveByName(CACHE_FILE_MOD_LIST_NAME, CacheFileType.HYTALE_MODDING_WIKI_MOD_LIST, modList.getMods());
+                fileSystemCacheService.saveByName(CACHE_FILE_MOD_LIST_NAME, CacheFileType.HYTALE_MODDING_WIKI_MOD_LIST,
+                    modList.getMods());
             }
         } catch (Exception exception) {
             logger.error("Failed to load mod list from HM Wiki", exception);
@@ -81,11 +86,9 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
         return modList.getMods().stream()
             .map(mod -> {
-                var isInstalled = installedModNames.stream()
-                    .anyMatch(installedModName -> StringUtils.isSimilar(installedModName, mod.getName()));
-
                 var documentation = Documentation.builder()
-                    .type(isInstalled ? DocumentationType.HYTALE_MODDING_WIKI_INSTALLED : DocumentationType.HYTALE_MODDING_WIKI)
+                    .type(isModInstalled(mod.getName()) ? DocumentationType.HYTALE_MODDING_WIKI_INSTALLED
+                        : DocumentationType.HYTALE_MODDING_WIKI)
                     .group("voile_hm_wiki")
                     .id("%s_%s".formatted(mod.getSlug(), mod.getId()))
                     .name(mod.getName())
@@ -174,9 +177,10 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
             if (loadedPageContent.isPresent() && !loadedPageContent.get().getData().hasError()) {
                 // Content cached, load
-                logger.info("Loaded page content for mod %s for page %s into topic %s from file system cache (created at %s)".formatted(
-                    mod, page, topic, loadedPageContent.get().getEntry().getCreatedAt()
-                ));
+                logger.info(
+                    "Loaded page content for mod %s for page %s into topic %s from file system cache (created at %s)".formatted(
+                        mod, page, topic, loadedPageContent.get().getEntry().getCreatedAt()
+                    ));
                 topic.setMarkdownContent(loadedPageContent.get().getData().getMarkdownContent());
             } else {
                 logger.info("Loading page content for mod %s for page %s into topic %s from HM Wiki".formatted(
@@ -190,13 +194,15 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
                 topic.setMarkdownContent(response.getMarkdownContent());
 
-                fileSystemCacheService.saveByName(cacheFileName, CacheFileType.HYTALE_MODDING_WIKI_PAGE_CONTENT, response);
+                fileSystemCacheService.saveByName(cacheFileName, CacheFileType.HYTALE_MODDING_WIKI_PAGE_CONTENT,
+                    response);
             }
         } catch (Exception exception) {
             logger.error("Failed to fetch page content for page %s for mod %s from HM Wiki!".formatted(
                 page, mod
             ), exception);
-            topic.setMarkdownContent("<red>Failed to fetch content from Hytale Modding Wiki. See console for more info.</red>");
+            topic.setMarkdownContent(
+                "<red>Failed to fetch content from Hytale Modding Wiki. See console for more info.</red>");
         }
     }
 
@@ -211,7 +217,11 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
      * @return If preloaded returns true, otherwise false.
      */
     public Topic preloadDocumentation(Documentation documentation, HMWikiMod mod, boolean onlyFromFileSystemCache) {
-        if (documentation.countTopics() != 1 || !documentation.getTopics().getFirst().getId().startsWith(UNLOADED_INDEX_TOPIC_ID_PREFIX)) {
+        if (documentation.countTopics() != 1
+            || !documentation.getTopics().getFirst().getId().startsWith(UNLOADED_INDEX_TOPIC_ID_PREFIX)
+            // Preload only installed mods
+            || !isModInstalled(mod.getName())
+        ) {
             return null;
         }
 
@@ -219,7 +229,8 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         HMWikiModResponse modResponse;
 
         try {
-            var loadedMod = fileSystemCacheService.loadByName(cacheFileName, CacheFileType.HYTALE_MODDING_WIKI_MOD, HMWikiModResponse.class);
+            var loadedMod = fileSystemCacheService.loadByName(cacheFileName, CacheFileType.HYTALE_MODDING_WIKI_MOD,
+                HMWikiModResponse.class);
 
             if (loadedMod.isPresent() && !loadedMod.get().getData().hasError()) {
                 logger.info("Loaded topics for HM Wiki mod %s from file system storage (created at %s)".formatted(
@@ -262,6 +273,18 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         var topicPage = createTopicFromModPage(documentation, mod, page);
         loadTopicPageContent(topicPage, mod, page);
         return topicPage;
+    }
+
+    /**
+     * Checks if mod is installed
+     *
+     * @param modName Mod name
+     *
+     * @return True if yes, false otherwise
+     */
+    private boolean isModInstalled(String modName) {
+        return installedModNames.stream()
+            .anyMatch(installedModName -> StringUtils.isSimilar(installedModName, modName));
     }
 
     @Override
