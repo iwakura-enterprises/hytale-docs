@@ -4,6 +4,12 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.8.3
+
+### Minor
+- Preloading only installed Hytale Modding Wiki mods.
+- Improved exception ignoring logic for sentry.
+
 # 1.8.2
 
 ### Minor
