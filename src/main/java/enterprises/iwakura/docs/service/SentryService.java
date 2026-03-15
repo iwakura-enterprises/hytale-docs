@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 public class SentryService {
 
     public static final String DEFAULT_DSN = "https://3c85b34fde4f402694826c65213c0dc4@glitchtip.iwakura.enterprises/4";
+    public static final UUID DEVELOPMENT_SERVER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     private static final List<Class<? extends Throwable>> ignoredExceptions = List.of(
         SSLHandshakeException.class,
@@ -132,7 +134,7 @@ public class SentryService {
         });
 
         options.setRelease("voile@" + Version.VERSION);
-        options.setEnvironment("production");
+        options.setEnvironment(Objects.equals(config.getServerId(), DEVELOPMENT_SERVER_ID) ? "development" : "production");
 
         sentryClient = new SentryClient(options);
         sentryScope = new Scope(options);
