@@ -2,12 +2,15 @@ package enterprises.iwakura.docs.service;
 
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -41,7 +44,8 @@ public class SentryService {
         SSLHandshakeException.class,
         UnresolvedAddressException.class,
         ConnectException.class,
-        SocketException.class
+        SocketException.class,
+        ClosedChannelException.class
     );
 
     private final FileSystemCacheService fileSystemCacheService;
@@ -87,10 +91,23 @@ public class SentryService {
             try {
                 // Ignore specific exceptions
                 if (event.getThrowable() != null) {
-                    boolean shouldIgnore = ignoredExceptions.stream()
-                        .anyMatch(ignoredExceptionClass ->
-                            event.getThrowable().getClass().isAssignableFrom(ignoredExceptionClass));
-                    if (shouldIgnore) {
+                    var ignoredException = ignoredExceptions.stream()
+                        .map(ignoredExceptionClass -> {
+                            Throwable throwable = event.getThrowable();
+                            while (throwable != null) {
+                                if (ignoredExceptionClass.isAssignableFrom(throwable.getClass())) {
+                                    return ignoredExceptionClass;
+                                }
+                                throwable = throwable.getCause();
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .findFirst();
+                    if (ignoredException.isPresent()) {
+                        logger.warn("Ignoring exception %s, not sending to Sentry".formatted(
+                            ignoredException.get().getSimpleName()
+                        ));
                         return null;
                     }
                 }
