@@ -4,6 +4,11 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.8.4
+
+### Minor
+- Fixed Hytale Modding Wiki mods not properly loading when you attempted to open non-installed mod.
+
 # 1.8.3
 
 ### Minor
