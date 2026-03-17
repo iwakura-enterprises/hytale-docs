@@ -80,7 +80,7 @@ public class HMWikiService {
         for (Documentation documentation : documentationService.getDocumentations(InterfaceMode.HYTALE_MODDING_WIKI.getDocumentationTypes())) {
             var mod = documentation.getAdditionalInfo().getHytaleModdingWikiMod();
 
-            if (mod != null && hmWikiDocumentationLoader.preloadDocumentation(documentation, mod, false) != null) {
+            if (mod != null && hmWikiDocumentationLoader.preloadDocumentation(documentation, mod, false, false) != null) {
                 break;
             }
         }

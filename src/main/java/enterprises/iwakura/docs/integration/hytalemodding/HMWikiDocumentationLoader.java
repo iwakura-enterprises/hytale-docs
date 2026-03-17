@@ -95,7 +95,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
                     .build();
                 documentation.getAdditionalInfo().setHytaleModdingWikiMod(mod);
                 documentation.addTopics(createIndexTopic(documentation, mod));
-                preloadDocumentation(documentation, mod, true);
+                preloadDocumentation(documentation, mod, true, true);
                 return documentation;
             }).toList();
     }
@@ -126,7 +126,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         HMWikiMod mod,
         DocsContext context
     ) {
-        var indexTopic = preloadDocumentation(documentation, mod, false);
+        var indexTopic = preloadDocumentation(documentation, mod, false, true);
 
         // If topic was just loaded, set it as the active topic
         if (indexTopic != null) {
@@ -213,14 +213,20 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
      * @param mod                     Hytale Modding Wiki Mod
      * @param onlyFromFileSystemCache If documentation should be preloaded only from file system cache. Used when
      *                                loading the mod documentations for the first time.
+     * @param ignoreIfModIsInstalled  Whenever check if mod is installed should be respected
      *
      * @return If preloaded returns true, otherwise false.
      */
-    public Topic preloadDocumentation(Documentation documentation, HMWikiMod mod, boolean onlyFromFileSystemCache) {
+    public Topic preloadDocumentation(
+        Documentation documentation,
+        HMWikiMod mod,
+        boolean onlyFromFileSystemCache,
+        boolean ignoreIfModIsInstalled
+    ) {
         if (documentation.countTopics() != 1
             || !documentation.getTopics().getFirst().getId().startsWith(UNLOADED_INDEX_TOPIC_ID_PREFIX)
             // Preload only installed mods
-            || !isModInstalled(mod.getName())
+            || (!ignoreIfModIsInstalled && !isModInstalled(mod.getName()))
         ) {
             return null;
         }
