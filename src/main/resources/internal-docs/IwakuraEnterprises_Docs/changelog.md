@@ -4,6 +4,17 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.9.0
+
+### Major
+- Added full-text search functionality for topics.
+  - Nice-ly tuned full-text search functionality that works for all interface modes.
+  - Can be disabled in the configuration (see `enableFullTextSearch` field)
+
+### Minor
+- Voile now checks for new updates on Akasha, rather than on CurseForge.
+- Including redacted/anonymized debug string in Sentry error reports.
+
 # 1.8.4
 
 ### Minor
