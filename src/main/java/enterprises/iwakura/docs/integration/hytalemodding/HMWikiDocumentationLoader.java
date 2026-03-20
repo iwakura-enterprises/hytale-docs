@@ -148,6 +148,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
             .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
             .documentation(documentation)
             .sortIndex(mod.getIndexPage() != null && Objects.equals(mod.getIndexPage().getId(), page.getId()) ? -1 : 0)
+            .markdownContent("")
             .build();
 
         topic.setTopicOpenedCallback(context -> loadTopicPageContent(topic, mod, page));

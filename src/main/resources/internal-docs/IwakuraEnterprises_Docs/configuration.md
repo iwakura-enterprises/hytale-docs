@@ -14,6 +14,7 @@ Using the configuration file, **config.json**, you're able to configure various 
 - **enabled** - enables/disables the /voile command
 - **outOfBoxExperience** - enables/disables the OOBE (welcome to Voile chat message) (automatically disabled for singleplayer)
 - **updateCheckerEnabled** - enables/disables update checker
+- **enableFullTextSearch** - enables/disables full text topic search
 - **loadDocumentationsFromDirectory** - specifies directory from which all server documentations are loaded
 - **defaultTopicIdentifier** - specifies the default topic to open. Follows the topic identifier format.
 - **disabledDocumentationTypes** - specifies a list of **disabled** documentation types. Using this, you may **hide** various types of documentation.

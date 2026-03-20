@@ -89,11 +89,6 @@ public class DocsContext {
         return interfaceState.getDocumentations();
     }
 
-    @Deprecated
-    public String getTopicSearchQuery() {
-        return interfaceState.getTopicSearchQuery();
-    }
-
     @Override
     public String toString() {
         return "DocsContext{" +

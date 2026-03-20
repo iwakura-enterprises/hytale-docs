@@ -68,12 +68,34 @@ public class CommonStyles {
         );
         """;
 
-    public static final String INTERFACE_BUTTON_STYLE =
+    public static final String INTERFACE_SECONDARY_BUTTON_STYLE =
         """
         (
             Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
             Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
             Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Sounds: (
+                Activate: (
+                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                    MinPitch: -0.4,
+                    MaxPitch: 0.4,
+                    Volume: 4
+                ),
+                MouseHover: (
+                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                    Volume: 6
+                )
+            )
+        )
+        """;
+
+    public static final String INTERFACE_PRIMARY_BUTTON_STYLE =
+        """
+        (
+            Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Primary.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Primary_Hovered.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+            Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Primary_Pressed.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
             Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
             Sounds: (
                 Activate: (

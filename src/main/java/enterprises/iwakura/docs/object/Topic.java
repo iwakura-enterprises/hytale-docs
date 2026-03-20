@@ -8,8 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.google.protobuf.ExperimentalApi;
-
+import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import enterprises.iwakura.docs.util.LocaleUtils;
 import jdk.jfr.Experimental;
 import lombok.AllArgsConstructor;
@@ -61,7 +60,11 @@ public class Topic {
     /**
      * The Markdown parsable content for the topic.
      */
-    private String markdownContent;
+    private @NonNull String markdownContent;
+    /**
+     * Normalized Markdown content for full-text search
+     */
+    private transient String normalizedMarkdownContent;
     /**
      * The documentation that the topic belongs to.
      */
@@ -85,7 +88,16 @@ public class Topic {
      * @return True if yes, false otherwise
      */
     public boolean isEmpty() {
-        return markdownContent == null || markdownContent.isEmpty();
+        return markdownContent.isEmpty();
+    }
+
+    /**
+     * Sets the markdown content. If null, sets an empty string.
+     *
+     * @param markdownContent Markdown content
+     */
+    public void setMarkdownContent(String markdownContent) {
+        this.markdownContent = Objects.requireNonNullElse(markdownContent, "");
     }
 
     /**
@@ -201,29 +213,50 @@ public class Topic {
     }
 
     /**
-     * Checks if this topic's name or its sub topics' name is contained in the search query
+     * Checks if this topic's name/content or its sub topics' name/content is contained in the search query
      *
      * @param topicSearchQuery Topic search query
+     * @param fullTextSearch   If search should be done on the topic's content
      *
      * @return True if yes, false otherwise
      */
-    public boolean hasTopicWithName(String topicSearchQuery) {
-        if (matchesTopicSearch(topicSearchQuery)) {
+    public boolean searchTopic(String topicSearchQuery, boolean fullTextSearch) {
+        String normalizedQuery = LocaleUtils.normalize(topicSearchQuery);
+        SearchPattern searchPattern = SearchPattern.of(normalizedQuery);
+        return searchTopic(searchPattern, fullTextSearch);
+    }
+
+    /**
+     * Checks if this topic's name/content or its sub topics' name/content is contained in the search query
+     *
+     * @param searchPattern  Pre-built {@link SearchPattern}
+     * @param fullTextSearch If search should be done on the topic's content
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean searchTopic(SearchPattern searchPattern, boolean fullTextSearch) {
+        boolean matchesTopicContent = fullTextSearch && matchesTopicContentSearch(searchPattern);
+
+        if (matchesTopicContent || searchPattern.containedIn(LocaleUtils.normalize(name))) {
             return true;
         } else {
-            return topics.stream().anyMatch(topic -> topic.hasTopicWithName(topicSearchQuery));
+            return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, fullTextSearch));
         }
     }
 
     /**
-     * Checks whenever the search topic query is contained in ticket's name
+     * Checks whenever the search topic query is contained in ticket's content
      *
-     * @param topicSearchQuery Topic search query
+     * @param searchPattern Pre-computed search pattern
      *
      * @return True if yes, false otherwise
      */
-    public boolean matchesTopicSearch(String topicSearchQuery) {
-        return LocaleUtils.normalize(name).contains(LocaleUtils.normalize(topicSearchQuery));
+    private boolean matchesTopicContentSearch(SearchPattern searchPattern) {
+        if (normalizedMarkdownContent == null) {
+            normalizedMarkdownContent = LocaleUtils.normalize(markdownContent);
+        }
+
+        return searchPattern.containedIn(normalizedMarkdownContent);
     }
 
     /**

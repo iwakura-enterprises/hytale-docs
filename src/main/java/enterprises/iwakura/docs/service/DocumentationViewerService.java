@@ -47,7 +47,7 @@ public class DocumentationViewerService {
     private static final Executor RENDER_EXECUTOR = Executors.newCachedThreadPool(r -> {
         Thread thread = new Thread(r);
         thread.setUncaughtExceptionHandler((t, e) -> {
-            HytaleLogger.get("Docs-Render").atSevere().withCause(e).log("Exception occurred in render thread!");
+            HytaleLogger.get("Voile-Render").atSevere().withCause(e).log("Exception occurred in the render thread!");
             SentryService.captureException(e);
         });
         return thread;
@@ -141,9 +141,11 @@ public class DocumentationViewerService {
      */
     @SneakyThrows
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, DocsContext docsContext) {
+        var docsConfig = configurationService.getDocsConfig();
         // Load docs context from preferences
         var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), docsContext.getInterfaceState());
         docsContext.getInterfaceState().loadFromPreferences(interfacePreferences);
+        docsContext.getInterfaceState().setFullTextSearch(docsConfig.isEnableFullTextSearch() && docsContext.getInterfaceState().isFullTextSearch());
 
         var docsContextRendered = DocsContext.of(docsContext);
         var ref = playerRef.getReference();
@@ -384,6 +386,16 @@ public class DocumentationViewerService {
             }
             case OPEN_ABOUT_VOILE_PAGE -> {
                 openAboutVoilePage(page);
+            }
+            case TOGGLE_FULL_TEXT_SEARCH -> {
+                var updatedDocsContext = DocsContext.of(docsContext);
+                if (!configurationService.getDocsConfig().isEnableFullTextSearch()) {
+                    state.setFullTextSearch(false);
+                } else {
+                    state.setFullTextSearch(!state.isFullTextSearch());
+                }
+                getInterfacePreferences(page.getPlayerRef().getUuid(), state).setFullTextSearch(state.isFullTextSearch());
+                updateDocumentationTree(page, updatedDocsContext);
             }
             default -> logger.error("Invalid interface action specified in page data " + data);
         }

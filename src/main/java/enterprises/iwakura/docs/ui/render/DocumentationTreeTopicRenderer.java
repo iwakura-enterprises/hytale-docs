@@ -14,6 +14,7 @@ import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
+import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import enterprises.iwakura.sigewine.core.utils.BeanAccessor;
 import lombok.Data;
@@ -51,8 +52,9 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
 
         StringBuilder topicsUI = new StringBuilder();
 
+        var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         topic.getTopics().stream()
-            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.hasTopicWithName(ctx.getTopicSearchQuery()))
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().isFullTextSearch()))
             .forEach(childTopic -> {
                 topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic)));
             });
@@ -74,7 +76,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
 
         if (Objects.equals(ctx.getTopic(), topic)) {
             buttonStyle = CommonStyles.SELECTED_TOPIC_BUTTON_STYLE;
-        } else if (ctx.hasTopicSearchQuery() && topic.matchesTopicSearch(ctx.getTopicSearchQuery())) {
+        } else if (ctx.hasTopicSearchQuery() && topic.searchTopic(ctx.getInterfaceState().getTopicSearchQuery(), ctx.getInterfaceState().isFullTextSearch())) {
             buttonStyle = CommonStyles.MATCHES_SEARCH_TOPIC_BUTTON_STYLE;
         } else {
             buttonStyle = CommonStyles.NORMAL_TOPIC_BUTTON_STYLE;

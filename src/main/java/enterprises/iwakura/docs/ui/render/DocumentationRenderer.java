@@ -4,6 +4,7 @@ import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
+import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +22,7 @@ public class DocumentationRenderer implements Renderer<Documentation> {
             Group {
                 LayoutMode: Top;
                 Padding: (Bottom: 10);
-            
+
                 Label {
                     Text: "{{name}}";
                     Style: (
@@ -31,16 +32,17 @@ public class DocumentationRenderer implements Renderer<Documentation> {
                         RenderUppercase: true
                     );
                 }
-            
+
                 {{topics}}
             }
             """;
 
         StringBuilder topicsUI = new StringBuilder();
 
+        var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         documentation.getTopics()
             .stream()
-            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.hasTopicWithName(ctx.getTopicSearchQuery()))
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().isFullTextSearch()))
             .forEach(topic -> {
                 topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic)));
             });

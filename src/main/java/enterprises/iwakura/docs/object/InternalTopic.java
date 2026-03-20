@@ -10,6 +10,7 @@ public class InternalTopic extends Topic {
             "Voile",
             0,
             content,
+            null,
             new Documentation(
                 "voile",
                 "internal_voile_documentation",

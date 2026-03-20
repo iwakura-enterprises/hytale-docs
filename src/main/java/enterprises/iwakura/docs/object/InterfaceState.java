@@ -35,6 +35,7 @@ public class InterfaceState {
     private Topic topic;
 
     private String topicSearchQuery;
+    private boolean fullTextSearch;
 
     public InterfaceState(List<Documentation> documentations, Topic topic) {
         this.documentations = documentations;
@@ -148,6 +149,7 @@ public class InterfaceState {
             preferences.setLastOpenedTopicIdentifier(topic.getTopicIdentifier());
         }
         preferences.setLastTopicSearchQuery(topicSearchQuery);
+        preferences.setFullTextSearch(fullTextSearch);
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
         preferences.setLastInterfaceMode(mode);
@@ -160,6 +162,7 @@ public class InterfaceState {
      */
     public void loadFromPreferences(InterfacePreferences interfacePreferences) {
         topicSearchQuery = interfacePreferences.getLastTopicSearchQuery();
+        fullTextSearch = interfacePreferences.isFullTextSearch();
         mode = interfacePreferences.getLastInterfaceMode();
         if (interfacePreferences.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();

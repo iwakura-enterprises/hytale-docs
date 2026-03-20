@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
+import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -134,11 +135,13 @@ public class Documentation {
      * Checks if documentation has any topic that contains the search query
      *
      * @param topicSearchQuery Topic search query
+     * @param fullTextSearch   If search should be done on the topic's content
      *
      * @return True if yes, false otherwise
      */
-    public boolean hasTopicWithName(String topicSearchQuery) {
-        return topics.stream().anyMatch(topic -> topic.hasTopicWithName(topicSearchQuery));
+    public boolean searchForTopic(String topicSearchQuery, boolean fullTextSearch) {
+        var searchPattern = SearchPattern.of(topicSearchQuery);
+        return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, fullTextSearch));
     }
 
     /**

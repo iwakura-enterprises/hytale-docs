@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.ui.PatchStyle;
+import com.hypixel.hytale.server.core.ui.Value;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 
 import enterprises.iwakura.docs.object.Documentation;
@@ -32,6 +34,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
     public static final String GO_BACK_BUTTON_SELECTOR = "#GoBackButton";
     public static final String GO_FORWARD_BUTTON_SELECTOR = "#GoForwardButton";
     public static final String GO_HOME_BUTTON_SELECTOR = "#GoHomeButton";
+    public static final String FULL_TEXT_SEARCH_BUTTON_SELECTOR = "#FullTextSearchButton";
     public static final String TOPIC_SEARCH_BAR_SELECTOR = "#TopicSearchBar";
 
     @Bean
@@ -89,6 +92,13 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             CustomUIEventBindingType.Activating,
             GO_HOME_BUTTON_SELECTOR,
             new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.HOME.name()),
+            false
+        );
+
+        ctx.getEventBuilder().addEventBinding(
+            CustomUIEventBindingType.Activating,
+            FULL_TEXT_SEARCH_BUTTON_SELECTOR,
+            new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.TOGGLE_FULL_TEXT_SEARCH.name()),
             false
         );
 
@@ -167,6 +177,22 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                             AssetPath: "UI/Custom/Docs/Images/home.png";
                         }
                     }
+
+                    Group {
+                        Padding: (Right: 10);
+
+                        TextButton {{full-text-search-button-selector}} {
+                            Anchor: (Width: 40, Height: 40);
+                            Style: {{interface-button-style}};
+                            TooltipText: "Enables/disables full-text search";
+                            TextTooltipStyle: {{interface-button-tooltip-style-wide}};
+                        }
+
+                        AssetImage {
+                            Anchor: (Width: 24, Height: 24);
+                            AssetPath: "UI/Custom/Docs/Images/search-icon.png";
+                        }
+                    }
                 }
 
                 Group {
@@ -210,21 +236,25 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             .replace("{{go-back-button-selector}}", GO_BACK_BUTTON_SELECTOR)
             .replace("{{go-forward-button-selector}}", GO_FORWARD_BUTTON_SELECTOR)
             .replace("{{go-home-button-selector}}", GO_HOME_BUTTON_SELECTOR)
+            .replace("{{full-text-search-button-selector}}", FULL_TEXT_SEARCH_BUTTON_SELECTOR)
             .replace("{{topic-search-bar-selector}}", TOPIC_SEARCH_BAR_SELECTOR)
             .replace("{{documentation-tree-selector}}", DOCUMENTATION_TREE_SELECTOR)
-            .replaceAll("\\{\\{interface-button-style}}", CommonStyles.INTERFACE_BUTTON_STYLE)
+            .replace("{{interface-full-text-search-button-style}}", ctx.getInterfaceState().isFullTextSearch() ? CommonStyles.INTERFACE_PRIMARY_BUTTON_STYLE : CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
+            .replaceAll("\\{\\{interface-button-style}}", CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
             .replaceAll("\\{\\{interface-button-tooltip-style-short}}", CommonStyles.TOOLTIP_STYLE_SHORT)
             .replaceAll("\\{\\{interface-button-tooltip-style-wide}}", CommonStyles.TOOLTIP_STYLE_WIDE);
     }
 
     public void clearAndAppendInline(DocsContext ctx, List<Documentation> documentations) {
+        var interfaceState = ctx.getInterfaceState();
+
         documentations = documentations.stream()
-            .filter(documentation -> ctx.getInterfaceState().getMode() == null || ctx.getInterfaceState().getMode().has(documentation.getType()))
-            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.hasTopicWithName(ctx.getInterfaceState().getTopicSearchQuery()))
+            .filter(documentation -> interfaceState.getMode() == null || interfaceState.getMode().has(documentation.getType()))
+            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.isFullTextSearch()))
             .toList();
 
         boolean firstType = true;
-        var currentInterfaceMode = ctx.getInterfaceState().getMode();
+        var currentInterfaceMode = interfaceState.getMode();
         var availableInterfaceModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
         // Enable the change mode button if there are more modes than one or player has mode
         // that is not currently enabled (so they can change)
@@ -284,16 +314,32 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             """.replace("{{documentations}}", documentationsUI);
 
         var topicHistoryMessage = createTopicHistoryMessage(ctx);
+        var fullTextSearchEnabledInConfig = configurationService.getDocsConfig().isEnableFullTextSearch();
 
         ctx.getCommandBuilder().clear(DOCUMENTATION_TREE_SELECTOR);
         ctx.getCommandBuilder().appendInline(DOCUMENTATION_TREE_SELECTOR, ui);
         ctx.getCommandBuilder().set(CHANGE_MODE_BUTTON_ICON_SELECTOR + ".AssetPath", "UI/Custom/Docs/Images/" + currentInterfaceMode.getLogoName());
         ctx.getCommandBuilder().set(CHANGE_MODE_BUTTON_SELECTOR + ".Disabled", !changeModeButtonEnabled);
-        ctx.getCommandBuilder().set(GO_BACK_BUTTON_SELECTOR + ".Disabled", !ctx.getInterfaceState().canGoBack());
-        ctx.getCommandBuilder().set(GO_FORWARD_BUTTON_SELECTOR + ".Disabled", !ctx.getInterfaceState().canGoForward());
+        ctx.getCommandBuilder().set(GO_BACK_BUTTON_SELECTOR + ".Disabled", !interfaceState.canGoBack());
+        ctx.getCommandBuilder().set(GO_FORWARD_BUTTON_SELECTOR + ".Disabled", !interfaceState.canGoForward());
         ctx.getCommandBuilder().set(CHANGE_MODE_BUTTON_SELECTOR + ".TooltipTextSpans", createModeMessage(ctx, availableInterfaceModes));
         ctx.getCommandBuilder().set(GO_BACK_BUTTON_SELECTOR + ".TooltipTextSpans", topicHistoryMessage);
         ctx.getCommandBuilder().set(GO_FORWARD_BUTTON_SELECTOR + ".TooltipTextSpans", topicHistoryMessage);
+
+        ctx.getCommandBuilder().set(FULL_TEXT_SEARCH_BUTTON_SELECTOR + ".Disabled", !fullTextSearchEnabledInConfig);
+        ctx.getCommandBuilder().set(FULL_TEXT_SEARCH_BUTTON_SELECTOR + ".TooltipTextSpans", TaleMessage.parse("Full-text search is ").insert(
+            TaleMessage.parse(interfaceState.isFullTextSearch()
+                    ? "<green>enabled</green>"
+                    : "<red>disabled</red>" + (fullTextSearchEnabledInConfig ? "" : " by the server")
+            )
+        ));
+        ctx.getCommandBuilder().setObject(FULL_TEXT_SEARCH_BUTTON_SELECTOR + ".Style.Default.Background", interfaceState.isFullTextSearch()
+            ? new PatchStyle(Value.of("Common/Buttons/Primary.png"), Value.of(12))
+            : new PatchStyle(Value.of("Common/Buttons/Secondary.png"), Value.of(12)));
+        ctx.getCommandBuilder().setObject(FULL_TEXT_SEARCH_BUTTON_SELECTOR + ".Style.Hovered.Background", interfaceState.isFullTextSearch()
+            ? new PatchStyle(Value.of("Common/Buttons/Primary_Hovered.png"), Value.of(12))
+            : new PatchStyle(Value.of("Common/Buttons/Secondary_Hovered.png"), Value.of(12)));
+
         documentationsUIContext.mergeInto(ctx);
     }
 
