@@ -127,6 +127,8 @@ public class SentryService {
                 event.setExtra("voile.file-system-cache.size", Optional.ofNullable(fileSystemCacheService.getCacheIndex()).map(CacheIndex::size).orElse(0));
                 event.setExtra("voile.runtime-image-asset.size", RuntimeImageAssetService.getRUNTIME_IMAGE_ASSET_MAP().size());
                 event.setExtra("voile.runtime-image-asset.players", RuntimeImageAssetService.getPLAYER_RUNTIME_IMAGE_ASSETS_MAP().size());
+
+                event.setExtra("voile.debug", debugService.createDebugString());
             } catch (Exception exception) {
                 logger.error("Failed to create extra data for sentry", exception, false);
             }
