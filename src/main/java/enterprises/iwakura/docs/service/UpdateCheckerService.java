@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import enterprises.iwakura.docs.Version;
+import enterprises.iwakura.docs.api.AkashaVersionCheckerApi;
 import enterprises.iwakura.docs.api.CurseForgeVersionCheckerApi;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -19,6 +20,7 @@ public class UpdateCheckerService {
 
     private final ConfigurationService configurationService;
     private final CurseForgeVersionCheckerApi curseForgeVersionCheckerApi;
+    private final AkashaVersionCheckerApi akashaVersionCheckerApi;
     private final Logger logger;
 
     private boolean updateAvailable = false;
@@ -52,19 +54,13 @@ public class UpdateCheckerService {
             return; // Update checker disabled
         }
 
-        curseForgeVersionCheckerApi.fetch().send().whenCompleteAsync((response, exception) -> {
+        akashaVersionCheckerApi.fetch().send().whenCompleteAsync((response, exception) -> {
             if (exception != null) {
                 logger.error("Failed to check for updates!", exception);
                 return;
             }
 
-            var latestVersion = response.getLatestVersionNumber();
-
-            if (latestVersion.isPresent()) {
-                checkIfNewerVersion(latestVersion.get());
-            } else {
-                logger.warn("Could not find latest version in " + response);
-            }
+            checkIfNewerVersion(response);
         });
     }
 
@@ -75,6 +71,9 @@ public class UpdateCheckerService {
             logger.warn("A new version is available: " + latestVersionNumber + " (current: " + currentVersion + ") (https://www.curseforge.com/hytale/mods/docs)");
             updateAvailable = true;
             updateVersion = latestVersionNumber;
+        } else {
+            updateAvailable = false;
+            updateVersion = null;
         }
     }
 
