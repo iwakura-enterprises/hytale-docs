@@ -13,7 +13,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModListResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiModListResponse;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 
 public class GsonTreatment {

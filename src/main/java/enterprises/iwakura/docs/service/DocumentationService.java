@@ -157,7 +157,7 @@ public class DocumentationService {
 
         // First found topic
         for (Documentation documentation : documentations) {
-            Optional<Topic> firstTopic = documentation.getTopics().stream().findFirst();
+            Optional<Topic> firstTopic = documentation.getFirstTopic();
             if (firstTopic.isPresent()) {
                 return firstTopic;
             }

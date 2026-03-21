@@ -253,7 +253,6 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.isFullTextSearch()))
             .toList();
 
-        boolean firstType = true;
         var currentInterfaceMode = interfaceState.getMode();
         var availableInterfaceModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
         // Enable the change mode button if there are more modes than one or player has mode

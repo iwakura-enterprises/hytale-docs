@@ -58,6 +58,10 @@ public class Topic {
      */
     private int sortIndex;
     /**
+     * Determines if the topic should be treated as a category (non-clickable in the UI and does not contain any content)
+     */
+    private boolean category;
+    /**
      * The Markdown parsable content for the topic.
      */
     private @NonNull String markdownContent;
@@ -98,6 +102,7 @@ public class Topic {
      */
     public void setMarkdownContent(String markdownContent) {
         this.markdownContent = Objects.requireNonNullElse(markdownContent, "");
+        this.normalizedMarkdownContent = null;
     }
 
     /**
@@ -252,6 +257,10 @@ public class Topic {
      * @return True if yes, false otherwise
      */
     private boolean matchesTopicContentSearch(SearchPattern searchPattern) {
+        if (category) {
+            return false; // Category has no content
+        }
+
         if (normalizedMarkdownContent == null) {
             normalizedMarkdownContent = LocaleUtils.normalize(markdownContent);
         }
@@ -268,5 +277,24 @@ public class Topic {
         if (topicOpenedCallback != null) {
             topicOpenedCallback.accept(context);
         }
+    }
+
+    /**
+     * returns first found non-category topic
+     *
+     * @return Optional of topic (empty if not found)
+     */
+    public Optional<Topic> getFirstTopic() {
+        for (Topic topic : topics) {
+            if (!topic.isCategory()) {
+                return Optional.of(topic);
+            } else {
+                var subTopic = topic.getFirstTopic();
+                if (subTopic.isPresent()) {
+                    return subTopic;
+                }
+            }
+        }
+        return Optional.empty();
     }
 }

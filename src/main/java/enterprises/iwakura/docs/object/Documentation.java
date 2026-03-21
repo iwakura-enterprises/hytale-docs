@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod;
 import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -142,6 +142,25 @@ public class Documentation {
     public boolean searchForTopic(String topicSearchQuery, boolean fullTextSearch) {
         var searchPattern = SearchPattern.of(topicSearchQuery);
         return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, fullTextSearch));
+    }
+
+    /**
+     * returns first found non-category topic
+     *
+     * @return Optional of topic (empty if not found)
+     */
+    public Optional<Topic> getFirstTopic() {
+        for (Topic topic : topics) {
+            if (!topic.isCategory()) {
+                return Optional.of(topic);
+            } else {
+                var subTopic = topic.getFirstTopic();
+                if (subTopic.isPresent()) {
+                    return subTopic;
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     /**

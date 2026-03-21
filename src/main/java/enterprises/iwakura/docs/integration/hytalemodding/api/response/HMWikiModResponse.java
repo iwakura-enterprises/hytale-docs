@@ -1,10 +1,10 @@
-package enterprises.iwakura.docs.api.hytalemodding.response;
+package enterprises.iwakura.docs.integration.hytalemodding.api.response;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiPage;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiPage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

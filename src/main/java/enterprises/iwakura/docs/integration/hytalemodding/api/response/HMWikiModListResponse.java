@@ -1,4 +1,4 @@
-package enterprises.iwakura.docs.api.hytalemodding.response;
+package enterprises.iwakura.docs.integration.hytalemodding.api.response;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

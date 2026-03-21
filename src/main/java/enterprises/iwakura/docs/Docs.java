@@ -5,7 +5,7 @@ import java.util.List;
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
-import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
+import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.command.AboutVoileCommand;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
 import enterprises.iwakura.docs.command.DocsCommand;

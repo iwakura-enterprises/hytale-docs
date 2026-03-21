@@ -1,7 +1,6 @@
-package enterprises.iwakura.docs.api.hytalemodding.objects;
+package enterprises.iwakura.docs.integration.hytalemodding.api.objects;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;

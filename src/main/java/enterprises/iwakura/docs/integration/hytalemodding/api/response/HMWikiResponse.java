@@ -1,4 +1,4 @@
-package enterprises.iwakura.docs.api.hytalemodding.response;
+package enterprises.iwakura.docs.integration.hytalemodding.api.response;
 
 import lombok.Data;
 

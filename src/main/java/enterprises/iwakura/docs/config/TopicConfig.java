@@ -16,6 +16,7 @@ public class TopicConfig {
     private String description;
     private String author;
     private int sortIndex = 0;
+    private boolean category;
     private String markdownContent;
     private List<String> subTopics;
 
@@ -55,6 +56,6 @@ public class TopicConfig {
             markdownContent = "";
         }
 
-        return new Topic(id, name, description, author, sortIndex, markdownContent, null, documentation, null, null);
+        return new Topic(id, name, description, author, sortIndex, category, markdownContent, null, documentation, null, null);
     }
 }

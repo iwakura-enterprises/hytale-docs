@@ -1,4 +1,4 @@
-package enterprises.iwakura.docs.api.hytalemodding;
+package enterprises.iwakura.docs.integration.hytalemodding.api;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
@@ -8,9 +8,9 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiPageContentResponse;
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModListResponse;
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiPageContentResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiModListResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiModResponse;
 import enterprises.iwakura.docs.api.kirara.VoileGsonSerializer;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.util.Logger;
@@ -18,7 +18,6 @@ import enterprises.iwakura.kirara.core.ApiRequest;
 import enterprises.iwakura.kirara.core.Kirara;
 import enterprises.iwakura.kirara.core.PathParameter;
 import enterprises.iwakura.kirara.core.RequestHeader;
-import enterprises.iwakura.kirara.gson.GsonSerializer;
 import enterprises.iwakura.kirara.httpclient.HttpClientHttpCore;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 
@@ -49,6 +48,9 @@ public class HMWikiApi extends Kirara {
         this.logger = logger;
     }
 
+    /**
+     * Initializes Hytale Modding Wiki API
+     */
     public void init() {
         var config = configurationService.getDocsConfig().getIntegration().getHytaleModdingWiki();
         var apiUrl = Optional.ofNullable(config.getUrlOverride()).orElse(DEFAULT_URL);

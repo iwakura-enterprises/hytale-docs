@@ -9,13 +9,13 @@ import java.util.UUID;
 
 import com.hypixel.hytale.server.core.plugin.PluginManager;
 
-import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod;
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiMod.User;
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiPage;
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModListResponse;
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiModResponse;
-import enterprises.iwakura.docs.api.hytalemodding.response.HMWikiPageContentResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod.User;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiPage;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiModListResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiModResponse;
+import enterprises.iwakura.docs.integration.hytalemodding.api.response.HMWikiPageContentResponse;
 import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.Documentation;
@@ -149,6 +149,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
             .documentation(documentation)
             .sortIndex(mod.getIndexPage() != null && Objects.equals(mod.getIndexPage().getId(), page.getId()) ? -1 : 0)
             .markdownContent("")
+            .category(page.isCategory())
             .build();
 
         topic.setTopicOpenedCallback(context -> loadTopicPageContent(topic, mod, page));

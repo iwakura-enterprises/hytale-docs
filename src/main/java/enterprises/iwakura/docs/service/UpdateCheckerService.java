@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import enterprises.iwakura.docs.Version;
 import enterprises.iwakura.docs.api.AkashaVersionCheckerApi;
-import enterprises.iwakura.docs.api.CurseForgeVersionCheckerApi;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.Getter;
@@ -19,7 +18,6 @@ public class UpdateCheckerService {
     private static final Timer timer = new Timer();
 
     private final ConfigurationService configurationService;
-    private final CurseForgeVersionCheckerApi curseForgeVersionCheckerApi;
     private final AkashaVersionCheckerApi akashaVersionCheckerApi;
     private final Logger logger;
 

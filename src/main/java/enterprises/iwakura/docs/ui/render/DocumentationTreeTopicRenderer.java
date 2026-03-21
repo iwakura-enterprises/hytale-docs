@@ -41,7 +41,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
                 LayoutMode: Top;
                 Padding: (Left: 15);
             
-                TextButton #{{button-selector}} {
+                {{topic-markup-element}} #{{button-selector}} {
                     Text: "{{name}}";
                     Style: {{button-style}}
                 }
@@ -59,30 +59,33 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
                 topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic)));
             });
 
-        ctx.getEventBuilder().addEventBinding(
-            CustomUIEventBindingType.Activating,
-            "#" + buttonSelector,
-            new EventData()
-                .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_TOPIC)
-                .append(PageData.OPEN_TOPIC_FIELD, "%s:%s:%s".formatted(
-                    documentation.getGroup(),
-                    documentation.getId(),
-                    topic.getId()
-                )),
-            true
-        );
+        if (!topic.isCategory()) {
+            ctx.getEventBuilder().addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#" + buttonSelector,
+                new EventData()
+                    .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_TOPIC)
+                    .append(PageData.OPEN_TOPIC_FIELD, "%s:%s:%s".formatted(
+                        documentation.getGroup(),
+                        documentation.getId(),
+                        topic.getId()
+                    )),
+                true
+            );
+        }
 
         String buttonStyle;
 
         if (Objects.equals(ctx.getTopic(), topic)) {
-            buttonStyle = CommonStyles.SELECTED_TOPIC_BUTTON_STYLE;
+            buttonStyle = topic.isCategory() ? CommonStyles.SELECTED_TOPIC_CATEGORY_STYLE : CommonStyles.SELECTED_TOPIC_BUTTON_STYLE;
         } else if (ctx.hasTopicSearchQuery() && topic.searchTopic(ctx.getInterfaceState().getTopicSearchQuery(), ctx.getInterfaceState().isFullTextSearch())) {
-            buttonStyle = CommonStyles.MATCHES_SEARCH_TOPIC_BUTTON_STYLE;
+            buttonStyle = topic.isCategory() ? CommonStyles.MATCHES_SEARCH_TOPIC_CATEGORY_STYLE : CommonStyles.MATCHES_SEARCH_TOPIC_BUTTON_STYLE;
         } else {
-            buttonStyle = CommonStyles.NORMAL_TOPIC_BUTTON_STYLE;
+            buttonStyle = topic.isCategory() ? CommonStyles.NORMAL_TOPIC_CATEGORY_STYLE : CommonStyles.NORMAL_TOPIC_BUTTON_STYLE;
         }
 
         return treeUI
+            .replace("{{topic-markup-element}}", topic.isCategory() ? "Label" : "TextButton")
             .replace("{{button-selector}}", buttonSelector)
             .replace("{{button-style}}", buttonStyle)
             .replace("{{name}}", markdownService.escapeText(topic.getName()))

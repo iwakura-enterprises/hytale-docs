@@ -25,6 +25,14 @@ public class CommonStyles {
             )
         );
         """;
+    public static final String NORMAL_TOPIC_CATEGORY_STYLE =
+        """
+        (
+            TextColor: #bfbfbf,
+            RenderBold: true,
+            Wrap: true
+        );
+        """;
 
     public static final String SELECTED_TOPIC_BUTTON_STYLE =
         """
@@ -46,6 +54,14 @@ public class CommonStyles {
             )
         );
         """;
+    public static final String SELECTED_TOPIC_CATEGORY_STYLE =
+        """
+        (
+            TextColor: #fcca4c,
+            RenderBold: true,
+            Wrap: true
+        );
+        """;
 
     public static final String MATCHES_SEARCH_TOPIC_BUTTON_STYLE =
         """
@@ -65,6 +81,14 @@ public class CommonStyles {
                     Volume: 6
                 )
             )
+        );
+        """;
+    public static final String MATCHES_SEARCH_TOPIC_CATEGORY_STYLE =
+        """
+        (
+            TextColor: #9fdfed,
+            RenderBold: true,
+            Wrap: true
         );
         """;
 

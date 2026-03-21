@@ -5,12 +5,11 @@ import org.jspecify.annotations.NonNull;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 
-import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
+import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.service.FileSystemCacheService;
-import enterprises.iwakura.docs.service.ImageService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.Logger;

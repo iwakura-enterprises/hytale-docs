@@ -34,6 +34,7 @@ Topic's front-matter have various fields.
 - **sort-index** - specifies the sort index for the topic. Sort index is used to sort topics in the documentation tree list.
 Sort index is sorted from **lowest** to **highest**. That means sort index of -1 will be placed **before** sort-index of 0.
 The default sort index is 0.
+- **category** - specifies whenever the topic should be treated as a category. Categories are not openable and their name is rendered in bold.
 - **sub-topics** - specifies a list of sub-topics for the topic. You may specify topic IDs or folders in the same folder that the topic file is in.
 
 > **Warning:** Non-server topics loaded from mod resources etc. do not support **sub-topics** field. You must specify all sub-topics in an index JSON file.

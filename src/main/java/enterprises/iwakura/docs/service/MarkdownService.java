@@ -168,6 +168,7 @@ public class MarkdownService {
         topic.setDescription(getFirstOrThrow(metadata, "description", "No description supplied."));
         topic.setAuthor(getFirstOrThrow(metadata, "author", "unknown author"));
         topic.setSortIndex(Integer.parseInt(getFirstOrThrow(metadata, "sort-index", "0")));
+        topic.setCategory(Boolean.parseBoolean(getFirstOrThrow(metadata, "category", "false")));
         topic.setSubTopics(metadata.get("sub-topics"));
         topic.setMarkdownContent(stripFrontMatter(markdownFileContent));
         return topic;

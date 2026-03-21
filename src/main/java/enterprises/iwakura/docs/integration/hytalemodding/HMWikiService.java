@@ -7,9 +7,8 @@ import java.util.TimerTask;
 
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.VoileAPI;
-import enterprises.iwakura.docs.api.hytalemodding.HMWikiApi;
+import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.object.Documentation;
-import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;

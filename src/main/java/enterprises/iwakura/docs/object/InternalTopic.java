@@ -9,6 +9,7 @@ public class InternalTopic extends Topic {
             description,
             "Voile",
             0,
+            false,
             content,
             null,
             new Documentation(

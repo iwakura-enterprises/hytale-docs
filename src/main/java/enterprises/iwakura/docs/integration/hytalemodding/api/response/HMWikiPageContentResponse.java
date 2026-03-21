@@ -1,11 +1,11 @@
-package enterprises.iwakura.docs.api.hytalemodding.response;
+package enterprises.iwakura.docs.integration.hytalemodding.api.response;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-import enterprises.iwakura.docs.api.hytalemodding.objects.HMWikiPage;
+import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiPage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
