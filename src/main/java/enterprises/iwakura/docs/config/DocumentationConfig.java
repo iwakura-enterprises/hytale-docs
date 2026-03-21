@@ -17,7 +17,7 @@ public class DocumentationConfig {
     private String id;
     private String name;
     private boolean enabled = true;
-    private Integer sortIndex;
+    private int sortIndex;
 
     /**
      * Creates server documentation out of the current instance
@@ -28,7 +28,6 @@ public class DocumentationConfig {
         if (group == null || group.isBlank()) {
             throw new IllegalArgumentException("Documentation config cannot have empty group!");
         }
-
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("Documentation config cannot have empty id!");
         }
