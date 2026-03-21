@@ -81,7 +81,7 @@ public class AboutVoilePage extends InteractiveCustomUIPage<PageData> {
     private String createDebugContent() {
         StringBuilder content = new StringBuilder();
         content.append("Voile ").append(Version.VERSION).append("\n");
-        content.append("===========\n");
+        content.append("============\n");
         content.append("Made by Iwakura Enterprises\n");
         content.append("\n");
 
