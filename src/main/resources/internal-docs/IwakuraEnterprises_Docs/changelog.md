@@ -4,7 +4,14 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.10.1
+
+### Minor
+- Fixed NPE when loading documentation config without a sort index.
+- Fixed number of equal signs in the /debug-voile page.
+
 # 1.10.0
+
 ### Major
 - Added support for topic categories. See **Topic front-matter** topic for more info.
 - Installed mods that are on the Hytale Modding Wiki are now shown in the main interface mode
