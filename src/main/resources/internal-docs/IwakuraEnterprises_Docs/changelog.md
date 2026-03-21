@@ -4,6 +4,16 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.10.0
+### Major
+- Added support for topic categories. See **Topic front-matter** topic for more info.
+- Installed mods that are on the Hytale Modding Wiki are now shown in the main interface mode
+under the **External Mod Wiki** documentation type.
+
+### Minor
+- Documentation types are now properly capitalized.
+- Small code cleanup.
+
 # 1.9.0
 
 ### Major
