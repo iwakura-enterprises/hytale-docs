@@ -18,7 +18,7 @@ Using the configuration file, **config.json**, you're able to configure various 
 - **loadDocumentationsFromDirectory** - specifies directory from which all server documentations are loaded
 - **defaultTopicIdentifier** - specifies the default topic to open. Follows the topic identifier format.
 - **disabledDocumentationTypes** - specifies a list of **disabled** documentation types. Using this, you may **hide** various types of documentation.
-  - Types: **SERVER**, **MOD**, **INTERNAL**
+  - Types: **SERVER**, **MOD**, **EXTERNAL_MOD**, **INTERNAL**
 - **validator** - validator configuration (see below)
 - **commandShortcuts** - command shortcuts configuration (see below)
 - **runtimeImageAssets** - runtime image assets configuration (see below)

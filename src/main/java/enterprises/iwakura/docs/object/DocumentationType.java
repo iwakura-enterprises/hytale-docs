@@ -15,11 +15,15 @@ public enum DocumentationType {
     /**
      * Server-specific documentation. This is the default type for documentation made by the server owner.
      */
-    SERVER("Server wiki"),
+    SERVER("Server Wiki"),
     /**
      * Mod-specific documentation. This is the default type for documentation supplied by mods.
      */
-    MOD("Mod wiki"),
+    MOD("Mod Wiki"),
+    /**
+     * Mod-specific documentation that is loaded from external integration but shown in the main interface mode.
+     */
+    EXTERNAL_MOD("External Mod Wiki"),
     /**
      * Hytale modding wiki type for installed mods
      */

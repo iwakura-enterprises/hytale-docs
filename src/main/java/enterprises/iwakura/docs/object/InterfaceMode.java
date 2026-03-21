@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum InterfaceMode {
-    VOILE("Voile", "voile-icon.png", List.of(DocumentationType.SERVER, DocumentationType.MOD, DocumentationType.INTERNAL)),
+    VOILE("Voile", "voile-icon.png", List.of(DocumentationType.SERVER, DocumentationType.MOD, DocumentationType.EXTERNAL_MOD, DocumentationType.INTERNAL)),
     HYTALE_MODDING_WIKI("Hytale Modding Wiki", "hytale-modding-icon.png", List.of(DocumentationType.HYTALE_MODDING_WIKI_INSTALLED, DocumentationType.HYTALE_MODDING_WIKI));
 
     private final String userFriendlyName;

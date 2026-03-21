@@ -1,10 +1,11 @@
 package enterprises.iwakura.docs.service;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.PluginBase;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
@@ -15,6 +16,7 @@ import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.service.loader.ResourceMarkdownFileDocumentationLoader;
 import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
+import enterprises.iwakura.docs.util.StringUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +30,7 @@ public class PluginAssetLoaderService {
     private final DocumentationService documentationService;
     private final Logger logger;
     private final DocsPlugin plugin;
+    private final Set<PluginIdentifier> pluginIdentifiers = new HashSet<>();
 
     /**
      * Scans currently loaded plugins for documentations
@@ -44,6 +47,7 @@ public class PluginAssetLoaderService {
                     logger.info("Found AssetDocumentationIndexConfig resource in plugin %s, registering resource documentation loader...".formatted(
                         plugin.getName()
                     ));
+                    pluginIdentifiers.add(plugin.getIdentifier());
                     documentationService.registerDocumentationLoader(javaPlugin, new ResourcesDocumentationLoader(
                         DocumentationType.MOD,
                         javaPlugin.getClassLoader(),
@@ -72,6 +76,7 @@ public class PluginAssetLoaderService {
                     logger.info("Found Markdown file resource in plugin %s".formatted(
                         plugin.getName()
                     ));
+                    pluginIdentifiers.add(javaPlugin.getIdentifier());
                     markdownFileResources.put(javaPlugin, markdownFileResourceUrl);
                 }
             }
@@ -92,5 +97,21 @@ public class PluginAssetLoaderService {
                 markdownFileResources
             ));
         }
+    }
+
+    /**
+     * Checks if the specified plugin name has Voile integration
+     *
+     * @param pluginName Plugin name
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean hasIntegration(String pluginName) {
+        // Skip voile itself
+        if (StringUtils.isSimilar(pluginName, "Voile")) {
+            return true;
+        }
+        return pluginIdentifiers.stream()
+            .anyMatch(identifier -> StringUtils.isSimilar(identifier.getName(), pluginName));
     }
 }

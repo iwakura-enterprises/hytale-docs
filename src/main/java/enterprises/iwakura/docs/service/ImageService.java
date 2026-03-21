@@ -87,7 +87,7 @@ public class ImageService {
 //                }
 
                 var getRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+                    .uri(URI.create(cleanUrl(url)))
                     .header("User-Agent", "Mozilla/5.0")
                     .GET()
                     .build();
@@ -100,6 +100,19 @@ public class ImageService {
                 throw new RuntimeException("Failed to download image from: " + url, e);
             }
         });
+    }
+
+    private String cleanUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        if (url.startsWith("\"")) {
+            url = url.substring(1);
+        }
+        if (url.endsWith("\"")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 
     /**

@@ -23,6 +23,7 @@ import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.FileSystemCacheService;
+import enterprises.iwakura.docs.service.PluginAssetLoaderService;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.StringUtils;
@@ -38,6 +39,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     public static final String CACHE_FILE_MOD_PAGES_FORMAT = "hytale_modding_wiki_%s_pages";
     public static final String CACHE_FILE_MOD_CONTENT_FORMAT = "hytale_modding_wiki_%s_%s_content";
 
+    private final PluginAssetLoaderService pluginAssetLoaderService;
     private final FileSystemCacheService fileSystemCacheService;
     private final HMWikiApi hmWikiApi;
     private final Logger logger;
@@ -86,9 +88,15 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
         return modList.getMods().stream()
             .map(mod -> {
+                boolean modInstalled = isModInstalled(mod.getName());
+                boolean hasVoileIntegration = pluginAssetLoaderService.hasIntegration(mod.getName());
+                // Show the mod in the main interface if it is installed, and it does not have voile integration
+                DocumentationType documentationType = modInstalled
+                    ? !hasVoileIntegration ? DocumentationType.EXTERNAL_MOD : DocumentationType.HYTALE_MODDING_WIKI_INSTALLED
+                    : DocumentationType.HYTALE_MODDING_WIKI;
+
                 var documentation = Documentation.builder()
-                    .type(isModInstalled(mod.getName()) ? DocumentationType.HYTALE_MODDING_WIKI_INSTALLED
-                        : DocumentationType.HYTALE_MODDING_WIKI)
+                    .type(documentationType)
                     .group("voile_hm_wiki")
                     .id("%s_%s".formatted(mod.getSlug(), mod.getId()))
                     .name(mod.getName())
