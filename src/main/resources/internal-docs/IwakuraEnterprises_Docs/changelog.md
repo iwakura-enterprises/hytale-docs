@@ -4,6 +4,11 @@ description: Here you can find all changes that have been made to Voile.
 author: mayuna
 ---
 
+# 1.10.2
+
+### Minor
+- Updated to server version `2026.03.26-89796e57b`
+
 # 1.10.1
 
 ### Minor
