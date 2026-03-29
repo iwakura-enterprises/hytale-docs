@@ -8,6 +8,7 @@ public class InternalTopic extends Topic {
             name,
             description,
             "Voile",
+            LocaleType.ENGLISH,
             0,
             false,
             content,

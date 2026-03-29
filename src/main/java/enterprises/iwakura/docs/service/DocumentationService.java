@@ -17,6 +17,7 @@ import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
 import enterprises.iwakura.docs.service.loader.FileSystemDocumentationLoader;
@@ -139,17 +140,18 @@ public class DocumentationService {
      * Returns default topic specified in documentation index. If none is specified, the first topic is returned.
      *
      * @param documentations Documentations to find the default configured topic
+     * @param preferredLocaleType Preferred locale type to use when finding default topic
      *
      * @return Optional topic (empty if no topics were loaded)
      */
-    public Optional<Topic> getDefaultTopic(List<Documentation> documentations) {
+    public Optional<Topic> getDefaultTopic(List<Documentation> documentations, LocaleType preferredLocaleType) {
         if (documentations.isEmpty()) {
             return Optional.empty();
         }
 
         var docsConfig = configurationService.getDocsConfig();
         if (docsConfig.getDefaultTopicIdentifier() != null) {
-            var defaultTopic = findTopic(documentations, docsConfig.getDefaultTopicIdentifier(), null);
+            var defaultTopic = findTopic(documentations, docsConfig.getDefaultTopicIdentifier(), null, preferredLocaleType);
             if (defaultTopic.isPresent()) {
                 return defaultTopic;
             }
@@ -180,20 +182,23 @@ public class DocumentationService {
      * @param topicIdentifier        the topic identifier string, using colons as delimiters
      * @param preferredDocumentation The preferred documentation to look first if topic identifier does not specify
      *                               documentation group or id
+     * @param preferredLocaleType The preferred locale type to use, falls back to any other locale based on {@link LocaleType#ordinal()}
      *
      * @return an {@link Optional} containing the found {@link Topic}, or empty if not found
      *
-     * @see #findTopic(List, String, String, String, boolean)
+     * @see #findTopic(List, String, String, String, LocaleType, boolean)
      */
     public Optional<Topic> findTopic(
         List<Documentation> documentations,
         String topicIdentifier,
-        Documentation preferredDocumentation
+        Documentation preferredDocumentation,
+        LocaleType preferredLocaleType
     ) {
         boolean documentationGroupOrId = false;
         String documentationGroup = null;
         String documentationId = null;
         String topicId = null;
+        LocaleType localeType = preferredLocaleType;
         String[] openTopicData = topicIdentifier.split(":");
 
         if (openTopicData.length == 1) {
@@ -213,11 +218,18 @@ public class DocumentationService {
             topicId = openTopicData[2];
         }
 
-        var optionalTopic = findTopic(documentations, documentationGroup, documentationId, topicId, documentationGroupOrId);
+        if (topicId != null && topicId.contains("$")) {
+            var topicIdWithLocale = topicId.split("\\$");
+            topicId = topicIdWithLocale[0];
+            // Always override preferred locale type if specifically specified
+            localeType = LocaleType.byCode(topicIdWithLocale[1]);
+        }
+
+        var optionalTopic = findTopic(documentations, documentationGroup, documentationId, topicId, localeType, documentationGroupOrId);
 
         if (optionalTopic.isEmpty() && openTopicData.length == 1) {
             // try searching without the preferred documentation
-            optionalTopic = findTopic(documentations, null, null, topicId, false);
+            optionalTopic = findTopic(documentations, null, null, topicId, localeType, false);
         }
 
         return optionalTopic;
@@ -231,6 +243,7 @@ public class DocumentationService {
      * @param documentationId        Optional documentation ID
      * @param topicId                Topic ID
      * @param documentationGroupOrId If search should be done loosely on documentation group / id
+     * @param preferredLocaleType    Preferred locale type
      *
      * @return Optional topic
      */
@@ -238,6 +251,7 @@ public class DocumentationService {
         List<Documentation> documentations, String documentationGroup,
         String documentationId,
         String topicId,
+        LocaleType preferredLocaleType,
         boolean documentationGroupOrId
     ) {
         return documentations.stream()
@@ -254,6 +268,7 @@ public class DocumentationService {
             })
             .map(documentation -> documentation.findTopicById(topicId).orElse(null))
             .filter(Objects::nonNull)
+            .map(topic -> topic.getLocalePreferredTopic(preferredLocaleType))
             .findFirst();
     }
 }

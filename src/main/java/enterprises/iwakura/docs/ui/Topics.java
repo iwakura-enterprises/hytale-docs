@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.ui;
 import java.util.List;
 
 import enterprises.iwakura.docs.object.Documentation;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import lombok.experimental.UtilityClass;
 
@@ -15,6 +16,7 @@ public class Topics {
             .name("Topic not found")
             .description("Could not found requested topic")
             .author("Docs")
+            .localeType(LocaleType.ENGLISH)
             .markdownContent(
                 """
                 <red>We're sorry but topic with identifier `%s` could not be found.</red>

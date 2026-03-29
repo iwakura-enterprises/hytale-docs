@@ -1,6 +1,8 @@
 package enterprises.iwakura.docs.service;
 
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +42,18 @@ public class PluginAssetLoaderService {
 
         for (PluginBase plugin : PluginManager.get().getPlugins()) {
             if (plugin instanceof JavaPlugin javaPlugin) {
+                logger.info("Testing Path filesystem for jars for plugin " + javaPlugin.getFile());
+                try {
+                    var fs = FileSystems.newFileSystem(javaPlugin.getFile());
+                    for (var rootDir : fs.getRootDirectories()) {
+                        try (var walk = java.nio.file.Files.walk(rootDir)) {
+                            //walk.forEach(path -> logger.info("Resource: " + path.toString()));
+                        }
+                    }
+                } catch (Exception exception) {
+                    logger.error("!!!!!!!!!! for plugin " + plugin, exception);
+                }
+
                 var identifier = plugin.getIdentifier();
                 var indexPath = DOCUMENTATION_INDEX_RESOURCE_PATH.formatted(identifier.getGroup(), identifier.getName());
                 var indexResourceUrl = javaPlugin.getClassLoader().getResource(indexPath);

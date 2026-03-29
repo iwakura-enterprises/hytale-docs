@@ -31,6 +31,7 @@ public class InterfaceState {
     private int topicIdentifierHistoryIndex = -1;
 
     private InterfaceMode mode = InterfaceMode.VOILE;
+    private LocaleType preferredLocale = LocaleType.CZECH;
     private List<Documentation> documentations;
     private Topic topic;
 
@@ -153,6 +154,7 @@ public class InterfaceState {
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
         preferences.setLastInterfaceMode(mode);
+        preferences.setPreferredLocale(preferredLocale);
     }
 
     /**
@@ -164,6 +166,7 @@ public class InterfaceState {
         topicSearchQuery = interfacePreferences.getLastTopicSearchQuery();
         fullTextSearch = interfacePreferences.isFullTextSearch();
         mode = interfacePreferences.getLastInterfaceMode();
+        preferredLocale = interfacePreferences.getPreferredLocale();
         if (interfacePreferences.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
             topicIdentifierHistory.addAll(interfacePreferences.getTopicIdentifierHistory());

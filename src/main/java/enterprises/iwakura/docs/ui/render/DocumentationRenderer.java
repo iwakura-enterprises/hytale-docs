@@ -42,9 +42,9 @@ public class DocumentationRenderer implements Renderer<Documentation> {
         var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         documentation.getTopics()
             .stream()
-            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().isFullTextSearch()))
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().getPreferredLocale(), ctx.getInterfaceState().isFullTextSearch()))
             .forEach(topic -> {
-                topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic)));
+                topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic.getLocalePreferredTopic(ctx.getInterfaceState().getPreferredLocale()))));
             });
 
         return treeUI

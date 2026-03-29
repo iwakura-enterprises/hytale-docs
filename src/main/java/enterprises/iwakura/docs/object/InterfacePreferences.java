@@ -1,6 +1,5 @@
 package enterprises.iwakura.docs.object;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,5 +17,6 @@ public class InterfacePreferences {
     private List<String> topicIdentifierHistory;
     private int topicIdentifierHistoryIndex;
     private InterfaceMode lastInterfaceMode;
+    private LocaleType preferredLocale;
 
 }

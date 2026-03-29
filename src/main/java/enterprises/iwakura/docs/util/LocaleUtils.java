@@ -1,6 +1,7 @@
 package enterprises.iwakura.docs.util;
 
 import java.text.Normalizer;
+import java.util.Locale;
 
 import lombok.experimental.UtilityClass;
 

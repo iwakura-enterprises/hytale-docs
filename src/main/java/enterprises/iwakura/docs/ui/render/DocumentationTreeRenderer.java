@@ -250,7 +250,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
 
         documentations = documentations.stream()
             .filter(documentation -> interfaceState.getMode() == null || interfaceState.getMode().has(documentation.getType()))
-            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.isFullTextSearch()))
+            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.getPreferredLocale(), interfaceState.isFullTextSearch()))
             .toList();
 
         var currentInterfaceMode = interfaceState.getMode();
@@ -395,7 +395,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             }
 
             for (int i = windowEnd; i >= windowStart; i--) {
-                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null);
+                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null, interfaceState.getPreferredLocale());
                 if (optionalTopic.isPresent()) {
                     var topic = optionalTopic.get();
                     boolean shouldBeBold = i == currentIndex;

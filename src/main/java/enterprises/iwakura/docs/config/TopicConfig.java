@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.config;
 import java.util.List;
 
 import enterprises.iwakura.docs.object.Documentation;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class TopicConfig {
     private String name;
     private String description;
     private String author;
+    private LocaleType localeType;
     private int sortIndex = 0;
     private boolean category;
     private String markdownContent;
@@ -56,6 +58,24 @@ public class TopicConfig {
             markdownContent = "";
         }
 
-        return new Topic(id, name, description, author, sortIndex, category, markdownContent, null, documentation, null, null);
+        if (localeType == null) {
+            localeType = LocaleType.ENGLISH;
+        }
+
+        return new Topic(id, name, description, author, localeType, sortIndex, category, markdownContent, null,
+            documentation, null, null);
+    }
+
+    /**
+     * Creates unique ID specifying just this topic. Uses ID and its locale.
+     *
+     * @return Unique ID
+     */
+    public String createUniqueId() {
+        if (localeType == null) {
+            return id;
+        } else {
+            return id + "$" + localeType.getCode();
+        }
     }
 }

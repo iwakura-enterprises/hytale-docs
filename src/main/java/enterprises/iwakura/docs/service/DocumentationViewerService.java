@@ -84,7 +84,7 @@ public class DocumentationViewerService {
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null);
+            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocale());
 
             // Fallback to not found topic
             if (notFoundTopicIfInvalid && topicToOpen.isEmpty()) {
@@ -96,7 +96,7 @@ public class DocumentationViewerService {
 
         // 2. Last opened topic
         if (topicToOpen.isEmpty() && lastOpenedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null);
+            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocale());
         }
 
         // 3. Default config topic
@@ -106,11 +106,11 @@ public class DocumentationViewerService {
             switchToInterfaceMode = Optional.of(currentInterfaceMode);
             topicToOpen = documentationService.getDefaultTopic(documentations.stream()
                 .filter(documentation -> currentInterfaceMode.has(documentation.getType()))
-                .toList()
+                .toList(), interfacePreferences.getPreferredLocale()
             );
 
             if (topicToOpen.isEmpty()) {
-                topicToOpen = documentationService.getDefaultTopic(documentations);
+                topicToOpen = documentationService.getDefaultTopic(documentations, interfacePreferences.getPreferredLocale());
 
                 if (topicToOpen.isPresent()) {
                     switchToInterfaceMode = InterfaceMode.forType(topicToOpen.get().getDocumentation().getType());
@@ -348,7 +348,7 @@ public class DocumentationViewerService {
                     .filter(documentation -> docsContext.getInterfaceState().getMode() == null || docsContext.getInterfaceState().getMode().has(documentation.getType()))
                     .toList();
 
-                var defaultTopic = documentationService.getDefaultTopic(documentations);
+                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getPreferredLocale());
                 if (defaultTopic.isPresent()) {
                     state.resetHistory();
                     state.pushToHistory(defaultTopic.get(), true);
@@ -412,7 +412,7 @@ public class DocumentationViewerService {
      */
     private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation())
+        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getPreferredLocale())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
         InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setMode(mode));

@@ -18,6 +18,7 @@ import org.commonmark.parser.Parser;
 
 import enterprises.iwakura.docs.config.TopicConfig;
 import enterprises.iwakura.docs.object.Documentation;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -156,6 +157,20 @@ public class MarkdownService {
      * @return Topic
      */
     public TopicConfig readMarkdownAsTopicConfig(String markdownFileName, String markdownFileContent) {
+        // Extract id and locale from filename pattern: "my-topic$en.md"
+        String baseFileName = markdownFileName.replace(".md", "");
+        String fileId;
+        String fileLocale;
+
+        if (baseFileName.contains("$")) {
+            String[] parts = baseFileName.split("\\$", 2);
+            fileId = parts[0];
+            fileLocale = parts[1];
+        } else {
+            fileId = baseFileName;
+            fileLocale = LocaleType.ENGLISH.getCode();
+        }
+
         var node = parseMarkdown(markdownFileContent, false);
         var visitor = new YamlFrontMatterVisitor();
         node.accept(visitor);
@@ -163,7 +178,7 @@ public class MarkdownService {
         var metadata = visitor.getData();
 
         var topic = new TopicConfig();
-        topic.setId(getFirstOrThrow(metadata, "id", markdownFileName.replace(".md", "")));
+        topic.setId(getFirstOrThrow(metadata, "id", fileId));
         topic.setName(getFirstOrThrow(metadata, "name", null));
         topic.setDescription(getFirstOrThrow(metadata, "description", "No description supplied."));
         topic.setAuthor(getFirstOrThrow(metadata, "author", "unknown author"));
@@ -171,6 +186,7 @@ public class MarkdownService {
         topic.setCategory(Boolean.parseBoolean(getFirstOrThrow(metadata, "category", "false")));
         topic.setSubTopics(metadata.get("sub-topics"));
         topic.setMarkdownContent(stripFrontMatter(markdownFileContent));
+        topic.setLocaleType(LocaleType.byCode(getFirstOrThrow(metadata, "locale", fileLocale)));
         return topic;
     }
 

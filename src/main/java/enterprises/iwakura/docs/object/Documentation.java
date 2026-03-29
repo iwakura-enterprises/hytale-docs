@@ -136,12 +136,13 @@ public class Documentation {
      *
      * @param topicSearchQuery Topic search query
      * @param fullTextSearch   If search should be done on the topic's content
+     * @param preferredLocaleType Preferred topic locale type to search in
      *
      * @return True if yes, false otherwise
      */
-    public boolean searchForTopic(String topicSearchQuery, boolean fullTextSearch) {
+    public boolean searchForTopic(String topicSearchQuery, LocaleType preferredLocaleType, boolean fullTextSearch) {
         var searchPattern = SearchPattern.of(topicSearchQuery);
-        return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, fullTextSearch));
+        return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, preferredLocaleType, fullTextSearch));
     }
 
     /**

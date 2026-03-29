@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -34,6 +35,12 @@ public class Topic {
      */
     private final List<Topic> topics = new ArrayList<>();
     /**
+     * List of the current topic in different locales. The topics within this topic as if it was this current topic, e.g.
+     * contains the same sub-topics array.
+     */
+    @ToString.Exclude
+    private final List<Topic> localizedTopics = new ArrayList<>();
+    /**
      * List of warnings
      */
     private final List<String> warnings = new ArrayList<>(); // TODO: Implement in renderer
@@ -53,6 +60,10 @@ public class Topic {
      * The author for the topic.
      */
     private @NonNull String author;
+    /**
+     * The locale for the topic.
+     */
+    private @NonNull LocaleType localeType;
     /**
      * The sort index for ordering topics within their branch.
      */
@@ -186,7 +197,7 @@ public class Topic {
         if (!(o instanceof Topic topic)) {
             return false;
         }
-        return Objects.equals(id, topic.id) && Objects.equals(name, topic.name)
+        return Objects.equals(id, topic.id)
             && Objects.equals(documentation, topic.documentation);
     }
 
@@ -222,13 +233,14 @@ public class Topic {
      *
      * @param topicSearchQuery Topic search query
      * @param fullTextSearch   If search should be done on the topic's content
+     * @param preferredLocaleType Preferred topic locale type to search in
      *
      * @return True if yes, false otherwise
      */
-    public boolean searchTopic(String topicSearchQuery, boolean fullTextSearch) {
+    public boolean searchTopic(String topicSearchQuery, LocaleType preferredLocaleType, boolean fullTextSearch) {
         String normalizedQuery = LocaleUtils.normalize(topicSearchQuery);
         SearchPattern searchPattern = SearchPattern.of(normalizedQuery);
-        return searchTopic(searchPattern, fullTextSearch);
+        return searchTopic(searchPattern, preferredLocaleType, fullTextSearch);
     }
 
     /**
@@ -236,16 +248,17 @@ public class Topic {
      *
      * @param searchPattern  Pre-built {@link SearchPattern}
      * @param fullTextSearch If search should be done on the topic's content
+     * @param preferredLocaleType Preferred topic locale type to search in
      *
      * @return True if yes, false otherwise
      */
-    public boolean searchTopic(SearchPattern searchPattern, boolean fullTextSearch) {
-        boolean matchesTopicContent = fullTextSearch && matchesTopicContentSearch(searchPattern);
+    public boolean searchTopic(SearchPattern searchPattern, LocaleType preferredLocaleType, boolean fullTextSearch) {
+        boolean matchesTopicContent = fullTextSearch && matchesTopicContentSearch(searchPattern, preferredLocaleType);
 
-        if (matchesTopicContent || searchPattern.containedIn(LocaleUtils.normalize(name))) {
+        if (matchesTopicContent || searchPattern.containedIn(LocaleUtils.normalize(this.getLocalePreferredTopic(preferredLocaleType).name))) {
             return true;
         } else {
-            return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, fullTextSearch));
+            return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, preferredLocaleType, fullTextSearch));
         }
     }
 
@@ -253,19 +266,22 @@ public class Topic {
      * Checks whenever the search topic query is contained in ticket's content
      *
      * @param searchPattern Pre-computed search pattern
+     * @param preferredLocaleType Preferred topic locale type to search in
      *
      * @return True if yes, false otherwise
      */
-    private boolean matchesTopicContentSearch(SearchPattern searchPattern) {
+    private boolean matchesTopicContentSearch(SearchPattern searchPattern, LocaleType preferredLocaleType) {
         if (category) {
             return false; // Category has no content
         }
 
-        if (normalizedMarkdownContent == null) {
-            normalizedMarkdownContent = LocaleUtils.normalize(markdownContent);
+        var searchInTopic = this.getLocalePreferredTopic(preferredLocaleType);
+
+        if (searchInTopic.normalizedMarkdownContent == null) {
+            searchInTopic.normalizedMarkdownContent = LocaleUtils.normalize(searchInTopic.markdownContent);
         }
 
-        return searchPattern.containedIn(normalizedMarkdownContent);
+        return searchPattern.containedIn(searchInTopic.normalizedMarkdownContent);
     }
 
     /**
@@ -296,5 +312,33 @@ public class Topic {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Gets the locale preferred topic. Returns itself, if the locale type matches, otherwise finds the matching locale
+     * topic from {@link #localizedTopics}. If no topic with the specified topic is found, uses the lowest
+     * {@link LocaleType#ordinal()} that is found in {@link #localizedTopics} and the current topic instance.
+     *
+     * @param localeType Localized type
+     *
+     * @return Non-null topic (itself or one from {@link #localizedTopics}
+     */
+    public Topic getLocalePreferredTopic(LocaleType localeType) {
+        int lowestLocalizedTopicLocaleTypeOrdinal = this.localeType.ordinal();
+        Topic lowestLocalizedTopic = this;
+        if (localeType == null || this.localeType == localeType) {
+            return this;
+        } else {
+            for (Topic localizedTopic : localizedTopics) {
+                if (localizedTopic.localeType == localeType) {
+                    return localizedTopic;
+                }
+                if (localizedTopic.localeType.ordinal() < lowestLocalizedTopicLocaleTypeOrdinal) {
+                    lowestLocalizedTopicLocaleTypeOrdinal = localizedTopic.localeType.ordinal();
+                    lowestLocalizedTopic = localizedTopic;
+                }
+            }
+        }
+        return lowestLocalizedTopic;
     }
 }

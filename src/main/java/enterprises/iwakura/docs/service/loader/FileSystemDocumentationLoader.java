@@ -30,9 +30,12 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
-        logger.info("└ Loading documentations from file system in directory " + documentationDirectory);
+        var documentations = new ArrayList<Documentation>();
+
+        logger.info("└ Loading documentations from in directory " + documentationDirectory);
         var indexFile = documentationDirectory.resolve("index.json");
 
+        // ensure exists
         if (!Files.exists(documentationDirectory)) {
             try {
                 Files.createDirectories(documentationDirectory);
@@ -41,6 +44,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             }
         }
 
+        // ensure exists
         if (!Files.exists(indexFile)) {
             logger.warn("└ index.json at %s does not exist! Creating new one...".formatted(indexFile));
             try {
@@ -50,6 +54,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             }
         }
 
+        // Load documentation index config
         DocumentationIndexConfig indexConfig;
         try {
             indexConfig = loaderContext.getGson().fromJson(Files.readString(indexFile), DocumentationIndexConfig.class);
@@ -57,13 +62,11 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             logger.error("└ Failed to load index.json: %s" + indexFile, exception);
             return List.of();
         }
-
         logger.info("└ Documentation index %s defines %d documentations".formatted(
             indexFile, indexConfig.getDocumentations().size()
         ));
 
-        var documentations = new ArrayList<Documentation>();
-
+        // Go thru documentations defined in the config
         for (DocumentationConfig documentationConfig : indexConfig.getDocumentations()) {
             if (!documentationConfig.isEnabled()) {
                 logger.warn("└ Skipping disabled " + documentationConfig);
@@ -71,6 +74,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             }
 
             try {
+                // Load documentation and its topics
                 var documentation = loadDocumentation(loaderContext, documentationConfig);
                 documentations.add(documentation);
                 logger.info("└ Loaded %s with %d topics".formatted(
@@ -80,24 +84,37 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 logger.error("└ Failed to load " + documentationConfig, exception);
             }
         }
-
-        logger.info("└ Loaded %d documentations from %s".formatted(
-            documentations.size(), indexFile
-        ));
+        logger.info("└ Loaded %d documentations from %s".formatted(documentations.size(), indexFile));
 
         return documentations;
     }
 
-    protected Documentation loadDocumentation(LoaderContext loaderContext, DocumentationConfig documentationConfig) throws IOException {
+    /**
+     * Loads specific documentation
+     *
+     * @param loaderContext       Loader context
+     * @param documentationConfig Documentation config
+     *
+     * @return Loaded documentation
+     *
+     * @throws IOException If any error occurs
+     */
+    protected Documentation loadDocumentation(LoaderContext loaderContext, DocumentationConfig documentationConfig)
+        throws IOException {
         var logger = loaderContext.getLogger();
         var documentationRootDirectory = documentationDirectory.resolve(documentationConfig.getId());
         var documentation = documentationConfig.toDocumentation(documentationType);
         List<Path> markdownFiles;
+        // Keyed by uniqueId (id + locale) to avoid collision between localized variants of the same topic
         var pathToTopicConfig = new HashMap<Path, TopicConfig>();
         var pathToTopic = new HashMap<Path, Topic>();
-        var topicMap = new HashMap<String, Topic>();
+        var uniqueTopicMap = new HashMap<String, Topic>();
+        // Keyed by base topic id; used for sub-topic resolution and circular reference checks.
+        // Holds the primary (lowest locale ordinal) config for each base id.
         var configMap = new HashMap<String, TopicConfig>();
+        // Keyed by base topic id; points to the primary topic's file path
         var topicIdToPath = new HashMap<String, Path>();
+        // Tracks base topic ids that have been placed as children in the tree
         var childTopicIds = new HashSet<String>();
 
         if (!Files.exists(documentationRootDirectory)) {
@@ -126,8 +143,16 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                     Files.readString(markdownFile, StandardCharsets.UTF_8)
                 );
                 pathToTopicConfig.put(markdownFile, topicConfig);
-                configMap.put(topicConfig.getId(), topicConfig);
-                topicIdToPath.put(topicConfig.getId(), markdownFile);
+
+                // configMap holds one (primary) config per base id for sub-topic / circular-reference resolution.
+                // We keep the config with the lowest locale ordinal so that sub-topic lists are resolved
+                // from the primary locale's perspective.
+                var baseId = topicConfig.getId();
+                var existing = configMap.get(baseId);
+                if (existing == null || topicConfig.getLocaleType().ordinal() < existing.getLocaleType().ordinal()) {
+                    configMap.put(baseId, topicConfig);
+                    topicIdToPath.put(baseId, markdownFile);
+                }
             } catch (Exception exception) {
                 throw new IOException("Failed to load Markdown file %s as topic".formatted(markdownFile), exception);
             }
@@ -141,7 +166,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 var topic = topicConfig.toTopic(documentation);
                 topic.setTopicFilePath(file);
                 pathToTopic.put(file, topic);
-                topicMap.put(topic.getId(), topic);
+                uniqueTopicMap.put(topicConfig.createUniqueId(), topic);
             } catch (Exception exception) {
                 logger.error("└ Invalid topic config, skipping %s (%s)".formatted(
                     file, topicConfig
@@ -149,8 +174,28 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             }
         }
 
+        // Group all topic instances by their base id, then determine the primary topic (lowest locale ordinal)
+        // and attach the remaining localized variants to it via localizedTopics.
+        var primaryTopicMap = new HashMap<String, Topic>();
+        for (var topic : uniqueTopicMap.values()) {
+            var baseId = topic.getId();
+            var current = primaryTopicMap.get(baseId);
+            if (current == null || topic.getLocaleType().ordinal() < current.getLocaleType().ordinal()) {
+                if (current != null) {
+                    // The previously stored topic is now a secondary locale — move it to the new primary's localizedTopics
+                    topic.getLocalizedTopics().add(current);
+                    topic.getLocalizedTopics().addAll(current.getLocalizedTopics());
+                    current.getLocalizedTopics().clear();
+                }
+                primaryTopicMap.put(baseId, topic);
+            } else {
+                current.getLocalizedTopics().add(topic);
+            }
+        }
+
+        // Build sub-topic trees using primary topics. Sub-topic IDs in configs are always base ids.
         for (var topicConfig : configMap.values()) {
-            var topic = topicMap.get(topicConfig.getId());
+            var topic = primaryTopicMap.get(topicConfig.getId());
             if (topic == null || topicConfig.getSubTopics() == null) {
                 continue;
             }
@@ -163,8 +208,8 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 // Check if subTopicId is a directory
                 var potentialDir = parentDir.resolve(subTopicId);
                 if (Files.isDirectory(potentialDir)) {
-                    // Load all topics from directory recursively
-                    var dirTopics = loadTopicsFromDirectory(potentialDir, pathToTopic, topicConfig.getId(), configMap, topic, logger);
+                    // Load all primary topics from the directory and attach them as sub-topics
+                    var dirTopics = loadTopicsFromDirectory(potentialDir, pathToTopic, primaryTopicMap, topicConfig.getId(), configMap, topic, logger);
                     for (var dirTopic : dirTopics) {
                         topic.getTopics().add(dirTopic);
                         childTopicIds.add(dirTopic.getId());
@@ -172,7 +217,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                     continue;
                 }
 
-                var subTopic = topicMap.get(subTopicId);
+                var subTopic = primaryTopicMap.get(subTopicId);
                 if (subTopic == null) {
                     var warning = "Sub-topic not found: %s".formatted(subTopicId);
                     topic.getWarnings().add(warning);
@@ -200,7 +245,14 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             topic.getTopics().sort(Comparator.comparingInt(Topic::getSortIndex));
         }
 
-        var rootTopics = topicMap.values().stream()
+        // Propagate sub-topic trees to localized copies.
+        for (var primaryTopic : primaryTopicMap.values()) {
+            for (var localizedTopic : primaryTopic.getLocalizedTopics()) {
+                localizedTopic.getTopics().addAll(primaryTopic.getTopics());
+            }
+        }
+
+        var rootTopics = primaryTopicMap.values().stream()
             .filter(topic -> !childTopicIds.contains(topic.getId()))
             .sorted(Comparator.comparingInt(Topic::getSortIndex))
             .toList();
@@ -209,42 +261,59 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
     }
 
     /**
-     * Loads topics from a directory, treating direct .md files as sub-topics.
-     * Does not load directories recursively.
+     * Loads primary topics from a directory, treating direct .md files as sub-topics.
+     * For each file, only the primary topic (lowest locale ordinal) is added to the result;
+     * localized variants are already attached via {@link Topic#getLocalizedTopics()}.
+     * Does not recurse into subdirectories.
      */
     protected List<Topic> loadTopicsFromDirectory(
         Path directory,
         Map<Path, Topic> pathToTopic,
+        Map<String, Topic> primaryTopicMap,
         String parentId,
         Map<String, TopicConfig> configMap,
         Topic parentTopic,
         Logger logger
     ) {
         var topics = new ArrayList<Topic>();
+        var seenPrimaryIds = new HashSet<String>();
 
         try (var stream = Files.list(directory)) {
             var entries = stream.toList();
 
             for (var entry : entries) {
                 if (Files.isRegularFile(entry) && entry.toString().endsWith(".md")) {
-                    // Find topic by matching the file path
-                    var matchingTopic = pathToTopic.get(entry);
-                    if (matchingTopic != null) {
-                        // Check for circular reference
-                        var visitedPath = new ArrayList<String>();
-                        if (hasCircularReference(parentId, matchingTopic.getId(), configMap, visitedPath)) {
-                            var loopPath = String.join(" -> ", visitedPath) + " -> " + visitedPath.getFirst();
-                            var warning = "Topic loop detected: %s, sub-topic '%s' not added to '%s'".formatted(
-                                loopPath, matchingTopic.getId(), parentId
-                            );
-                            parentTopic.getWarnings().add(warning);
-                            logger.warn(warning);
-                            continue;
-                        }
-                        topics.add(matchingTopic);
-                    } else {
+                    // Resolve the topic instance for this file path
+                    var fileTopic = pathToTopic.get(entry);
+                    if (fileTopic == null) {
                         logger.warn("└ No topic found for file: %s".formatted(entry));
+                        continue;
                     }
+
+                    // Use the primary topic for this base id (not the locale-specific file topic)
+                    var matchingTopic = primaryTopicMap.get(fileTopic.getId());
+                    if (matchingTopic == null) {
+                        logger.warn("└ No primary topic found for id: %s".formatted(fileTopic.getId()));
+                        continue;
+                    }
+
+                    // Skip if the primary topic for this base id was already added by a sibling locale file
+                    if (!seenPrimaryIds.add(matchingTopic.getId())) {
+                        continue;
+                    }
+
+                    // Check for circular reference
+                    var visitedPath = new ArrayList<String>();
+                    if (hasCircularReference(parentId, matchingTopic.getId(), configMap, visitedPath)) {
+                        var loopPath = String.join(" -> ", visitedPath) + " -> " + visitedPath.getFirst();
+                        var warning = "Topic loop detected: %s, sub-topic '%s' not added to '%s'".formatted(
+                            loopPath, matchingTopic.getId(), parentId
+                        );
+                        parentTopic.getWarnings().add(warning);
+                        logger.warn(warning);
+                        continue;
+                    }
+                    topics.add(matchingTopic);
                 }
             }
         } catch (IOException exception) {

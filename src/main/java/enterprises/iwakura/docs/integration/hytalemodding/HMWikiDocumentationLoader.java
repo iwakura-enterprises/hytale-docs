@@ -21,6 +21,7 @@ import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.FileSystemCacheService;
 import enterprises.iwakura.docs.service.PluginAssetLoaderService;
@@ -113,6 +114,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
             .id(UNLOADED_INDEX_TOPIC_ID_PREFIX + mod.getSlug())
             .name(Optional.ofNullable(mod.getName()).orElse("Unknown mod"))
             .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
+            .localeType(LocaleType.ENGLISH)
             .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
             .documentation(documentation)
             .markdownContent("If you see this, it means that the mod does not have any pages set up. Bummer!")
@@ -151,6 +153,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
 
         var topic = Topic.builder()
             .id(Optional.ofNullable(page.getSlug()).orElseGet(() -> UUID.randomUUID().toString()))
+            .localeType(LocaleType.ENGLISH)
             .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
             .name(Optional.ofNullable(page.getTitle()).orElse("Unnamed page"))
             .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
