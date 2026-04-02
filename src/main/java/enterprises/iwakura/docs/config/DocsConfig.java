@@ -23,6 +23,7 @@ public class DocsConfig {
     private boolean outOfBoxExperience = true;
     private boolean updateCheckerEnabled = true;
     private boolean enableFullTextSearch = true;
+    private boolean persistInterfacePreferences = true;
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
     private final List<DocumentationType> disabledDocumentationTypes = new ArrayList<>();

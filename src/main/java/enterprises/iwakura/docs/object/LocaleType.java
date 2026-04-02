@@ -16,40 +16,38 @@ public enum LocaleType {
     DUTCH("Dutch", "Nederlands", "nl"),
     POLISH("Polish", "Polski", "pl"),
     RUSSIAN("Russian", "Русский", "ru"),
-    UKRAINIAN("Ukrainian", "Українська", "uk"),
-    SWEDISH("Swedish", "Svenska", "sv"),
+    UKRAINIAN("Ukrainian", "Українська", "ua"),
+    SWEDISH("Swedish", "Svenska", "se"),
     NORWEGIAN("Norwegian", "Norsk", "no"),
-    DANISH("Danish", "Dansk", "da"),
+    DANISH("Danish", "Dansk", "dk"),
     FINNISH("Finnish", "Suomi", "fi"),
-    GREEK("Greek", "Ελληνικά", "el"),
-    CZECH("Czech", "Čeština", "cs"),
+    GREEK("Greek", "Ελληνικά", "gr"),
+    CZECH("Czech", "Čeština", "cz"),
     SLOVAK("Slovak", "Slovenčina", "sk"),
     HUNGARIAN("Hungarian", "Magyar", "hu"),
     ROMANIAN("Romanian", "Română", "ro"),
     BULGARIAN("Bulgarian", "Български", "bg"),
     CROATIAN("Croatian", "Hrvatski", "hr"),
-    SERBIAN("Serbian", "Српски", "sr"),
+    SERBIAN("Serbian", "Српски", "rs"),
     TURKISH("Turkish", "Türkçe", "tr"),
 
     // Asian Languages
-    CHINESE_SIMPLIFIED("Chinese (Simplified)", "中文（简体）", "zh-CN"),
-    CHINESE_TRADITIONAL("Chinese (Traditional)", "中文（繁體）", "zh-TW"),
-    JAPANESE("Japanese", "日本語", "ja"),
-    KOREAN("Korean", "한국어", "ko"),
-    VIETNAMESE("Vietnamese", "Tiếng Việt", "vi"),
+    CHINESE_SIMPLIFIED("Chinese", "中文（简体）", "zh-cn"),
+    CHINESE_TRADITIONAL("Chinese (Traditional)", "中文（繁體）", "zh-tw"),
+    JAPANESE("Japanese", "日本語", "jp"),
+    KOREAN("Korean", "한국어", "kr"),
+    VIETNAMESE("Vietnamese", "Tiếng Việt", "vn"),
     THAI("Thai", "ภาษาไทย", "th"),
     INDONESIAN("Indonesian", "Bahasa Indonesia", "id"),
-    MALAY("Malay", "Bahasa Melayu", "ms"),
-    HINDI("Hindi", "हिन्दी", "hi"),
-    ARABIC("Arabic", "العربية", "ar"),
+    MALAY("Malay", "Bahasa Melayu", "my"),
+    HINDI("Hindi", "हिन्दी", "in"),
+    ARABIC("Arabic", "العربية", "sa"),
     HEBREW("Hebrew", "עברית", "he"),
 
     // African Languages
-    SWAHILI("Swahili", "Kiswahili", "sw"),
-    AMHARIC("Amharic", "አማርኛ", "am"),
-    YORUBA("Yoruba", "Yorùbá", "yo"),
-    ZULU("Zulu", "isiZulu", "zu"),
-    AFRIKAANS("Afrikaans", "Afrikaans", "af"),
+    SWAHILI("Swahili", "Kiswahili", "ke"),
+    AMHARIC("Amharic", "አማርኛ", "et"),
+    ZULU("Zulu", "isiZulu", "za"),
 
     // Easter-eggs :P
     LOLCAT("LOLCAT", "LOLCAT", "lol");
@@ -69,6 +67,17 @@ public enum LocaleType {
     public static LocaleType byCode(String code) {
         for (LocaleType localeType : ALL) {
             if (localeType.code.equals(code)) {
+                return localeType;
+            }
+        }
+
+        // Fallback to English
+        return LocaleType.ENGLISH;
+    }
+
+    public static LocaleType safeValueOf(String value) {
+        for (LocaleType localeType : ALL) {
+            if (localeType.name().equals(value)) {
                 return localeType;
             }
         }

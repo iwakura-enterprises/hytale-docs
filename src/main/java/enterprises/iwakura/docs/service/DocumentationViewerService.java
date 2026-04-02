@@ -16,12 +16,14 @@ import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import enterprises.iwakura.docs.components.Components;
 import enterprises.iwakura.docs.config.DocsConfig;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.InterfaceMode;
-import enterprises.iwakura.docs.object.InterfacePreferences;
+import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.object.InternalTopic;
 import enterprises.iwakura.docs.object.Topic;
@@ -43,7 +45,7 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class DocumentationViewerService {
 
-    private static final Map<UUID, InterfacePreferences> lastInterfacePreferencesForPlayer = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<UUID, InterfacePreferencesComponent> lastInterfacePreferencesForPlayer = Collections.synchronizedMap(new HashMap<>());
     private static final Executor RENDER_EXECUTOR = Executors.newCachedThreadPool(r -> {
         Thread thread = new Thread(r);
         thread.setUncaughtExceptionHandler((t, e) -> {
@@ -84,7 +86,7 @@ public class DocumentationViewerService {
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocale());
+            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
 
             // Fallback to not found topic
             if (notFoundTopicIfInvalid && topicToOpen.isEmpty()) {
@@ -96,7 +98,7 @@ public class DocumentationViewerService {
 
         // 2. Last opened topic
         if (topicToOpen.isEmpty() && lastOpenedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocale());
+            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
         }
 
         // 3. Default config topic
@@ -106,11 +108,11 @@ public class DocumentationViewerService {
             switchToInterfaceMode = Optional.of(currentInterfaceMode);
             topicToOpen = documentationService.getDefaultTopic(documentations.stream()
                 .filter(documentation -> currentInterfaceMode.has(documentation.getType()))
-                .toList(), interfacePreferences.getPreferredLocale()
+                .toList(), interfacePreferences.getPreferredLocaleType()
             );
 
             if (topicToOpen.isEmpty()) {
-                topicToOpen = documentationService.getDefaultTopic(documentations, interfacePreferences.getPreferredLocale());
+                topicToOpen = documentationService.getDefaultTopic(documentations, interfacePreferences.getPreferredLocaleType());
 
                 if (topicToOpen.isPresent()) {
                     switchToInterfaceMode = InterfaceMode.forType(topicToOpen.get().getDocumentation().getType());
@@ -421,16 +423,16 @@ public class DocumentationViewerService {
     }
 
     /**
-     * Returns {@link InterfacePreferences} for specified player
+     * Returns {@link InterfacePreferencesComponent} for specified player
      *
      * @param playerUuid Player UUID
      * @param defaultState Default state to load
      *
-     * @return Never-null {@link InterfacePreferences}
+     * @return Never-null {@link InterfacePreferencesComponent}
      */
-    public InterfacePreferences getInterfacePreferences(UUID playerUuid, InterfaceState defaultState) {
+    public InterfacePreferencesComponent getInterfacePreferences(UUID playerUuid, InterfaceState defaultState) {
         return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, k -> {
-            var preferences = new InterfacePreferences(k);
+            var preferences = new InterfacePreferencesComponent();
             Objects.requireNonNullElse(defaultState, InterfaceState.DEFAULT_STATE).saveToPreferences(preferences);
             return preferences;
         });
@@ -438,5 +440,53 @@ public class DocumentationViewerService {
 
     public void clearPreferences() {
         lastInterfacePreferencesForPlayer.clear();
+    }
+
+    /**
+     * Loads interface preferences from player's holder
+     *
+     * @param playerRef Player reference
+     */
+    public void loadInterfacePreferences(PlayerRef playerRef) {
+        var config = configurationService.getDocsConfig();
+        if (config.isPersistInterfacePreferences()) {
+            var holder = playerRef.getHolder();
+            if (holder != null) {
+                var interfacePreferences = holder.getComponent(Components.getInterfacePreferencesComponent());
+                if (interfacePreferences != null) {
+                    lastInterfacePreferencesForPlayer.put(playerRef.getUuid(), interfacePreferences);
+                    logger.info("Loaded interface preferences for player " + playerRef.getUuid());
+                }
+            }
+        }
+    }
+
+    /**
+     * Saves interface preferences to player's holder
+     *
+     * @param playerRef Player reference
+     */
+    public void saveInterfacePreferences(PlayerRef playerRef) {
+        var config = configurationService.getDocsConfig();
+        if (config.isPersistInterfacePreferences()) {
+            var ref = playerRef.getReference();
+            var interfacePreferences = lastInterfacePreferencesForPlayer.get(playerRef.getUuid());
+
+            if (interfacePreferences != null && ref != null) {
+                var world = Universe.get().getWorld(playerRef.getWorldUuid());
+
+                if (world != null) {
+                    world.execute(() -> {
+                        try {
+                            var store = ref.getStore();
+                            store.addComponent(ref, Components.getInterfacePreferencesComponent(), interfacePreferences);
+                            logger.info("Saved interface preferences for player " + playerRef.getUuid());
+                        } catch (Exception exception) {
+                            logger.error("Failed to save interface preferences for player " + playerRef.getUuid(), exception);
+                        }
+                    });
+                }
+            }
+        }
     }
 }

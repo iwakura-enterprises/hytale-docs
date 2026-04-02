@@ -5,6 +5,8 @@ import java.util.List;
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
+import enterprises.iwakura.docs.components.Components;
+import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.command.AboutVoileCommand;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
@@ -61,6 +63,9 @@ public class Docs {
     public void setup() {
         logger.info("Initializing Voile...");
         logger.info("Made by Iwakura Enterprises");
+
+        logger.info("Registering components...");
+        Components.setInterfacePreferencesComponentType(plugin.getEntityStoreRegistry().registerComponent(InterfacePreferencesComponent.class, "InterfacePreferences", InterfacePreferencesComponent.CODEC));
 
         configurationService.init();
         debugService.init();

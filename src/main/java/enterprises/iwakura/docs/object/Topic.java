@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import enterprises.iwakura.docs.util.LocaleUtils;
 import jdk.jfr.Experimental;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

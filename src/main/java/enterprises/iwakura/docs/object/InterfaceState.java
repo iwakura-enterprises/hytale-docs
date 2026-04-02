@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.object;
 import java.util.ArrayList;
 import java.util.List;
 
+import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import lombok.Data;
 
 /**
@@ -145,7 +146,7 @@ public class InterfaceState {
      *
      * @param preferences The preferences to save to
      */
-    public void saveToPreferences(InterfacePreferences preferences) {
+    public void saveToPreferences(InterfacePreferencesComponent preferences) {
         if (topic != null) {
             preferences.setLastOpenedTopicIdentifier(topic.getTopicIdentifier());
         }
@@ -154,23 +155,23 @@ public class InterfaceState {
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
         preferences.setLastInterfaceMode(mode);
-        preferences.setPreferredLocale(preferredLocale);
+        preferences.setPreferredLocaleType(preferredLocale);
     }
 
     /**
      * Loads various data from the preferences.
      *
-     * @param interfacePreferences The preferences to load from
+     * @param interfacePreferencesComponent The preferences to load from
      */
-    public void loadFromPreferences(InterfacePreferences interfacePreferences) {
-        topicSearchQuery = interfacePreferences.getLastTopicSearchQuery();
-        fullTextSearch = interfacePreferences.isFullTextSearch();
-        mode = interfacePreferences.getLastInterfaceMode();
-        preferredLocale = interfacePreferences.getPreferredLocale();
-        if (interfacePreferences.getTopicIdentifierHistory() != null) {
+    public void loadFromPreferences(InterfacePreferencesComponent interfacePreferencesComponent) {
+        topicSearchQuery = interfacePreferencesComponent.getLastTopicSearchQuery();
+        fullTextSearch = interfacePreferencesComponent.isFullTextSearch();
+        mode = interfacePreferencesComponent.getLastInterfaceMode();
+        preferredLocale = interfacePreferencesComponent.getPreferredLocaleType();
+        if (interfacePreferencesComponent.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
-            topicIdentifierHistory.addAll(interfacePreferences.getTopicIdentifierHistory());
-            topicIdentifierHistoryIndex = interfacePreferences.getTopicIdentifierHistoryIndex();
+            topicIdentifierHistory.addAll(interfacePreferencesComponent.getTopicIdentifierHistory());
+            topicIdentifierHistoryIndex = interfacePreferencesComponent.getTopicIdentifierHistoryIndex();
         }
         ensureTopicHistoryIndexInBounds();
     }

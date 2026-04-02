@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.listener;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 
 import enterprises.iwakura.docs.service.ConfigurationService;
+import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class PlayerJoinListener implements BaseGlobalListener<PlayerConnectEvent> {
 
     private final ConfigurationService configurationService;
+    private final DocumentationViewerService documentationViewerService;
 
     @Override
     public Class<PlayerConnectEvent> getEventClass() {
@@ -20,6 +22,7 @@ public class PlayerJoinListener implements BaseGlobalListener<PlayerConnectEvent
 
     @Override
     public void onEvent(PlayerConnectEvent event) {
+        documentationViewerService.loadInterfacePreferences(event.getPlayerRef());
         var docsConfig = configurationService.getDocsConfig();
         if (docsConfig.isOutOfBoxExperience()) {
             var playerRef = event.getPlayerRef();

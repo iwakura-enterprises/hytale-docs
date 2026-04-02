@@ -22,6 +22,16 @@ public enum InterfaceMode {
 
     public static final List<InterfaceMode> ALL = Arrays.asList(InterfaceMode.values());
 
+    public static InterfaceMode safeValueOf(String value) {
+        for (InterfaceMode interfaceMode : ALL) {
+            if (interfaceMode.name().equals(value)) {
+                return interfaceMode;
+            }
+        }
+
+        return null;
+    }
+
     public boolean has(DocumentationType type) {
         return documentationTypes.contains(type);
     }
