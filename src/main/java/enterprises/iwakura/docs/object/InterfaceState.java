@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
+import enterprises.iwakura.docs.config.DocsConfig.InterfacePreferencesDefaults;
 import lombok.Data;
 
 /**
@@ -12,11 +13,6 @@ import lombok.Data;
  */
 @Data
 public class InterfaceState {
-
-    /**
-     * Default state w/o documentations and topic. Is used when loading default settings.
-     */
-    public static final InterfaceState DEFAULT_STATE = new InterfaceState();
 
     /**
      * The topic identifier history as topics were opened. This is used to implement the back/forward button.
@@ -32,7 +28,7 @@ public class InterfaceState {
     private int topicIdentifierHistoryIndex = -1;
 
     private InterfaceMode mode = InterfaceMode.VOILE;
-    private LocaleType preferredLocale = LocaleType.CZECH;
+    private LocaleType localeType = LocaleType.ENGLISH;
     private List<Documentation> documentations;
     private Topic topic;
 
@@ -45,10 +41,7 @@ public class InterfaceState {
         pushToHistory(topic, true);
     }
 
-    /**
-     * Reserved for default state w/o active documentations and topic
-     */
-    private InterfaceState() {
+    public InterfaceState() {
     }
 
     public void pushToHistory(Topic topic, boolean preventDuplicates) {
@@ -155,7 +148,7 @@ public class InterfaceState {
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
         preferences.setLastInterfaceMode(mode);
-        preferences.setPreferredLocaleType(preferredLocale);
+        preferences.setPreferredLocaleType(localeType);
     }
 
     /**
@@ -167,13 +160,30 @@ public class InterfaceState {
         topicSearchQuery = interfacePreferencesComponent.getLastTopicSearchQuery();
         fullTextSearch = interfacePreferencesComponent.isFullTextSearch();
         mode = interfacePreferencesComponent.getLastInterfaceMode();
-        preferredLocale = interfacePreferencesComponent.getPreferredLocaleType();
+        localeType = interfacePreferencesComponent.getPreferredLocaleType();
         if (interfacePreferencesComponent.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
             topicIdentifierHistory.addAll(interfacePreferencesComponent.getTopicIdentifierHistory());
             topicIdentifierHistoryIndex = interfacePreferencesComponent.getTopicIdentifierHistoryIndex();
         }
         ensureTopicHistoryIndexInBounds();
+    }
+
+    /**
+     * Loads various data from the config defaults
+     *
+     * @param defaults Configuration interface preferences defaults
+     */
+    public void loadFromDefaults(InterfacePreferencesDefaults defaults) {
+        if (defaults != null) {
+            if (defaults.getInterfaceMode() != null) {
+                mode = defaults.getInterfaceMode();
+            }
+
+            if (defaults.getLocaleType() != null) {
+                localeType = defaults.getLocaleType();
+            }
+        }
     }
 
     private void ensureTopicHistoryIndexInBounds() {

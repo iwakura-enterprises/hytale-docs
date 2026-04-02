@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.InterfaceMode;
+import enterprises.iwakura.docs.object.LocaleType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +28,7 @@ public class DocsConfig {
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
     private final List<DocumentationType> disabledDocumentationTypes = new ArrayList<>();
+    private InterfacePreferencesDefaults interfacePreferencesDefaults = new InterfacePreferencesDefaults();
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
     private RuntimeImageAssets runtimeImageAssets = new RuntimeImageAssets();
@@ -38,6 +40,13 @@ public class DocsConfig {
         return InterfaceMode.ALL.stream()
             .filter(mode -> mode != InterfaceMode.HYTALE_MODDING_WIKI || integration.getHytaleModdingWiki().isEnabled())
             .toList();
+    }
+
+    @Data
+    public static class InterfacePreferencesDefaults {
+
+        private InterfaceMode interfaceMode;
+        private LocaleType localeType;
     }
 
     @Data

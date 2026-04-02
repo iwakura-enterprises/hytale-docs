@@ -350,7 +350,7 @@ public class DocumentationViewerService {
                     .filter(documentation -> docsContext.getInterfaceState().getMode() == null || docsContext.getInterfaceState().getMode().has(documentation.getType()))
                     .toList();
 
-                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getPreferredLocale());
+                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getLocaleType());
                 if (defaultTopic.isPresent()) {
                     state.resetHistory();
                     state.pushToHistory(defaultTopic.get(), true);
@@ -414,7 +414,7 @@ public class DocumentationViewerService {
      */
     private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getPreferredLocale())
+        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getLocaleType())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
         InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setMode(mode));
@@ -433,7 +433,11 @@ public class DocumentationViewerService {
     public InterfacePreferencesComponent getInterfacePreferences(UUID playerUuid, InterfaceState defaultState) {
         return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, k -> {
             var preferences = new InterfacePreferencesComponent();
-            Objects.requireNonNullElse(defaultState, InterfaceState.DEFAULT_STATE).saveToPreferences(preferences);
+            var state = Objects.requireNonNullElse(defaultState, new InterfaceState());
+            if (defaultState == null) {
+                state.loadFromDefaults(configurationService.getDocsConfig().getInterfacePreferencesDefaults());
+            }
+            state.saveToPreferences(preferences);
             return preferences;
         });
     }
@@ -479,7 +483,7 @@ public class DocumentationViewerService {
                     world.execute(() -> {
                         try {
                             var store = ref.getStore();
-                            store.addComponent(ref, Components.getInterfacePreferencesComponent(), interfacePreferences);
+                            store.putComponent(ref, Components.getInterfacePreferencesComponent(), interfacePreferences);
                             logger.info("Saved interface preferences for player " + playerRef.getUuid());
                         } catch (Exception exception) {
                             logger.error("Failed to save interface preferences for player " + playerRef.getUuid(), exception);
