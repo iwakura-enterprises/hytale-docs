@@ -27,14 +27,19 @@ import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.service.ValidatorService;
-import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.ui.LocaleTypeSelectorPage.PageData;
+import enterprises.iwakura.docs.ui.LocaleTypeSelectorPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.InterfaceUtils;
 import enterprises.iwakura.docs.util.Logger;
 import lombok.Data;
 
 public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
+
+    public static final String MAIN_CONTENT_SELECTOR = "#Content";
+    public static final String LANGUAGE_LIST_SELECTOR = "#LanguageListSelector";
+    public static final String LANGUAGE_SEARCH_SELECTOR = "#LanguageSearchSelector";
+    public static final String RESET_INTERFACE_PREFERENCES_BUTTON_SELECTOR = "#ResetInterfacePreferencesButton";
 
     public static final String LANGUAGE_BUTTON_COMPONENT =
         """
@@ -145,13 +150,41 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
 
                     }
                 }
+
+                Group {
+                    Padding: (Top: 16);
+
+                    TextButton {{reset-interface-preferences-button-selector}} {
+                        Style: (
+                            Default: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bfbfbf)),
+                            Hovered: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #ffffffff)),
+                            Pressed: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #e1e1e1)),
+                            Sounds: (
+                                Activate: (
+                                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                                    MinPitch: -0.4,
+                                    MaxPitch: 0.4,
+                                    Volume: 4
+                                ),
+                                MouseHover: (
+                                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                                    Volume: 6
+                                )
+                            )
+                        );
+                        Text: "Reset interface preferences";
+                        TooltipText: "Resets your interface preferences to factory defaults";
+                        TextTooltipStyle: {{interface-button-tooltip-style-short}};
+                        TextTooltipShowDelay: 0.1;
+                    }
+                }
             }
         }
-        """;
-
-    public static final String MAIN_CONTENT_SELECTOR = "#Content";
-    public static final String LANGUAGE_LIST_SELECTOR = "#LanguageListSelector";
-    public static final String LANGUAGE_SEARCH_SELECTOR = "#LanguageSearchSelector";
+        """
+            .replace("{{language-list-selector}}", LANGUAGE_LIST_SELECTOR)
+            .replace("{{language-search-selector}}", LANGUAGE_SEARCH_SELECTOR)
+            .replace("{{reset-interface-preferences-button-selector}}", RESET_INTERFACE_PREFERENCES_BUTTON_SELECTOR)
+            .replaceAll("\\{\\{interface-button-tooltip-style-short}}", CommonStyles.TOOLTIP_STYLE_SHORT);
 
     private final DocumentationViewerService documentationViewerService;
     private final DocumentationService documentationService;
@@ -189,8 +222,6 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
         docsContext.getCommandBuilder().appendInline(
             MAIN_CONTENT_SELECTOR,
             CONTAINER_COMPONENT
-                .replace("{{language-list-selector}}", LANGUAGE_LIST_SELECTOR)
-                .replace("{{language-search-selector}}", LANGUAGE_SEARCH_SELECTOR)
         );
         clearAndAppendInline(
             docsContext,
@@ -198,14 +229,19 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
             null
         );
 
-        // Searching!
+        // Searching + reset interface preferences
         docsContext.getEventBuilder().addEventBinding(
             CustomUIEventBindingType.ValueChanged,
             LANGUAGE_SEARCH_SELECTOR,
             new EventData()
-                .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.SEARCH)
+                .append(PageData.INTERFACE_ACTION_FIELD, PageData.InterfaceAction.SEARCH)
                 .append(PageData.SEARCH_QUERY_FIELD, LANGUAGE_SEARCH_SELECTOR + ".Value"),
             false
+        );
+        docsContext.getEventBuilder().addEventBinding(
+            CustomUIEventBindingType.Activating,
+            RESET_INTERFACE_PREFERENCES_BUTTON_SELECTOR,
+            new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.RESET_INTERFACE_PREFERENCES)
         );
 
         // Validate before showing to the user
@@ -339,6 +375,13 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
                 }
             }
             case RESET_INTERFACE_PREFERENCES -> {
+                documentationViewerService.clearPreferences(playerRef.getUuid());
+                if (selectShouldOpenVoileInterface) {
+                    documentationViewerService.openFor(playerRef, Optional.empty(), false);
+                } else {
+                    player.getPageManager().setPage(ref, store, Page.None);
+                    ChatInfo.SUCCESS.send(playerRef, "Your interface preferences were reset to factory defaults");
+                }
             }
         }
     }

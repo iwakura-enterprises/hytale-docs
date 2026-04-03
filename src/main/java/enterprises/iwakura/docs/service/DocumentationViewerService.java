@@ -465,8 +465,54 @@ public class DocumentationViewerService {
         });
     }
 
-    public void clearPreferences() {
+    /**
+     * Clears all in-memory interface preferences
+     */
+    public void clearPreferencesInMemory() {
         lastInterfacePreferencesForPlayer.clear();
+    }
+
+    /**
+     * Clears preferences for specified player UUID in memory and within their store/holder
+     *
+     * @param playerUuid player UUID
+     */
+    public void clearPreferences(UUID playerUuid) {
+        lastInterfacePreferencesForPlayer.remove(playerUuid);
+        Optional.ofNullable(Universe.get().getPlayer(playerUuid))
+            .ifPresentOrElse(playerRef -> {
+                var world = Universe.get().getWorld(playerRef.getWorldUuid());
+                var ref = playerRef.getReference();
+
+                if (world != null && ref != null) {
+                    var store = ref.getStore();
+                    world.execute(() -> {
+                        try {
+                            if (store.getComponent(ref, Components.getInterfacePreferencesComponent()) != null) {
+                                store.removeComponent(ref, Components.getInterfacePreferencesComponent());
+                            }
+                        } catch (Exception exception) {
+                            logger.error("Failed to remove interface preferences component from player's store " + playerUuid, exception);
+                        }
+                    });
+                }
+            }, () -> {
+                Universe.get().getPlayerStorage().load(playerUuid).whenCompleteAsync((holder, exception) -> {
+                    if (exception != null) {
+                        logger.warn("Failed to load player %s from storage to reset their interface preferences!".formatted(playerUuid));
+                        return;
+                    }
+
+                    try {
+                        if (holder.getComponent(Components.getInterfacePreferencesComponent()) != null) {
+                            holder.removeComponent(Components.getInterfacePreferencesComponent());
+                            Universe.get().getPlayerStorage().save(playerUuid, holder);
+                        }
+                    } catch (Exception exceptionHolder) {
+                        logger.error("Failed to remove interface preferences component from player's holder " + playerUuid, exceptionHolder);
+                    }
+                });
+            });
     }
 
     /**

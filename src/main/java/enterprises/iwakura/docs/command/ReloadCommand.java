@@ -55,7 +55,7 @@ public class ReloadCommand extends CommandBase {
             fileSystemCacheService.reset();
             fileSystemCacheService.reload();
             runtimeImageAssetService.clearCache();
-            documentationViewerService.clearPreferences();
+            documentationViewerService.clearPreferencesInMemory();
             documentationService.reloadDocumentations();
             ChatInfo.SUCCESS.send(ctx, "Reload done.");
         } catch (Exception exception) {
