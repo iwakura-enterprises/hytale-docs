@@ -1,10 +1,12 @@
 package enterprises.iwakura.docs.object;
 
+import java.util.List;
+
+import enterprises.iwakura.docs.util.LocaleUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
 public enum LocaleType {
     // Major European Languages
     ENGLISH("English", "English", "en"),
@@ -42,7 +44,7 @@ public enum LocaleType {
     MALAY("Malay", "Bahasa Melayu", "my"),
     HINDI("Hindi", "हिन्दी", "in"),
     ARABIC("Arabic", "العربية", "sa"),
-    HEBREW("Hebrew", "עברית", "he"),
+    HEBREW("Hebrew", "עברית", "il"),
 
     // African Languages
     SWAHILI("Swahili", "Kiswahili", "ke"),
@@ -50,12 +52,20 @@ public enum LocaleType {
     ZULU("Zulu", "isiZulu", "za"),
 
     // Easter-eggs :P
-    LOLCAT("LOLCAT", "LOLCAT", "lol");
+    LOLCAT("LOLCAT", "Teh best language :3", "lol");
 
-    public static final LocaleType[] ALL = LocaleType.values();
+    public static final List<LocaleType> ALL = List.of(LocaleType.values());
     private final String englishName;
     private final String nativeName;
+    private final String normalizedNativeName;
     private final String code;
+
+    LocaleType(String englishName, String nativeName, String code) {
+        this.englishName = englishName;
+        this.nativeName = nativeName;
+        this.normalizedNativeName = LocaleUtils.normalize(nativeName);
+        this.code = code;
+    }
 
     /**
      * Gets locale type by its code
@@ -83,5 +93,20 @@ public enum LocaleType {
         }
 
         return null;
+    }
+
+    /**
+     * Checks whenever specified search query matches the current locale type by english name, normalized native name or
+     * a code.
+     *
+     * @param languageSearchQuery Language search query
+     *
+     * @return True if yes, false otherwise
+     */
+    public boolean matchesSearch(String languageSearchQuery) {
+        var normalizedSearchQuery = LocaleUtils.normalize(languageSearchQuery).toLowerCase();
+        return englishName.toLowerCase().contains(normalizedSearchQuery)
+            || normalizedNativeName.toLowerCase().contains(normalizedSearchQuery)
+            || code.contains(normalizedSearchQuery);
     }
 }

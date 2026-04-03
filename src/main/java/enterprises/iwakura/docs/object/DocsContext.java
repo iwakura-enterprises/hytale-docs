@@ -37,6 +37,10 @@ public class DocsContext {
         );
     }
 
+    public static DocsContext empty(PlayerRef playerRef) {
+        return of(playerRef, null);
+    }
+
     public static DocsContext of(DocsContext docsContext) {
         return new DocsContext(
             docsContext.getPlayerRef(),

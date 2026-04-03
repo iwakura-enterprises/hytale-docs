@@ -5,6 +5,7 @@ import java.util.List;
 import com.al3x.HStats;
 import com.hypixel.hytale.event.IBaseEvent;
 
+import enterprises.iwakura.docs.command.VoileLocaleCommand;
 import enterprises.iwakura.docs.components.Components;
 import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
@@ -41,6 +42,7 @@ public class Docs {
     private final DocsCommand docsCommand;
     private final ReloadCommand reloadCommand;
     private final AboutVoileCommand aboutVoileCommand;
+    private final VoileLocaleCommand voileLocaleCommand;
 
     private final VoileAPI voileAPI;
     private final HMWikiApi hmWikiApi;
@@ -85,6 +87,7 @@ public class Docs {
         plugin.getCommandRegistry().registerCommand(docsCommand);
         plugin.getCommandRegistry().registerCommand(reloadCommand);
         plugin.getCommandRegistry().registerCommand(aboutVoileCommand);
+        plugin.getCommandRegistry().registerCommand(voileLocaleCommand);
 
         logger.info("Registering global listeners...");
         globalListeners.forEach(this::registerGlobalListener);

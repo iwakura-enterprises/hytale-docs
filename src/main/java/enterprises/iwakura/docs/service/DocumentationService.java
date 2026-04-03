@@ -45,6 +45,7 @@ public class DocumentationService {
      * Loaded documentations, from the file system or registered by other mods.
      */
     private final List<Documentation> loadedDocumentations = new ArrayList<>();
+    private final Map<LocaleType, Integer> numberOfTranslatedTopicsForLocaleType = new HashMap<>();
 
     /**
      * Registers default documentation loaders
@@ -105,6 +106,41 @@ public class DocumentationService {
         }
 
         logger.info("Loaded %d documentations".formatted(loadedDocumentations.size()));
+        logger.info("Calculating the number of translated topics for all locale types...");
+        numberOfTranslatedTopicsForLocaleType.clear();
+        loadedDocumentations.forEach(documentation -> documentation.getTopics().forEach(this::sumLocalizedTopics));
+    }
+
+    /**
+     * Sums the number of localized topics for specified topic and its subtopics
+     *
+     * @param topic Topic
+     */
+    private void sumLocalizedTopics(Topic topic) {
+        numberOfTranslatedTopicsForLocaleType.compute(
+            topic.getLocaleType(),
+            (localeType, count) -> count == null ? 1 : count + 1
+        );
+        if (!topic.getLocalizedTopics().isEmpty()) {
+            topic.getLocalizedTopics().forEach(localizedTopic -> {
+                numberOfTranslatedTopicsForLocaleType.compute(
+                    localizedTopic.getLocaleType(),
+                    (localeType, count) -> count == null ? 1 : count + 1
+                );
+            });
+        }
+        topic.getTopics().forEach(this::sumLocalizedTopics);
+    }
+
+    /**
+     * Returns the number of localized topics for the specified locale type
+     *
+     * @param localeType Locale type
+     *
+     * @return Number of localized topics
+     */
+    public int getNumberOfLocalizedTopics(LocaleType localeType) {
+        return numberOfTranslatedTopicsForLocaleType.computeIfAbsent(localeType, k -> 0);
     }
 
     /**

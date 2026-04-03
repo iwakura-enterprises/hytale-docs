@@ -37,7 +37,7 @@ public class AboutVoileCommand extends AbstractPlayerCommand {
         var player = store.getComponent(ref, Player.getComponentType());
 
         if (player == null) {
-            ChatInfo.ERROR.send(ctx, "No Player component found on in the store.");
+            ChatInfo.ERROR.send(ctx, "No Player component found in the store.");
             return;
         }
 

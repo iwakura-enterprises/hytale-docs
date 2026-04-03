@@ -15,6 +15,7 @@ import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
 import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
+import enterprises.iwakura.docs.util.InterfaceUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import enterprises.iwakura.sigewine.core.utils.BeanAccessor;
 import lombok.Data;
@@ -34,7 +35,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
         var documentation = renderData.getDocumentation();
         var topic = renderData.getTopic();
 
-        var buttonSelector = generateButtonSelector();
+        var buttonSelector = InterfaceUtils.generateSelector();
         var treeUI = """
             // DocumentationTreeTopicRenderer#render()
             Group {
@@ -91,15 +92,6 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
             .replace("{{button-style}}", buttonStyle)
             .replace("{{name}}", markdownService.escapeText(topic.getName()))
             .replace("{{topics}}", topicsUI);
-    }
-
-    /**
-     * Generates selector for button
-     *
-     * @return Selector (without hashtag)
-     */
-    private String generateButtonSelector() {
-        return "GeneratedButton" + UUID.randomUUID().toString().replace("-", "");
     }
 
     @Data

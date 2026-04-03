@@ -30,6 +30,7 @@ import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.AboutVoilePage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
+import enterprises.iwakura.docs.ui.LocaleTypeSelectorPage;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeRenderer;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer;
 import enterprises.iwakura.docs.ui.render.DocumentationViewerRenderer.RenderData;
@@ -265,6 +266,25 @@ public class DocumentationViewerService {
     }
 
     /**
+     * Opens locale type selector page
+     *
+     * @param page Page
+     */
+    private void openLocaleTypeSelectorPage(DocumentationViewerPage page) {
+        var playerRef = page.getPlayerRef();
+        var player = page.getPlayer();
+
+        if (player == null) {
+            return;
+        }
+
+        var ref = playerRef.getReference();
+        var store = ref.getStore();
+
+        player.getPageManager().openCustomPage(ref, store, new LocaleTypeSelectorPage(playerRef, this, documentationService, validatorService, logger, true));
+    }
+
+    /**
      * Updates only the topic chapter tree in the interface
      *
      * @param page    Page
@@ -388,6 +408,9 @@ public class DocumentationViewerService {
             }
             case OPEN_ABOUT_VOILE_PAGE -> {
                 openAboutVoilePage(page);
+            }
+            case OPEN_LOCALE_TYPE_SELECTOR_PAGE -> {
+                openLocaleTypeSelectorPage(page);
             }
             case TOGGLE_FULL_TEXT_SEARCH -> {
                 var updatedDocsContext = DocsContext.of(docsContext);

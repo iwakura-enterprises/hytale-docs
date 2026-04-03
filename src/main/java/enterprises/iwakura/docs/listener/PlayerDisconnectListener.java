@@ -24,10 +24,10 @@ public class PlayerDisconnectListener implements BaseGlobalListener<PlayerDiscon
 
     @Override
     public void onEvent(PlayerDisconnectEvent event) {
-        documentationViewerService.saveInterfacePreferences(event.getPlayerRef());
         if (event.getDisconnectReason().getClientDisconnectType() == DisconnectType.Crash) {
             validatorService.handleCrashedPlayer(event.getPlayerRef());
         }
         runtimeImageAssetService.clearCacheForPlayer(event.getPlayerRef().getUuid());
+        documentationViewerService.saveInterfacePreferences(event.getPlayerRef());
     }
 }

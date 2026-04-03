@@ -47,6 +47,7 @@ import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
 import enterprises.iwakura.docs.util.ExceptionUtils;
+import enterprises.iwakura.docs.util.InterfaceUtils;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.ResizeUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -310,7 +311,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(Heading heading) {
-            var textSelector = generateTextSelector();
+            var textSelector = InterfaceUtils.generateSelector();
 
             var fontSize = switch (heading.getLevel()) {
                 case 1 -> 30;
@@ -380,7 +381,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
             boolean imageParagraph = paragraph.getFirstChild() instanceof Image;
 
             if (!imageParagraph) {
-                var textSelector = generateTextSelector();
+                var textSelector = InterfaceUtils.generateSelector();
 
                 // Paragraph's first child isn't an image, render the paragraph with text etc.
                 writer.line();
@@ -503,7 +504,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(FencedCodeBlock fencedCodeBlock) {
             var skipBottomPadding = fencedCodeBlock.getNext() == null;
-            var codeSelector = generateTextSelector();
+            var codeSelector = InterfaceUtils.generateSelector();
             var literal = fencedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -549,7 +550,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(IndentedCodeBlock indentedCodeBlock) {
             var skipBottomPadding = indentedCodeBlock.getNext() == null;
-            var codeSelector = generateTextSelector();
+            var codeSelector = InterfaceUtils.generateSelector();
             var literal = indentedCodeBlock.getLiteral();
 
             // Trim any blank lines at the bottom
@@ -664,8 +665,8 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(ListItem listItem) {
-            var markerSelector = generateTextSelector();
-            var textSelector = generateTextSelector();
+            var markerSelector = InterfaceUtils.generateSelector();
+            var textSelector = InterfaceUtils.generateSelector();
 
             String marker;
             if (listHolder instanceof BulletListHolder bulletListHolder) {
@@ -864,7 +865,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 "#0e151d"
                 : "#121a24";
 
-            var textSelector = generateTextSelector();
+            var textSelector = InterfaceUtils.generateSelector();
             var cellAlignment = tableCell.getAlignment();
 
             if (cellAlignment == null) {
@@ -956,15 +957,6 @@ public class TopicContentRenderer implements Renderer<Topic> {
             writer.block();
         }
 
-        /**
-         * Generates selector for text
-         *
-         * @return Selector (without hashtag)
-         */
-        private String generateTextSelector() {
-            return "GeneratedText" + UUID.randomUUID().toString().replace("-", "");
-        }
-
         //#region Helper classes...
 
         @Data
@@ -1027,7 +1019,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                         var innerMatcher = INNER_PATTERN.matcher(innerContent);
 
                         while (innerMatcher.find()) {
-                            var buttonSelector = generateButtonSelector();
+                            var buttonSelector = InterfaceUtils.generateSelector();
                             var elementName = innerMatcher.group(1);    // "button"
                             var attributeName = innerMatcher.group(2);  // "topic"
                             var attributeValue = innerMatcher.group(3); // "IwakuraEnterprises:another_topic_child1"
@@ -1083,15 +1075,6 @@ public class TopicContentRenderer implements Renderer<Topic> {
                         }
                     }
                 }
-            }
-
-            /**
-             * Generates selector for button
-             *
-             * @return Selector (without hashtag)
-             */
-            private static String generateButtonSelector() {
-                return "GeneratedButton" + UUID.randomUUID().toString().replace("-", "");
             }
         }
 

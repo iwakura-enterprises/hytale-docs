@@ -1,6 +1,7 @@
 package enterprises.iwakura.docs.ui.render;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.Message;
@@ -12,6 +13,7 @@ import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.InterfaceMode;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
@@ -35,6 +37,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
     public static final String GO_FORWARD_BUTTON_SELECTOR = "#GoForwardButton";
     public static final String GO_HOME_BUTTON_SELECTOR = "#GoHomeButton";
     public static final String FULL_TEXT_SEARCH_BUTTON_SELECTOR = "#FullTextSearchButton";
+    public static final String LOCALE_TYPE_SELECTOR_BUTTON_SELECTOR = "#LocaleTypeSelectorButton";
     public static final String TOPIC_SEARCH_BAR_SELECTOR = "#TopicSearchBar";
 
     @Bean
@@ -102,6 +105,13 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             false
         );
 
+        ctx.getEventBuilder().addEventBinding(
+            CustomUIEventBindingType.Activating,
+            LOCALE_TYPE_SELECTOR_BUTTON_SELECTOR,
+            new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.OPEN_LOCALE_TYPE_SELECTOR_PAGE.name()),
+            false
+        );
+
         return """
             // DocumentationTreeRenderer#render()
             Group {
@@ -112,6 +122,22 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                 Group {
                     LayoutMode: Left;
                     Padding: (Left: 10, Right: 10, Bottom: 10);
+
+                    Group {
+                        Padding: (Right: 10);
+
+                        TextButton {{locale-type-selector-button-selector}} {
+                            Anchor: (Width: 40, Height: 40);
+                            Style: {{interface-button-style}};
+                            TooltipText: "Changes your preferred language";
+                            TextTooltipStyle: {{interface-button-tooltip-style-short}};
+                        }
+
+                        AssetImage {
+                            Anchor: (Width: 24, Height: 24);
+                            AssetPath: "UI/Custom/Docs/Images/Flags/{{current-locale-type-flag-code}}.png";
+                        }
+                    }
 
                     Group {
                         Padding: (Right: 10);
@@ -237,9 +263,11 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             .replace("{{go-forward-button-selector}}", GO_FORWARD_BUTTON_SELECTOR)
             .replace("{{go-home-button-selector}}", GO_HOME_BUTTON_SELECTOR)
             .replace("{{full-text-search-button-selector}}", FULL_TEXT_SEARCH_BUTTON_SELECTOR)
+            .replace("{{locale-type-selector-button-selector}}", LOCALE_TYPE_SELECTOR_BUTTON_SELECTOR)
             .replace("{{topic-search-bar-selector}}", TOPIC_SEARCH_BAR_SELECTOR)
             .replace("{{documentation-tree-selector}}", DOCUMENTATION_TREE_SELECTOR)
             .replace("{{interface-full-text-search-button-style}}", ctx.getInterfaceState().isFullTextSearch() ? CommonStyles.INTERFACE_PRIMARY_BUTTON_STYLE : CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
+            .replace("{{current-locale-type-flag-code}}", Optional.ofNullable(ctx.getInterfaceState().getLocaleType()).orElse(LocaleType.ENGLISH).getCode())
             .replaceAll("\\{\\{interface-button-style}}", CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
             .replaceAll("\\{\\{interface-button-tooltip-style-short}}", CommonStyles.TOOLTIP_STYLE_SHORT)
             .replaceAll("\\{\\{interface-button-tooltip-style-wide}}", CommonStyles.TOOLTIP_STYLE_WIDE);

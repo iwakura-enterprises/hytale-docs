@@ -197,7 +197,7 @@ public class InterfaceState {
     @Override
     public String toString() {
         return "InterfaceState{" +
-            "documentations.size=" + documentations.size() +
+            "documentations.size=" + (documentations == null ? "0" : documentations.size()) +
             ", topic=" + topic +
             ", topicSearchQuery='" + topicSearchQuery + '\'' +
             '}';
