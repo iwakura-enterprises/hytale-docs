@@ -27,8 +27,8 @@ public class InterfaceState {
      */
     private int topicIdentifierHistoryIndex = -1;
 
-    private InterfaceMode mode = InterfaceMode.VOILE;
-    private LocaleType localeType = LocaleType.ENGLISH;
+    private InterfaceMode interfaceMode = InterfaceMode.VOILE;
+    private LocaleType preferredLocaleType;
     private List<Documentation> documentations;
     private Topic topic;
 
@@ -147,8 +147,8 @@ public class InterfaceState {
         preferences.setFullTextSearch(fullTextSearch);
         preferences.setTopicIdentifierHistory(new ArrayList<>(topicIdentifierHistory));
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
-        preferences.setLastInterfaceMode(mode);
-        preferences.setPreferredLocaleType(localeType);
+        preferences.setLastInterfaceMode(interfaceMode);
+        preferences.setPreferredLocaleType(preferredLocaleType);
     }
 
     /**
@@ -159,8 +159,8 @@ public class InterfaceState {
     public void loadFromPreferences(InterfacePreferencesComponent interfacePreferencesComponent) {
         topicSearchQuery = interfacePreferencesComponent.getLastTopicSearchQuery();
         fullTextSearch = interfacePreferencesComponent.isFullTextSearch();
-        mode = interfacePreferencesComponent.getLastInterfaceMode();
-        localeType = interfacePreferencesComponent.getPreferredLocaleType();
+        interfaceMode = interfacePreferencesComponent.getLastInterfaceMode();
+        preferredLocaleType = interfacePreferencesComponent.getPreferredLocaleType();
         if (interfacePreferencesComponent.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
             topicIdentifierHistory.addAll(interfacePreferencesComponent.getTopicIdentifierHistory());
@@ -177,11 +177,11 @@ public class InterfaceState {
     public void loadFromDefaults(InterfacePreferencesDefaults defaults) {
         if (defaults != null) {
             if (defaults.getInterfaceMode() != null) {
-                mode = defaults.getInterfaceMode();
+                interfaceMode = defaults.getInterfaceMode();
             }
 
             if (defaults.getLocaleType() != null) {
-                localeType = defaults.getLocaleType();
+                preferredLocaleType = defaults.getLocaleType();
             }
         }
     }

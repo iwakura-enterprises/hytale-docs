@@ -61,7 +61,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
         );
 
         var lastTopicQuery = documentationViewerService.getBeanInstance()
-            .getInterfacePreferences(ctx.getPlayerRef().getUuid(), ctx.getInterfaceState())
+            .getInterfacePreferences(ctx.getPlayerRef(), ctx.getInterfaceState())
             .getLastTopicSearchQuery();
 
         if (lastTopicQuery != null) {
@@ -267,7 +267,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             .replace("{{topic-search-bar-selector}}", TOPIC_SEARCH_BAR_SELECTOR)
             .replace("{{documentation-tree-selector}}", DOCUMENTATION_TREE_SELECTOR)
             .replace("{{interface-full-text-search-button-style}}", ctx.getInterfaceState().isFullTextSearch() ? CommonStyles.INTERFACE_PRIMARY_BUTTON_STYLE : CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
-            .replace("{{current-locale-type-flag-code}}", Optional.ofNullable(ctx.getInterfaceState().getLocaleType()).orElse(LocaleType.ENGLISH).getCode())
+            .replace("{{current-locale-type-flag-code}}", Optional.ofNullable(ctx.getInterfaceState().getPreferredLocaleType()).orElse(LocaleType.ENGLISH).getCode())
             .replaceAll("\\{\\{interface-button-style}}", CommonStyles.INTERFACE_SECONDARY_BUTTON_STYLE)
             .replaceAll("\\{\\{interface-button-tooltip-style-short}}", CommonStyles.TOOLTIP_STYLE_SHORT)
             .replaceAll("\\{\\{interface-button-tooltip-style-wide}}", CommonStyles.TOOLTIP_STYLE_WIDE);
@@ -277,11 +277,11 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
         var interfaceState = ctx.getInterfaceState();
 
         documentations = documentations.stream()
-            .filter(documentation -> interfaceState.getMode() == null || interfaceState.getMode().has(documentation.getType()))
-            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.getLocaleType(), interfaceState.isFullTextSearch()))
+            .filter(documentation -> interfaceState.getInterfaceMode() == null || interfaceState.getInterfaceMode().has(documentation.getType()))
+            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.getPreferredLocaleType(), interfaceState.isFullTextSearch()))
             .toList();
 
-        var currentInterfaceMode = interfaceState.getMode();
+        var currentInterfaceMode = interfaceState.getInterfaceMode();
         var availableInterfaceModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
         // Enable the change mode button if there are more modes than one or player has mode
         // that is not currently enabled (so they can change)
@@ -376,7 +376,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             var interfaceState = ctx.getInterfaceState();
             for (int i = 0; i < availableInterfaceModes.size(); i++) {
                 var availableInterfaceMode = availableInterfaceModes.get(i);
-                boolean shouldBeBold = interfaceState.getMode() == availableInterfaceMode;
+                boolean shouldBeBold = interfaceState.getInterfaceMode() == availableInterfaceMode;
 
                 if (shouldBeBold) {
                     messageBuilder.append("<bold> > ");
@@ -423,7 +423,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             }
 
             for (int i = windowEnd; i >= windowStart; i--) {
-                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null, interfaceState.getLocaleType());
+                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null, interfaceState.getPreferredLocaleType());
                 if (optionalTopic.isPresent()) {
                     var topic = optionalTopic.get();
                     boolean shouldBeBold = i == currentIndex;

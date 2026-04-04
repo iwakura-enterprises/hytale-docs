@@ -1,7 +1,6 @@
 package enterprises.iwakura.docs.ui.render;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
@@ -55,9 +54,9 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
 
         var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         topic.getTopics().stream()
-            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().getLocaleType(), ctx.getInterfaceState().isFullTextSearch()))
+            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().getPreferredLocaleType(), ctx.getInterfaceState().isFullTextSearch()))
             .forEach(childTopic -> {
-                topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic.getLocalePreferredTopic(ctx.getInterfaceState().getLocaleType()))));
+                topicsUI.append(documentationTreeTopicRenderer.getBeanInstance().render(ctx, new RenderData(documentation, childTopic.getLocalePreferredTopic(ctx.getInterfaceState().getPreferredLocaleType()))));
             });
 
         if (!topic.isCategory()) {
@@ -80,7 +79,7 @@ public class DocumentationTreeTopicRenderer implements Renderer<RenderData> {
 
         if (Objects.equals(ctx.getTopic(), topic)) {
             buttonStyle = topic.isCategory() ? CommonStyles.SELECTED_TOPIC_CATEGORY_STYLE : CommonStyles.SELECTED_TOPIC_BUTTON_STYLE;
-        } else if (ctx.hasTopicSearchQuery() && topic.searchTopic(ctx.getInterfaceState().getTopicSearchQuery(), ctx.getInterfaceState().getLocaleType(), ctx.getInterfaceState().isFullTextSearch())) {
+        } else if (ctx.hasTopicSearchQuery() && topic.searchTopic(ctx.getInterfaceState().getTopicSearchQuery(), ctx.getInterfaceState().getPreferredLocaleType(), ctx.getInterfaceState().isFullTextSearch())) {
             buttonStyle = topic.isCategory() ? CommonStyles.MATCHES_SEARCH_TOPIC_CATEGORY_STYLE : CommonStyles.MATCHES_SEARCH_TOPIC_BUTTON_STYLE;
         } else {
             buttonStyle = topic.isCategory() ? CommonStyles.NORMAL_TOPIC_CATEGORY_STYLE : CommonStyles.NORMAL_TOPIC_BUTTON_STYLE;

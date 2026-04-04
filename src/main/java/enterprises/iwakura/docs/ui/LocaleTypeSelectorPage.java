@@ -225,7 +225,7 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
         );
         clearAndAppendInline(
             docsContext,
-            documentationViewerService.getInterfacePreferences(playerRef.getUuid(), null).getPreferredLocaleType(),
+            documentationViewerService.getInterfacePreferences(playerRef, null).getPreferredLocaleType(),
             null
         );
 
@@ -318,6 +318,25 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
                 );
             });
 
+        ui.append(
+            """
+            Group {
+                Padding: (Top: 8, Left: 16, Right: 18);
+
+                Label {
+                    Text: "Country flags are used for identification only and may not represent all regions where the respective language is spoken. Also, some language's letters are unsupported by Hytale and are shown as question marks.";
+                    Style: (
+                        VerticalAlignment: Center,
+                        HorizontalAlignment: Center,
+                        Wrap: true,
+                        FontSize: 12,
+                        TextColor: #bfbfbf
+                    );
+                }
+            }
+            """
+        );
+
         ui.append("}");
         docsContext.getCommandBuilder().clear(LANGUAGE_LIST_SELECTOR);
         docsContext.getCommandBuilder().appendInline(LANGUAGE_LIST_SELECTOR, ui.toString());
@@ -331,7 +350,7 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
     ) {
         var player = store.getComponent(ref, Player.getComponentType());
         var action = data.getInterfaceAction();
-        var interfacePreferences = documentationViewerService.getInterfacePreferences(playerRef.getUuid(), null);
+        var interfacePreferences = documentationViewerService.getInterfacePreferences(playerRef, null);
 
         if (action == null) {
             logger.warn("Received page data without action! " + data);

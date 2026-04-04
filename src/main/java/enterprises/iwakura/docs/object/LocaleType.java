@@ -1,6 +1,7 @@
 package enterprises.iwakura.docs.object;
 
 import java.util.List;
+import java.util.Locale;
 
 import enterprises.iwakura.docs.util.LocaleUtils;
 import lombok.Getter;
@@ -18,38 +19,38 @@ public enum LocaleType {
     DUTCH("Dutch", "Nederlands", "nl"),
     POLISH("Polish", "Polski", "pl"),
     RUSSIAN("Russian", "Русский", "ru"),
-    UKRAINIAN("Ukrainian", "Українська", "ua"),
-    SWEDISH("Swedish", "Svenska", "se"),
+    UKRAINIAN("Ukrainian", "Українська", "uk"),
+    SWEDISH("Swedish", "Svenska", "sv"),
     NORWEGIAN("Norwegian", "Norsk", "no"),
-    DANISH("Danish", "Dansk", "dk"),
+    DANISH("Danish", "Dansk", "da"),
     FINNISH("Finnish", "Suomi", "fi"),
-    GREEK("Greek", "Ελληνικά", "gr"),
-    CZECH("Czech", "Čeština", "cz"),
+    GREEK("Greek", "Ελληνικά", "el"),
+    CZECH("Czech", "Čeština", "cs"),
     SLOVAK("Slovak", "Slovenčina", "sk"),
     HUNGARIAN("Hungarian", "Magyar", "hu"),
     ROMANIAN("Romanian", "Română", "ro"),
     BULGARIAN("Bulgarian", "Български", "bg"),
     CROATIAN("Croatian", "Hrvatski", "hr"),
-    SERBIAN("Serbian", "Српски", "rs"),
+    SERBIAN("Serbian", "Српски", "sr"),
     TURKISH("Turkish", "Türkçe", "tr"),
 
     // Asian Languages
-    CHINESE_SIMPLIFIED("Chinese", "中文（简体）", "zh-cn"),
-    CHINESE_TRADITIONAL("Chinese (Traditional)", "中文（繁體）", "zh-tw"),
-    JAPANESE("Japanese", "日本語", "jp"),
-    KOREAN("Korean", "한국어", "kr"),
-    VIETNAMESE("Vietnamese", "Tiếng Việt", "vn"),
+    CHINESE_SIMPLIFIED("Chinese", "中文（简体）", "zh-CN"),
+    CHINESE_TRADITIONAL("Chinese (Traditional)", "中文（繁體）", "zh-TW"),
+    JAPANESE("Japanese", "日本語", "ja"),
+    KOREAN("Korean", "한국어", "ko"),
+    VIETNAMESE("Vietnamese", "Tiếng Việt", "vi"),
     THAI("Thai", "ภาษาไทย", "th"),
     INDONESIAN("Indonesian", "Bahasa Indonesia", "id"),
-    MALAY("Malay", "Bahasa Melayu", "my"),
-    HINDI("Hindi", "हिन्दी", "in"),
-    ARABIC("Arabic", "العربية", "sa"),
-    HEBREW("Hebrew", "עברית", "il"),
+    MALAY("Malay", "Bahasa Melayu", "ms"),
+    HINDI("Hindi", "हिन्दी", "hi"),
+    ARABIC("Arabic", "العربية", "ar"),
+    HEBREW("Hebrew", "עברית", "he"),
 
     // African Languages
-    SWAHILI("Swahili", "Kiswahili", "ke"),
-    AMHARIC("Amharic", "አማርኛ", "et"),
-    ZULU("Zulu", "isiZulu", "za"),
+    SWAHILI("Swahili", "Kiswahili", "sw"),
+    AMHARIC("Amharic", "አማርኛ", "am"),
+    ZULU("Zulu", "isiZulu", "zu"),
 
     // Easter-eggs :P
     LOLCAT("LOLCAT", "Teh best language :3", "lol");
@@ -93,6 +94,31 @@ public enum LocaleType {
         }
 
         return null;
+    }
+
+    /**
+     * Returns Voile's {@link LocaleType} from language tag
+     *
+     * @param languageTag Language tag
+     *
+     * @return Never null {@link LocaleType} (defaults to {@link LocaleType#ENGLISH})
+     */
+    public static LocaleType fromHytaleLanguage(String languageTag) {
+        if (languageTag != null && !languageTag.isBlank()) {
+            try {
+                String langCode = Locale.forLanguageTag(languageTag).getLanguage();
+                for (LocaleType localeType : ALL) {
+                    if (localeType.code.equalsIgnoreCase(languageTag)
+                        || localeType.code.equalsIgnoreCase(langCode)
+                    ) {
+                        return localeType;
+                    }
+                }
+            } catch (Exception ignored) {
+                // Fallback to default
+            }
+        }
+        return ENGLISH;
     }
 
     /**

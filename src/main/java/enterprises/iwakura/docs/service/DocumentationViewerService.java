@@ -26,6 +26,7 @@ import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import enterprises.iwakura.docs.object.InterfaceState;
 import enterprises.iwakura.docs.object.InternalTopic;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.ui.AboutVoilePage;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage;
@@ -82,7 +83,7 @@ public class DocumentationViewerService {
         var topicToOpen = Optional.<Topic>empty();
 
         Optional<InterfaceMode> switchToInterfaceMode = Optional.empty();
-        var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), null);
+        var interfacePreferences = getInterfacePreferences(playerRef, null);
         var lastOpenedTopicIdentifier = Optional.ofNullable(interfacePreferences.getLastOpenedTopicIdentifier());
 
         // 1. Requested topic
@@ -129,7 +130,7 @@ public class DocumentationViewerService {
         }
 
         var interfaceState = new InterfaceState(documentations, topicToOpen.get());
-        switchToInterfaceMode.ifPresent(interfaceState::setMode);
+        switchToInterfaceMode.ifPresent(interfaceState::setInterfaceMode);
         return openFor(playerRef, DocsContext.of(playerRef, interfaceState));
     }
 
@@ -146,7 +147,7 @@ public class DocumentationViewerService {
     public CompletableFuture<Boolean> openFor(PlayerRef playerRef, DocsContext docsContext) {
         var docsConfig = configurationService.getDocsConfig();
         // Load docs context from preferences
-        var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), docsContext.getInterfaceState());
+        var interfacePreferences = getInterfacePreferences(playerRef, docsContext.getInterfaceState());
         docsContext.getInterfaceState().loadFromPreferences(interfacePreferences);
         docsContext.getInterfaceState().setFullTextSearch(docsConfig.isEnableFullTextSearch() && docsContext.getInterfaceState().isFullTextSearch());
 
@@ -219,7 +220,7 @@ public class DocumentationViewerService {
 
         RENDER_EXECUTOR.execute(() -> {
             // Sve docs context to interface preferences, incl. currently open topic
-            var interfacePreferences = getInterfacePreferences(playerRef.getUuid(), context.getInterfaceState());
+            var interfacePreferences = getInterfacePreferences(playerRef, context.getInterfaceState());
             context.getInterfaceState().saveToPreferences(interfacePreferences);
 
             context.getTopic().invokeOpenedCallback(context);
@@ -340,7 +341,7 @@ public class DocumentationViewerService {
 
         switch (action) {
             case CHANGE_MODE -> {
-                var currentMode = state.getMode();
+                var currentMode = state.getInterfaceMode();
                 var availableModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
                 var nextMode = availableModes.stream()
                     .filter(mode -> currentMode != null && mode.ordinal() > currentMode.ordinal())
@@ -350,8 +351,8 @@ public class DocumentationViewerService {
 
                 if (nextMode != null) {
                     var updatedDocsContext = DocsContext.of(docsContext);
-                    state.setMode(nextMode);
-                    getInterfacePreferences(page.getPlayerRef().getUuid(), state).setLastInterfaceMode(nextMode);
+                    state.setInterfaceMode(nextMode);
+                    getInterfacePreferences(page.getPlayerRef(), state).setLastInterfaceMode(nextMode);
                     updateDocumentationTree(page, updatedDocsContext);
                 }
             }
@@ -367,10 +368,10 @@ public class DocumentationViewerService {
             }
             case HOME -> {
                 var documentations = docsContext.getDocumentations().stream()
-                    .filter(documentation -> docsContext.getInterfaceState().getMode() == null || docsContext.getInterfaceState().getMode().has(documentation.getType()))
+                    .filter(documentation -> docsContext.getInterfaceState().getInterfaceMode() == null || docsContext.getInterfaceState().getInterfaceMode().has(documentation.getType()))
                     .toList();
 
-                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getLocaleType());
+                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getPreferredLocaleType());
                 if (defaultTopic.isPresent()) {
                     state.resetHistory();
                     state.pushToHistory(defaultTopic.get(), true);
@@ -383,7 +384,7 @@ public class DocumentationViewerService {
                 if (data.getTopicSearchQuery() != null) {
                     var updatedDocsContext = DocsContext.of(docsContext);
                     state.setTopicSearchQuery(data.getTopicSearchQuery());
-                    getInterfacePreferences(page.getPlayerRef().getUuid(), state).setLastTopicSearchQuery(data.getTopicSearchQuery());
+                    getInterfacePreferences(page.getPlayerRef(), state).setLastTopicSearchQuery(data.getTopicSearchQuery());
                     updateDocumentationTree(page, updatedDocsContext);
                 } else {
                     logger.error("PageData with SEARCH action without search query to open!");
@@ -419,7 +420,7 @@ public class DocumentationViewerService {
                 } else {
                     state.setFullTextSearch(!state.isFullTextSearch());
                 }
-                getInterfacePreferences(page.getPlayerRef().getUuid(), state).setFullTextSearch(state.isFullTextSearch());
+                getInterfacePreferences(page.getPlayerRef(), state).setFullTextSearch(state.isFullTextSearch());
                 updateDocumentationTree(page, updatedDocsContext);
             }
             default -> logger.error("Invalid interface action specified in page data " + data);
@@ -437,10 +438,10 @@ public class DocumentationViewerService {
      */
     private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getLocaleType())
+        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getPreferredLocaleType())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
-        InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setMode(mode));
+        InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setInterfaceMode(mode));
         replaceTopicContent(page, updatedDocsContext);
         return topic;
     }
@@ -448,20 +449,24 @@ public class DocumentationViewerService {
     /**
      * Returns {@link InterfacePreferencesComponent} for specified player
      *
-     * @param playerUuid Player UUID
+     * @param playerRef Player reference
      * @param defaultState Default state to load
      *
      * @return Never-null {@link InterfacePreferencesComponent}
      */
-    public InterfacePreferencesComponent getInterfacePreferences(UUID playerUuid, InterfaceState defaultState) {
-        return lastInterfacePreferencesForPlayer.computeIfAbsent(playerUuid, k -> {
+    public InterfacePreferencesComponent getInterfacePreferences(PlayerRef playerRef, InterfaceState defaultState) {
+        return lastInterfacePreferencesForPlayer.computeIfAbsent(playerRef.getUuid(), k -> {
             var preferences = new InterfacePreferencesComponent();
             var state = Objects.requireNonNullElse(defaultState, new InterfaceState());
             if (defaultState == null) {
                 state.loadFromDefaults(configurationService.getDocsConfig().getInterfacePreferencesDefaults());
             }
-            // Set current checksum for newly created preferences
+            // Set current checksum for newly created preferences (checksum is only on preferences, not on state)
             preferences.setChecksum(configurationService.getDocsConfig().getInterfacePreferencesDefaults().getChecksum());
+            // Check if no preferred locale type is specified, default to player's current language
+            if (state.getPreferredLocaleType() == null) {
+                state.setPreferredLocaleType(LocaleType.fromHytaleLanguage(playerRef.getLanguage()));
+            }
             state.saveToPreferences(preferences);
             return preferences;
         });
