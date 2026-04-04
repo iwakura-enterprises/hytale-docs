@@ -45,6 +45,7 @@ public class DocsConfig {
     @Data
     public static class InterfacePreferencesDefaults {
 
+        private UUID checksum = UUID.randomUUID();
         private InterfaceMode interfaceMode;
         private LocaleType localeType;
     }

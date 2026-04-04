@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 
@@ -49,6 +50,15 @@ public class ConfigurationService {
     }
 
     /**
+     * Saves {@link DocsConfig} to the file system
+     *
+     * @param docsConfig Docs config
+     */
+    public void saveDocsConfig(DocsConfig docsConfig) {
+        jean.save("config", docsConfig);
+    }
+
+    /**
      * Clears configuration cache
      */
     @SneakyThrows
@@ -58,7 +68,24 @@ public class ConfigurationService {
         }
 
         jean.clearCache();
-        getDocsConfig().getFileSystemCache().ensureAllTypes();
-        jean.save("config", getDocsConfig());
+        var config = getDocsConfig();
+        config.getFileSystemCache().ensureAllTypes();
+
+        if (config.getInterfacePreferencesDefaults().getChecksum() == null) {
+            logger.warn("Null checksum for interface preferences defaults! Setting a new one...");
+            resetInterfacePreferencesDefaultsChecksum();
+        }
+
+        saveDocsConfig(config);
+    }
+
+    /**
+     * Resets interface preferences defaults' checksum
+     */
+    public void resetInterfacePreferencesDefaultsChecksum() {
+        logger.warn("Resetting interface preferences defaults' checksum! All players will have their interface preferences reset.");
+        var config = getDocsConfig();
+        config.getInterfacePreferencesDefaults().setChecksum(UUID.randomUUID());
+        saveDocsConfig(config);
     }
 }

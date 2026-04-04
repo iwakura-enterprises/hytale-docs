@@ -67,7 +67,7 @@ public class Docs {
         logger.info("Made by Iwakura Enterprises");
 
         logger.info("Registering components...");
-        Components.setInterfacePreferencesComponentType(plugin.getEntityStoreRegistry().registerComponent(InterfacePreferencesComponent.class, "InterfacePreferences", InterfacePreferencesComponent.CODEC));
+        Components.setInterfacePreferencesComponentType(plugin.getEntityStoreRegistry().registerComponent(InterfacePreferencesComponent.class, "Voile_InterfacePreferences", InterfacePreferencesComponent.CODEC));
 
         configurationService.init();
         debugService.init();

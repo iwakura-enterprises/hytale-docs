@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.components;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
@@ -22,6 +23,10 @@ public class InterfacePreferencesComponent implements Component<EntityStore> {
 
     public static final BuilderCodec<InterfacePreferencesComponent> CODEC = BuilderCodec
         .builder(InterfacePreferencesComponent.class, InterfacePreferencesComponent::new)
+        .append(new KeyedCodec<>("Checksum", Codec.UUID_STRING),
+            (data, value) -> data.checksum = value,
+            data -> data.checksum
+        ).add()
         .append(new KeyedCodec<>("LastOpenedTopicIdentifier", Codec.STRING),
             (data, value) -> data.lastOpenedTopicIdentifier = value,
             data -> data.lastOpenedTopicIdentifier
@@ -52,6 +57,7 @@ public class InterfacePreferencesComponent implements Component<EntityStore> {
         ).add()
         .build();
 
+    private UUID checksum;
     private String lastOpenedTopicIdentifier;
     private String lastTopicSearchQuery;
     private boolean fullTextSearch;
@@ -64,6 +70,7 @@ public class InterfacePreferencesComponent implements Component<EntityStore> {
     }
 
     public InterfacePreferencesComponent(InterfacePreferencesComponent other) {
+        this.checksum = other.checksum;
         this.lastOpenedTopicIdentifier = other.lastOpenedTopicIdentifier;
         this.lastTopicSearchQuery = other.lastTopicSearchQuery;
         this.fullTextSearch = other.fullTextSearch;

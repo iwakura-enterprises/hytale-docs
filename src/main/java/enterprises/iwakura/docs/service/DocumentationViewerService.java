@@ -460,6 +460,8 @@ public class DocumentationViewerService {
             if (defaultState == null) {
                 state.loadFromDefaults(configurationService.getDocsConfig().getInterfacePreferencesDefaults());
             }
+            // Set current checksum for newly created preferences
+            preferences.setChecksum(configurationService.getDocsConfig().getInterfacePreferencesDefaults().getChecksum());
             state.saveToPreferences(preferences);
             return preferences;
         });
@@ -527,8 +529,12 @@ public class DocumentationViewerService {
             if (holder != null) {
                 var interfacePreferences = holder.getComponent(Components.getInterfacePreferencesComponent());
                 if (interfacePreferences != null) {
-                    lastInterfacePreferencesForPlayer.put(playerRef.getUuid(), interfacePreferences);
-                    logger.info("Loaded interface preferences for player " + playerRef.getUuid());
+                    if (!Objects.equals(config.getInterfacePreferencesDefaults().getChecksum(), interfacePreferences.getChecksum())) {
+                        logger.warn("Ignoring older player's interface preferences checksum (%s)".formatted(interfacePreferences.getChecksum()));
+                    } else {
+                        lastInterfacePreferencesForPlayer.put(playerRef.getUuid(), interfacePreferences);
+                        logger.info("Loaded interface preferences for player " + playerRef.getUuid());
+                    }
                 }
             }
         }

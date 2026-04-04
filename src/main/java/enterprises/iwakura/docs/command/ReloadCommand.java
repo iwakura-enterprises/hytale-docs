@@ -51,6 +51,7 @@ public class ReloadCommand extends CommandBase {
     protected void executeSync(@NonNull CommandContext ctx) {
         try {
             configurationService.reload();
+            configurationService.resetInterfacePreferencesDefaultsChecksum();
             hmWikiApi.init();
             fileSystemCacheService.reset();
             fileSystemCacheService.reload();
