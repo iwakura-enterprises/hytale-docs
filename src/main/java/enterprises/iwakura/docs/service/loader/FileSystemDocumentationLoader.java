@@ -140,7 +140,8 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
             try {
                 var topicConfig = loaderContext.getMarkdownService().readMarkdownAsTopicConfig(
                     markdownFile.getFileName().toString(),
-                    Files.readString(markdownFile, StandardCharsets.UTF_8)
+                    Files.readString(markdownFile, StandardCharsets.UTF_8),
+                    loaderContext.getConfigurationService().getDocsConfig().getInterfacePreferencesDefaults().getLocaleType()
                 );
                 pathToTopicConfig.put(markdownFile, topicConfig);
 

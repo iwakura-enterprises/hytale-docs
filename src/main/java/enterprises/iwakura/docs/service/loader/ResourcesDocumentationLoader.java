@@ -211,7 +211,8 @@ public class ResourcesDocumentationLoader extends DocumentationLoader {
                 var content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 var topicConfig = loaderContext.getMarkdownService().readMarkdownAsTopicConfig(
                     topicId,
-                    content
+                    content,
+                    null
                 );
                 configMap.put(topicConfig.getId(), topicConfig);
 

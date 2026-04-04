@@ -49,7 +49,8 @@ public class ResourceMarkdownFileDocumentationLoader extends DocumentationLoader
             try {
                 var topicConfig = loaderContext.getMarkdownService().readMarkdownAsTopicConfig(
                     "%s_%s".formatted(plugin.getIdentifier().getGroup(), plugin.getIdentifier().getName()),
-                    markdownContent
+                    markdownContent,
+                    null
                 );
                 var topic = topicConfig.toTopic(documentation);
                 topic.setDescription(topic.getDescription());

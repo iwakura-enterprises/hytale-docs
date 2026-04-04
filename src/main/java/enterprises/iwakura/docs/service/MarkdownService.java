@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
@@ -156,7 +157,7 @@ public class MarkdownService {
      *
      * @return Topic
      */
-    public TopicConfig readMarkdownAsTopicConfig(String markdownFileName, String markdownFileContent) {
+    public TopicConfig readMarkdownAsTopicConfig(String markdownFileName, String markdownFileContent, LocaleType defaultFallbackLanguage) {
         // Extract id and locale from filename pattern: "my-topic$en.md"
         String baseFileName = markdownFileName.replace(".md", "");
         String fileId;
@@ -168,7 +169,7 @@ public class MarkdownService {
             fileLocale = parts[1];
         } else {
             fileId = baseFileName;
-            fileLocale = LocaleType.ENGLISH.getCode();
+            fileLocale = Objects.requireNonNullElse(defaultFallbackLanguage, LocaleType.ENGLISH).getCode();
         }
 
         var node = parseMarkdown(markdownFileContent, false);

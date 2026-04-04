@@ -83,7 +83,7 @@ public class DocumentationService {
         logger.info("Reloading documentations from %d loaders".formatted(documentationLoaders.size()));
         loadedDocumentations.clear();
 
-        var loaderContext = new LoaderContext(logger, gson, markdownService);
+        var loaderContext = new LoaderContext(logger, gson, markdownService, configurationService);
 
         for (var entry : documentationLoaders.entrySet()) {
             var plugin = entry.getKey();

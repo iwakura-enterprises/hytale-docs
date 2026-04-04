@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.object;
 
 import com.google.gson.Gson;
 
+import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.util.Logger;
 import lombok.Data;
@@ -14,5 +15,6 @@ public class LoaderContext {
     private final Logger logger;
     private final Gson gson;
     private final MarkdownService markdownService;
+    private final ConfigurationService configurationService;
 
 }
