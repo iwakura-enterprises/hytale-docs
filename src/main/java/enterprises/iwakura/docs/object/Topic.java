@@ -82,7 +82,7 @@ public class Topic {
      */
     private transient String normalizedMarkdownContent;
     /**
-     * The documentation that the topic belongs to.
+     * The documentation that the topic belongs to. Nullable.
      */
     @ToString.Exclude
     private Documentation documentation;

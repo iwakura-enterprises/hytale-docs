@@ -334,6 +334,21 @@ public class LocaleTypeSelectorPage extends InteractiveCustomUIPage<PageData> {
                     );
                 }
             }
+            
+            Group {
+                Padding: (Top: 8, Left: 16, Right: 18);
+
+                Label {
+                    Text: "The 'True Language' is from Sublimia Syndrome, written by Exurb1a. The 'Chaos' language is from NieR series, created by Emi Evans.";
+                    Style: (
+                        VerticalAlignment: Center,
+                        HorizontalAlignment: Center,
+                        Wrap: true,
+                        FontSize: 10,
+                        TextColor: #6e6e6e
+                    );
+                }
+            }
             """
         );
 

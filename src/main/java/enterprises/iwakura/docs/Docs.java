@@ -138,7 +138,7 @@ public class Docs {
     }
 
     public void shutdown() {
-
+        runtimeImageAssetService.clearCache();
     }
 
     /**

@@ -757,7 +757,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         @Override
         public void visit(Image image) {
             var altText = markdownService.extractText(image);
-            var resolvedAsset = runtimeImageAssetService.resolve(docsContext.getPlayerRef(), image.getDestination(), docsContext.getTopic().getTopicFilePath());
+            var resolvedAsset = runtimeImageAssetService.resolve(docsContext.getPlayerRef(), image.getDestination(), docsContext.getTopic(), docsContext.getTopic().getTopicFilePath());
             var imageSize = resolvedAsset.getImageSize();
 
             if (altText != null) {

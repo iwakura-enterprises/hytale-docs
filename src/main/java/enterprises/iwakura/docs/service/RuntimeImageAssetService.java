@@ -25,9 +25,11 @@ import com.hypixel.hytale.server.core.asset.common.CommonAssetRegistry;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import enterprises.iwakura.docs.DocsPlugin;
+import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.PlayerRuntimeImageAssets;
 import enterprises.iwakura.docs.object.ResolvedImageCommonAsset;
 import enterprises.iwakura.docs.object.RuntimeImageAsset;
+import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.Getter;
@@ -176,10 +178,11 @@ public class RuntimeImageAssetService {
      * @param playerRef   Player reference. Runtime images are stored per-player
      * @param imageSource image source
      * @param topicFilePath topic path to apply with the image source when searching for file system images
+     * @param topic Topic
      *
      * @return Never-null ResolvedImageCommonAsset, if image is not found, it references NOT FOUND image.
      */
-    public ResolvedImageCommonAsset resolve(PlayerRef playerRef, String imageSource, Path topicFilePath) {
+    public ResolvedImageCommonAsset resolve(PlayerRef playerRef, String imageSource, Topic topic, Path topicFilePath) {
         if (!configurationService.getDocsConfig().getRuntimeImageAssets().isEnabled()) {
             var imagesDisabledCommonAsset = CommonAssetRegistry.getByName(IMAGES_DISABLED_PATH);
             if (imagesDisabledCommonAsset != null) {
@@ -205,6 +208,14 @@ public class RuntimeImageAssetService {
         } else {
             // resources
             commonAsset = CommonAssetRegistry.getByName(imageSource);
+            if (commonAsset == null && topicFilePath != null) {
+                // Relative resource asset reference based on topic's file path if loaded from UniversalDocumentationLoader
+                commonAsset = CommonAssetRegistry.getByName(
+                    topicFilePath.getParent().resolve(imageSource).toString()
+                        .replace("Common/", "") // Gotta remove the "Common/" part as assets are registered without that in the name
+                );
+            }
+
             if (commonAsset != null) {
                 try {
                     imageSize = imageService.getImageSize(commonAsset.getBlob().join());
@@ -212,8 +223,8 @@ public class RuntimeImageAssetService {
                     logger.error("Failed to read image size from resource image asset " + imageSource, exception);
                     commonAsset = null;
                 }
-            } else {
-                // file system
+            } else if (topic.getDocumentation() != null && topic.getDocumentation().getType().isAllowSystemFileSystemRead()) {
+                // file system, only allow for specific documentation types
                 filePath = getFileSystemAssetPath(imageSource, topicFilePath);
             }
         }
@@ -235,7 +246,7 @@ public class RuntimeImageAssetService {
 
         // Image not found
         if (commonAsset == null) {
-            logger.warn("Image resource source %s not found in assets!".formatted(imageSource));
+            logger.warn("Image resource source %s not found in assets (in topic %s)".formatted(imageSource, topic.getId()));
             commonAsset = CommonAssetRegistry.getByName(IMAGE_NOT_FOUND_PATH);
             if (commonAsset == null) {
                 throw new IllegalStateException("Could not found %s! Try restarting the server.".formatted(

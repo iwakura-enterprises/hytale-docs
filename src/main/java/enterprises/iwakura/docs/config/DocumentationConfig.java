@@ -18,6 +18,7 @@ public class DocumentationConfig {
     private String name;
     private boolean enabled = true;
     private int sortIndex;
+    private Compatibility compatibility = new Compatibility();
 
     /**
      * Creates server documentation out of the current instance
@@ -45,5 +46,18 @@ public class DocumentationConfig {
             "group='" + group + '\'' +
             ", id='" + id + '\'' +
             '}';
+    }
+
+    @Data
+    public static class Compatibility {
+
+        private Mod mod = new Mod();
+
+        @Data
+        public static final class Mod {
+
+            private boolean universalDocumentationLoader = false;
+        }
+
     }
 }

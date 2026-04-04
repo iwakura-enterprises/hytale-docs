@@ -4,16 +4,13 @@
       "group": "IwakuraEnterprises",
       "id": "Example",
       "name": "Voile - Example",
-      "enabled": false,
+      "enabled": true,
       "sortIndex": 1000,
-      "topics": [
-        {
-          "file": "index.md"
-        },
-        {
-          "file": "first-steps.md"
+      "compatibility": {
+        "mod": {
+          "universalDocumentationLoader": true
         }
-      ]
+      }
     }
   ]
 }

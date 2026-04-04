@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.service.loader;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import enterprises.iwakura.docs.config.DocumentationConfig;
 import enterprises.iwakura.docs.config.DocumentationIndexConfig;
@@ -17,57 +19,49 @@ import enterprises.iwakura.docs.config.TopicConfig;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
+import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 /**
- * @deprecated in favor of {@link UniversalDocumentationLoader}
+ * Loads any documentation from {@link Path}. If loading documentations for a jar files,
+ * you should use {@link FileSystems#newFileSystem(Path)} to load them from the file system.
+ * <br>
+ * Documentations from JAR files will correctly use assets loaded from assets and won't register
+ * relative images as runtime image assets.
  */
-@Deprecated
 @RequiredArgsConstructor
-public class FileSystemDocumentationLoader extends DocumentationLoader {
+@AllArgsConstructor
+public class UniversalDocumentationLoader extends DocumentationLoader {
 
     protected final DocumentationType documentationType;
-    protected final Path documentationDirectory;
+    protected final Path documentationIndexFile;
+    protected ClassLoader pluginClassLoader;
 
     @Override
     public List<Documentation> load(LoaderContext loaderContext) {
         var logger = loaderContext.getLogger();
         var documentations = new ArrayList<Documentation>();
 
-        logger.info("└ Loading documentations from in directory " + documentationDirectory);
-        var indexFile = documentationDirectory.resolve("index.json");
+        logger.info("Loading documentation index file from " + documentationIndexFile);
 
-        // ensure exists
-        if (!Files.exists(documentationDirectory)) {
-            try {
-                Files.createDirectories(documentationDirectory);
-            } catch (IOException exception) {
-                throw new RuntimeException("Failed to documentations directory: " + documentationDirectory, exception);
-            }
-        }
-
-        // ensure exists
-        if (!Files.exists(indexFile)) {
-            logger.warn("└ index.json at %s does not exist! Creating new one...".formatted(indexFile));
-            try {
-                Files.writeString(indexFile, loaderContext.getGson().toJson(new DocumentationIndexConfig()));
-            } catch (IOException exception) {
-                throw new RuntimeException("Failed to create index.json at " + indexFile, exception);
-            }
+        if (!Files.exists(documentationIndexFile)) {
+            logger.warn("Documentation index file " + documentationIndexFile + " does not exist!");
+            return List.of();
         }
 
         // Load documentation index config
         DocumentationIndexConfig indexConfig;
         try {
-            indexConfig = loaderContext.getGson().fromJson(Files.readString(indexFile), DocumentationIndexConfig.class);
+            indexConfig = loaderContext.getGson().fromJson(Files.readString(documentationIndexFile), DocumentationIndexConfig.class);
         } catch (Exception exception) {
-            logger.error("└ Failed to load index.json: %s" + indexFile, exception);
+            logger.error("└ Failed to load index.json: %s" + documentationIndexFile, exception);
             return List.of();
         }
         logger.info("└ Documentation index %s defines %d documentations".formatted(
-            indexFile, indexConfig.getDocumentations().size()
+            documentationIndexFile, indexConfig.getDocumentations().size()
         ));
 
         // Go thru documentations defined in the config
@@ -77,18 +71,30 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 continue;
             }
 
-            try {
-                // Load documentation and its topics
-                var documentation = loadDocumentation(loaderContext, documentationConfig);
-                documentations.add(documentation);
-                logger.info("└ Loaded %s with %d topics".formatted(
-                    documentation, documentation.countTopics()
-                ));
-            } catch (Exception exception) {
-                logger.error("└ Failed to load " + documentationConfig, exception);
+            if (documentationType == DocumentationType.MOD && !documentationConfig.getCompatibility().getMod().isUniversalDocumentationLoader()) {
+                logger.warn("└ Documentation index file for a mod located at " + documentationIndexFile + " does not support new UniversalDocumentationLoader.");
+                logger.warn("  Please refer to Voile's documentation how to enable UniversalDocumentationLoader compatibility.");
+                logger.warn("  Loading mod's documentation using old deprecated ResourceDocumentationLoader...");
+                var resourceDocumentations = new ResourcesDocumentationLoader(
+                    documentationType,
+                    pluginClassLoader,
+                    documentationIndexFile.toString()
+                ).load(loaderContext);
+                documentations.addAll(resourceDocumentations);
+            } else {
+                try {
+                    // Load documentation and its topics
+                    var documentation = loadDocumentation(loaderContext, documentationConfig);
+                    documentations.add(documentation);
+                    logger.info("└ Loaded %s with %d topics".formatted(
+                        documentation, documentation.countTopics()
+                    ));
+                } catch (Exception exception) {
+                    logger.error("└ Failed to load " + documentationConfig, exception);
+                }
             }
         }
-        logger.info("└ Loaded %d documentations from %s".formatted(documentations.size(), indexFile));
+        logger.info("└ Loaded %d documentations from %s".formatted(documentations.size(), documentationIndexFile));
 
         return documentations;
     }
@@ -103,11 +109,33 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
      *
      * @throws IOException If any error occurs
      */
-    protected Documentation loadDocumentation(LoaderContext loaderContext, DocumentationConfig documentationConfig)
-        throws IOException {
-        var logger = loaderContext.getLogger();
-        var documentationRootDirectory = documentationDirectory.resolve(documentationConfig.getId());
+    protected Documentation loadDocumentation(
+        LoaderContext loaderContext,
+        DocumentationConfig documentationConfig
+    ) throws IOException {
         var documentation = documentationConfig.toDocumentation(documentationType);
+        var logger = loaderContext.getLogger();
+        Path resolvedDocumentationRootDirectory = null;
+        var groupIdDocumentationRootDirectory = documentationIndexFile.getParent().resolve("%s_%s".formatted(
+            documentationConfig.getGroup(), documentationConfig.getId()
+        ));
+        var idDocumentationRootDirectory = documentationIndexFile.getParent().resolve(documentationConfig.getId());
+
+        // Resolve documentation root directory based on the group_id or just id directory
+        if (Files.exists(groupIdDocumentationRootDirectory)) {
+            resolvedDocumentationRootDirectory = groupIdDocumentationRootDirectory;
+        } else if (Files.exists(idDocumentationRootDirectory)) {
+            resolvedDocumentationRootDirectory = idDocumentationRootDirectory;
+        }
+
+        // Could not resolve documentation root directory
+        if (resolvedDocumentationRootDirectory == null) {
+            logger.warn("└ Could not resolve documentation root directory (not found/check spelling) for documentation config " + documentationConfig);
+            logger.warn("   - Tried: " + groupIdDocumentationRootDirectory);
+            logger.warn("   - Tried: " + idDocumentationRootDirectory);
+            return documentation;
+        }
+
         List<Path> markdownFiles;
         // Keyed by uniqueId (id + locale) to avoid collision between localized variants of the same topic
         var pathToTopicConfig = new HashMap<Path, TopicConfig>();
@@ -121,23 +149,23 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
         // Tracks base topic ids that have been placed as children in the tree
         var childTopicIds = new HashSet<String>();
 
-        if (!Files.exists(documentationRootDirectory)) {
-            logger.warn("└ Directory %s does not exist, creating..." + documentationRootDirectory);
-            Files.createDirectories(documentationRootDirectory);
+        if (!Files.exists(resolvedDocumentationRootDirectory)) {
+            logger.warn("└ Directory %s does not exist, creating..." + resolvedDocumentationRootDirectory);
+            Files.createDirectories(resolvedDocumentationRootDirectory);
         }
 
-        try (var pathStream = Files.walk(documentationRootDirectory)) {
+        try (var pathStream = Files.walk(resolvedDocumentationRootDirectory)) {
             markdownFiles = pathStream.filter(Files::isRegularFile)
                 .filter(path -> path.toString().endsWith(".md"))
                 .toList();
         } catch (IOException exception) {
             throw new IOException("Failed to read documentation root directory %s for topics!".formatted(
-                documentationRootDirectory
+                resolvedDocumentationRootDirectory
             ), exception);
         }
 
         logger.info("└ Found %d markdown files in %s".formatted(
-            markdownFiles.size(), documentationRootDirectory
+            markdownFiles.size(), resolvedDocumentationRootDirectory
         ));
 
         for (var markdownFile : markdownFiles) {
@@ -145,7 +173,9 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 var topicConfig = loaderContext.getMarkdownService().readMarkdownAsTopicConfig(
                     markdownFile.getFileName().toString(),
                     Files.readString(markdownFile, StandardCharsets.UTF_8),
-                    loaderContext.getConfigurationService().getDocsConfig().getInterfacePreferencesDefaults().getLocaleType()
+                    documentationType != DocumentationType.MOD
+                        ? loaderContext.getConfigurationService().getDocsConfig().getInterfacePreferencesDefaults().getLocaleType()
+                        : null
                 );
                 pathToTopicConfig.put(markdownFile, topicConfig);
 
@@ -154,6 +184,18 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
                 // from the primary locale's perspective.
                 var baseId = topicConfig.getId();
                 var existing = configMap.get(baseId);
+
+                // If we found existing topic with the same locale type, this means there's a same topic by ID and
+                // that it already has this language. This can unintentionally occur when loading server's topics and
+                // the server has set default locale type and the same locale type is used for non-Locale specified topic
+                // and then specified topic (e.g. my-topic and my-topic$cs while having the default language as CZECH).
+                // In that case it would make one of the topics invisible w/o any error.
+                if (existing != null && topicConfig.getLocaleType() == existing.getLocaleType()) {
+                    logger.warn(("Topic ID %s has two or more markdown files that specify the same locale! Locale type for markdown "
+                        + "file %s will be set to CHAOS.").formatted(baseId, markdownFile));
+                    topicConfig.setLocaleType(LocaleType.CHAOS);
+                }
+
                 if (existing == null || topicConfig.getLocaleType().ordinal() < existing.getLocaleType().ordinal()) {
                     configMap.put(baseId, topicConfig);
                     topicIdToPath.put(baseId, markdownFile);
@@ -169,7 +211,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
 
             try {
                 var topic = topicConfig.toTopic(documentation);
-                topic.setTopicFilePath(file);
+                topic.setTopicFilePath(file); // Can load to file in different filesystems
                 pathToTopic.put(file, topic);
                 uniqueTopicMap.put(topicConfig.createUniqueId(), topic);
             } catch (Exception exception) {
@@ -207,7 +249,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
 
             // Get the parent topic's file directory for relative path resolution
             var parentFilePath = topicIdToPath.get(topicConfig.getId());
-            var parentDir = parentFilePath != null ? parentFilePath.getParent() : documentationRootDirectory;
+            var parentDir = parentFilePath != null ? parentFilePath.getParent() : resolvedDocumentationRootDirectory;
 
             for (var subTopicId : topicConfig.getSubTopics()) {
                 // Check if subTopicId is a directory
@@ -332,9 +374,9 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
 
     @Override
     public String toString() {
-        return "FileSystemDocumentationLoader{" +
+        return "UniversalDocumentationLoader{" +
             "documentationType=" + documentationType +
-            ", documentationDirectory=" + documentationDirectory +
+            ", documentationIndexFile=" + documentationIndexFile +
             '}';
     }
 }

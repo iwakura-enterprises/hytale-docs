@@ -1,5 +1,6 @@
 package enterprises.iwakura.docs.service;
 
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -20,8 +21,7 @@ import enterprises.iwakura.docs.object.LoaderContext;
 import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
-import enterprises.iwakura.docs.service.loader.FileSystemDocumentationLoader;
-import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
+import enterprises.iwakura.docs.service.loader.UniversalDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -52,15 +52,21 @@ public class DocumentationService {
      */
     public void registerDocumentationLoaders() {
         logger.info("Registering default documentation loaders...");
-        VoileAPI.get().register(plugin, new FileSystemDocumentationLoader(
+        VoileAPI.get().register(plugin, new UniversalDocumentationLoader(
             DocumentationType.SERVER,
-            plugin.getDataDirectory().resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory()))
-        );
-        VoileAPI.get().register(plugin, new ResourcesDocumentationLoader(
-            DocumentationType.INTERNAL,
-            plugin.getClassLoader(),
-            "internal-docs/index.json"
+            plugin.getDataDirectory().resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory()).resolve("index.json")
         ));
+
+        try {
+            // Won't be closed so we can access the file system when (re)loading the documentation.
+            var voileFileSystem = FileSystems.newFileSystem(plugin.getFile());
+            VoileAPI.get().register(plugin, new UniversalDocumentationLoader(
+                DocumentationType.INTERNAL,
+                voileFileSystem.getPath("internal-docs/index.json")
+            ));
+        } catch (Exception exception) {
+            logger.error("Failed to open Voile's plugin file as a file system to load internal documentation", exception);
+        }
     }
 
     /**

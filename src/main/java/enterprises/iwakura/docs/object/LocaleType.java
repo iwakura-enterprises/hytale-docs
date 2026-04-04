@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import enterprises.iwakura.docs.util.LocaleUtils;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public enum LocaleType {
@@ -53,7 +52,9 @@ public enum LocaleType {
     ZULU("Zulu", "isiZulu", "zu"),
 
     // Easter-eggs :P
-    LOLCAT("LOLCAT", "Teh best language :3", "lol");
+    LOLCAT("LOLCAT", "Teh best language :3", "lol"),
+    TRUE_LANGUAGE("True Language", "that holds no lies", "true"),
+    CHAOS("Chaos", "2B, or not 2B?", "chaos");
 
     public static final List<LocaleType> ALL = List.of(LocaleType.values());
     private final String englishName;

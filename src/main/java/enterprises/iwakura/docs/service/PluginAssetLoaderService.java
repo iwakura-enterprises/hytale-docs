@@ -3,6 +3,7 @@ package enterprises.iwakura.docs.service;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +17,7 @@ import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.service.loader.ResourceMarkdownFileDocumentationLoader;
-import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
+import enterprises.iwakura.docs.service.loader.UniversalDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.docs.util.StringUtils;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -42,31 +43,29 @@ public class PluginAssetLoaderService {
 
         for (PluginBase plugin : PluginManager.get().getPlugins()) {
             if (plugin instanceof JavaPlugin javaPlugin) {
-                logger.info("Testing Path filesystem for jars for plugin " + javaPlugin.getFile());
-                try {
-                    var fs = FileSystems.newFileSystem(javaPlugin.getFile());
-                    for (var rootDir : fs.getRootDirectories()) {
-                        try (var walk = java.nio.file.Files.walk(rootDir)) {
-                            //walk.forEach(path -> logger.info("Resource: " + path.toString()));
-                        }
-                    }
-                } catch (Exception exception) {
-                    logger.error("!!!!!!!!!! for plugin " + plugin, exception);
+                if (javaPlugin.getIdentifier().getGroup().equals("Hytale")) {
+                    continue; // Skip Hytale mods
                 }
 
-                var identifier = plugin.getIdentifier();
-                var indexPath = DOCUMENTATION_INDEX_RESOURCE_PATH.formatted(identifier.getGroup(), identifier.getName());
-                var indexResourceUrl = javaPlugin.getClassLoader().getResource(indexPath);
-                if (indexResourceUrl != null) {
-                    logger.info("Found AssetDocumentationIndexConfig resource in plugin %s, registering resource documentation loader...".formatted(
-                        plugin.getName()
-                    ));
-                    pluginIdentifiers.add(plugin.getIdentifier());
-                    documentationService.registerDocumentationLoader(javaPlugin, new ResourcesDocumentationLoader(
-                        DocumentationType.MOD,
-                        javaPlugin.getClassLoader(),
-                        indexPath
-                    ));
+                try {
+                    // Won't be closed so we can access the file system when (re)loading the documentation.
+                    var jarFileSystem = FileSystems.newFileSystem(javaPlugin.getFile());
+                    var identifier = plugin.getIdentifier();
+                    var indexPath = jarFileSystem.getPath(DOCUMENTATION_INDEX_RESOURCE_PATH.formatted(identifier.getGroup(), identifier.getName()));
+
+                    if (Files.exists(indexPath)) {
+                        logger.info("Found DocumentationIndexConfig resource in plugin %s, registering UniversalDocumentationLoader at %s".formatted(
+                            plugin.getName(), indexPath
+                        ));
+                        pluginIdentifiers.add(plugin.getIdentifier());
+                        documentationService.registerDocumentationLoader(javaPlugin, new UniversalDocumentationLoader(
+                            DocumentationType.MOD,
+                            indexPath,
+                            javaPlugin.getClassLoader() // Must be specified if the mod won't support the UniversalDocumentationLoader
+                        ));
+                    }
+                } catch (Exception exception) {
+                    logger.error("Failed to scan for documentations in plugin " + plugin.getIdentifier(), exception);
                 }
             }
         }
