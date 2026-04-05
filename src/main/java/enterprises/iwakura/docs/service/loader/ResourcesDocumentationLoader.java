@@ -17,6 +17,7 @@ import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
 import enterprises.iwakura.docs.object.Topic;
+import jdk.jfr.MemoryAddress;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -99,8 +100,9 @@ import lombok.RequiredArgsConstructor;
  *         </li>
  *     </ul>
  * </p>
- *
+ * @deprecated in favor of {@link UniversalDocumentationLoader}
  */
+@Deprecated
 @RequiredArgsConstructor
 public class ResourcesDocumentationLoader extends DocumentationLoader {
 

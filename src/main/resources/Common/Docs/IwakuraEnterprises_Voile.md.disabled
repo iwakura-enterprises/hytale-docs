@@ -1,7 +1,8 @@
 ---
-name: Voile
-description: Awesome documentation mod!
-author: mayuna
+name: My mod documentation
+description: How to use my mod
+author: Myself
 ---
 
-This should be visible under "Various Mods" documentation!
+# My mod
+My mod adds ... and ...

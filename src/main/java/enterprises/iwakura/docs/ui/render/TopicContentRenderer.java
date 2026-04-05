@@ -471,7 +471,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 blockQuote.getPrevious() instanceof BlockQuote ||
                 blockQuote.getPrevious() instanceof ListBlock ||
                 blockQuote.getPrevious() instanceof NotificationBlock ||
-                    blockQuote.getPrevious() instanceof Heading;
+                    (blockQuote.getPrevious() instanceof Heading heading && heading.getLevel() <= 2);
 
             writer.line();
             writer.raw(
@@ -814,21 +814,33 @@ public class TopicContentRenderer implements Renderer<Topic> {
         }
 
         protected void visit(TableBlock tableBlock) {
+            boolean shouldSkipTopPadding =
+                tableBlock.getPrevious() instanceof Paragraph ||
+                tableBlock.getPrevious() instanceof BlockQuote ||
+                    tableBlock.getPrevious() instanceof ListBlock ||
+                    tableBlock.getPrevious() instanceof NotificationBlock;
+            boolean bottomPadding = listHolder == null &&
+                !((tableBlock.getParent() instanceof BlockQuote
+                    || tableBlock.getParent() instanceof NotificationBlock) && tableBlock.getNext() == null);
+
             // Prep the table group
             writer.raw(
                 """
                     // TopicContentRender#visit(TableBlock)
                     Group {
                         LayoutMode: MiddleCenter;
-                        Padding: (Bottom: 10);
+                        Padding: (Top: {{top-padding}}, Bottom: {{bottom-padding}});
 
                         Group {
                             LayoutMode: Top;
                             Padding: (Left: 2, Right: 2, Top: 2, Bottom: 3); // what. For some reason, bottom outline is cut out by 1 pixel.
                             OutlineColor: #203651;
                             OutlineSize: 2;
+                            Background: #141e2a;
 
                 """
+                    .replace("{{top-padding}}", shouldSkipTopPadding ? "0" : "10")
+                    .replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
 
             // Visits TableHead and optionally TableBody
@@ -922,7 +934,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 notificationBlock.getPrevious() instanceof BlockQuote ||
                 notificationBlock.getPrevious() instanceof ListBlock ||
                 notificationBlock.getPrevious() instanceof NotificationBlock ||
-                    notificationBlock.getPrevious() instanceof Heading;
+                    (notificationBlock.getPrevious() instanceof Heading heading && heading.getLevel() <= 2);
 
             String backgroundColor = switch (notificationBlock.getType()) {
                 case INFO -> "#00529b";
