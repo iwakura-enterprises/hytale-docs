@@ -52,6 +52,8 @@ public class DocumentationService {
      */
     public void registerDocumentationLoaders() {
         logger.info("Registering default documentation loaders...");
+        // TODO: Create index file if does not exist when reloading
+        // TODO: hw wiki automaticky nestahuje nainstalované dokumentace?
         VoileAPI.get().register(plugin, new UniversalDocumentationLoader(
             DocumentationType.SERVER,
             plugin.getDataDirectory().resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory()).resolve("index.json")

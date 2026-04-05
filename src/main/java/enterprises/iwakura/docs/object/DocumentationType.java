@@ -35,7 +35,7 @@ public enum DocumentationType {
     /**
      * Reserved for internal documentation.
      */
-    INTERNAL("Internal docs", false);
+    INTERNAL("Internal Wiki", false);
 
     private final String humanReadable;
     private final boolean allowSystemFileSystemRead;

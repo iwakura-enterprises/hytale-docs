@@ -4,7 +4,7 @@
       "group": "IwakuraEnterprises",
       "id": "Example",
       "name": "Voile - Example",
-      "enabled": true,
+      "enabled": false,
       "sortIndex": 1000,
       "compatibility": {
         "mod": {

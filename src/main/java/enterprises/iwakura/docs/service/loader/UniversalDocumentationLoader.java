@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import enterprises.iwakura.docs.config.DocumentationConfig;
@@ -292,6 +293,20 @@ public class UniversalDocumentationLoader extends DocumentationLoader {
             topic.getTopics().sort(Comparator.comparingInt(Topic::getSortIndex));
         }
 
+        // Remove topics that were pulled in via directory loading but are also nested deeper within
+        // another sibling's sub-tree via explicit sub-topics. Without this pass such topics appear
+        // twice: once as a direct child (directory) and once in their intended nested position.
+        for (var primaryTopic : primaryTopicMap.values()) {
+            if (primaryTopic.getTopics().size() <= 1) {
+                continue;
+            }
+            var deepChildIds = new HashSet<String>();
+            for (var child : primaryTopic.getTopics()) {
+                collectDescendantIds(child, deepChildIds);
+            }
+            primaryTopic.getTopics().removeIf(child -> deepChildIds.contains(child.getId()));
+        }
+
         // Propagate sub-topic trees to localized copies.
         for (var primaryTopic : primaryTopicMap.values()) {
             for (var localizedTopic : primaryTopic.getLocalizedTopics()) {
@@ -370,6 +385,19 @@ public class UniversalDocumentationLoader extends DocumentationLoader {
         // Sort topics by sortIndex within this directory
         topics.sort(Comparator.comparingInt(Topic::getSortIndex));
         return topics;
+    }
+
+    /**
+     * Recursively collects all descendant topic IDs into the provided set.
+     *
+     * @param topic Topic to collect descendants from
+     * @param ids   Set to collect IDs into
+     */
+    private void collectDescendantIds(Topic topic, Set<String> ids) {
+        for (var child : topic.getTopics()) {
+            ids.add(child.getId());
+            collectDescendantIds(child, ids);
+        }
     }
 
     @Override

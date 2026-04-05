@@ -24,6 +24,7 @@ import org.commonmark.node.HtmlInline;
 import org.commonmark.node.Image;
 import org.commonmark.node.IndentedCodeBlock;
 import org.commonmark.node.Link;
+import org.commonmark.node.ListBlock;
 import org.commonmark.node.ListItem;
 import org.commonmark.node.Node;
 import org.commonmark.node.OrderedList;
@@ -468,6 +469,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         public void visit(BlockQuote blockQuote) {
             boolean shouldSkipTopPadding =
                 blockQuote.getPrevious() instanceof BlockQuote ||
+                blockQuote.getPrevious() instanceof ListBlock ||
                 blockQuote.getPrevious() instanceof NotificationBlock ||
                     blockQuote.getPrevious() instanceof Heading;
 
@@ -526,6 +528,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                             OutlineSize: 2;
 
                             CodeEditor #{{code-selector}} {
+                                Anchor: (MinWidth: 900);
                                 Style: (TextColor: #cccccc, FontSize: 16, FontName: "Mono");
                                 IsReadOnly: true;
                                 LineNumberBackground: #000000(0.0);
@@ -851,6 +854,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     // TopicContentRender#visit(TableRow)
                     Group {
                         LayoutMode: Left;
+                        Padding: (Bottom: 2);
                 """
 
             );
@@ -886,14 +890,16 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 """
                 // TopicContentRender#visit(TableCell)
                 Group {
-                    Anchor: (MaxWidth: 500); // Magic value: 500 max width fixes wrapping of labels. Why? I don't know.
                     Padding: (Horizontal: 15, Vertical: 10);
                     LayoutMode: {{content-alignment}};
                     FlexWeight: 1;
                     Background: {{background-color}};
 
-                    Label #{{text-selector}} {
-                        Style: (Wrap: true, RenderBold: {{render-bold}});
+                    Group {
+                        Label #{{text-selector}} {
+                            Anchor: (MaxWidth: 400);
+                            Style: (Wrap: true, RenderBold: {{render-bold}});
+                        }
                     }
                 }
                 """
@@ -914,6 +920,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
         public void visit(NotificationBlock notificationBlock) {
             boolean shouldSkipTopPadding =
                 notificationBlock.getPrevious() instanceof BlockQuote ||
+                notificationBlock.getPrevious() instanceof ListBlock ||
                 notificationBlock.getPrevious() instanceof NotificationBlock ||
                     notificationBlock.getPrevious() instanceof Heading;
 
@@ -930,7 +937,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 case WARNING -> "#c47d00";
                 case ERROR -> "#f21a29";
             };
-            
+
             writer.line();
             writer.raw(
                 """
@@ -945,10 +952,19 @@ public class TopicContentRenderer implements Renderer<Topic> {
                             Background: {{background-color}}(0.4);
                             OutlineColor: {{outline-color}};
                             OutlineSize: 2;
+
+                            Group {
+                                LayoutMode: Left;
+                                AssetImage {
+                                    Anchor: (Top: -26, Left: -26, Width: 24, Height: 24);
+                                    AssetPath: "UI/Custom/Docs/Images/{{notification-type}}-icon.png";
+                                }
+                            }
                     """
                     .replace("{{background-color}}", backgroundColor)
                     .replace("{{outline-color}}", outlineColor)
                     .replace("{{top-padding}}", shouldSkipTopPadding ? "0" : "16")
+                    .replace("{{notification-type}}", notificationBlock.getType().name().toLowerCase())
             );
 
             visitChildren(notificationBlock);
