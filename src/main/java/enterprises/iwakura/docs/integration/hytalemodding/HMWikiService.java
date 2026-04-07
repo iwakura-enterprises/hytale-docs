@@ -2,6 +2,7 @@ package enterprises.iwakura.docs.integration.hytalemodding;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -9,6 +10,7 @@ import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.object.Documentation;
+import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
@@ -21,6 +23,10 @@ import lombok.RequiredArgsConstructor;
 public class HMWikiService {
 
     public static final String HM_WIKI_CACHE_DIRECTORY = "integration/hytale-modding-wiki";
+    public static final List<DocumentationType> DOCUMENTATION_TYPES_TO_PRELOAD = List.of(
+        DocumentationType.EXTERNAL_MOD,
+        DocumentationType.HYTALE_MODDING_WIKI_INSTALLED
+    );
 
     private static final Timer timer = new Timer();
 
@@ -76,7 +82,7 @@ public class HMWikiService {
             return;
         }
 
-        for (Documentation documentation : documentationService.getDocumentations(InterfaceMode.HYTALE_MODDING_WIKI.getDocumentationTypes())) {
+        for (Documentation documentation : documentationService.getDocumentations(DOCUMENTATION_TYPES_TO_PRELOAD)) {
             var mod = documentation.getAdditionalInfo().getHytaleModdingWikiMod();
 
             if (mod != null && hmWikiDocumentationLoader.preloadDocumentation(documentation, mod, false, false) != null) {

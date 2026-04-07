@@ -624,18 +624,25 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(BulletList bulletList) {
-            boolean bottomPadding = listHolder == null &&
-                !((bulletList.getParent() instanceof BlockQuote
-                    || bulletList.getParent() instanceof NotificationBlock) && bulletList.getNext() == null);
+            boolean topPadding = listHolder == null
+                && !(bulletList.getPrevious() instanceof Heading);
+
+            boolean bottomPadding = listHolder == null
+                && !(bulletList.getParent() instanceof BlockQuote)
+                && !(bulletList.getParent() instanceof NotificationBlock)
+                && !(bulletList.getNext() instanceof FencedCodeBlock)
+                && !(bulletList.getNext() instanceof IndentedCodeBlock);
 
             writer.line();
             writer.raw(
                 """
                     // TopicContentRender#visit(BulletList)
                     Group {
-                        Padding: (Left: 30, Bottom: {{bottom-padding}});
+                        Padding: (Left: 30, Top: {{top-padding}}, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
+                    """
+                        .replace("{{top-padding}}", topPadding ? "5" : "0")
+                        .replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new BulletListHolder(listHolder, bulletList);
             visitChildren(bulletList);
@@ -646,18 +653,25 @@ public class TopicContentRenderer implements Renderer<Topic> {
 
         @Override
         public void visit(OrderedList orderedList) {
-            boolean bottomPadding = listHolder == null &&
-                !((orderedList.getParent() instanceof BlockQuote
-                    || orderedList.getParent() instanceof NotificationBlock) && orderedList.getNext() == null);
+            boolean topPadding = listHolder == null
+                && !(orderedList.getPrevious() instanceof Heading);
+
+            boolean bottomPadding = listHolder == null
+                && !(orderedList.getParent() instanceof BlockQuote)
+                && !(orderedList.getParent() instanceof NotificationBlock)
+                && !(orderedList.getNext() instanceof FencedCodeBlock)
+                && !(orderedList.getNext() instanceof IndentedCodeBlock);
 
             writer.line();
             writer.raw(
                 """
                     // TopicContentRender#visit(OrderedList)
                     Group {
-                        Padding: (Left: 30, Bottom: {{bottom-padding}});
+                        Padding: (Left: 30, Top: {{top-padding}}, Bottom: {{bottom-padding}});
                         LayoutMode: Top;
-                    """.replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
+                    """
+                        .replace("{{top-padding}}", topPadding ? "5" : "0")
+                        .replace("{{bottom-padding}}", bottomPadding ? "10" : "0")
             );
             listHolder = new OrderedListHolder(listHolder, orderedList);
             visitChildren(orderedList);
@@ -893,9 +907,9 @@ public class TopicContentRenderer implements Renderer<Topic> {
             }
 
             var contentAlignment = switch (cellAlignment) {
-                case LEFT -> "Left";
-                case CENTER -> "CenterMiddle";
-                case RIGHT -> "Right";
+                case LEFT -> "Start";
+                case CENTER -> "Center";
+                case RIGHT -> "End";
             };
 
             writer.raw(
@@ -903,14 +917,19 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 // TopicContentRender#visit(TableCell)
                 Group {
                     Padding: (Horizontal: 15, Vertical: 10);
-                    LayoutMode: {{content-alignment}};
+                    LayoutMode: Left;
                     FlexWeight: 1;
                     Background: {{background-color}};
 
                     Group {
                         Label #{{text-selector}} {
-                            Anchor: (MaxWidth: 400);
-                            Style: (Wrap: true, RenderBold: {{render-bold}});
+                            // TODO: Possible cell width with Width: xyz style
+                            Anchor: (MaxWidth: 800);
+                            Style: (
+                                Wrap: true,
+                                RenderBold: {{render-bold}},
+                                HorizontalAlignment: {{content-alignment}}
+                            );
                         }
                     }
                 }

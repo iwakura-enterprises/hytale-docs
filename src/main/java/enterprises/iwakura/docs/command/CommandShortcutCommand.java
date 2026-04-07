@@ -12,11 +12,11 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 public class CommandShortcutCommand extends AbstractPlayerCommand {
 
-    private final DocsCommand docsCommand;
+    private final VoileCommand voileCommand;
 
-    public CommandShortcutCommand(String name, DocsCommand docsCommand) {
+    public CommandShortcutCommand(String name, VoileCommand voileCommand) {
         super(name, "Opens Voile's interface");
-        this.docsCommand = docsCommand;
+        this.voileCommand = voileCommand;
     }
 
     @Override
@@ -27,6 +27,6 @@ public class CommandShortcutCommand extends AbstractPlayerCommand {
         @NonNull PlayerRef playerRef,
         @NonNull World world
     ) {
-        docsCommand.execute(commandContext, store, ref, playerRef, world);
+        voileCommand.execute(commandContext, store, ref, playerRef, world);
     }
 }

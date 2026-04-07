@@ -9,9 +9,9 @@ import enterprises.iwakura.docs.command.VoileLocaleCommand;
 import enterprises.iwakura.docs.components.Components;
 import enterprises.iwakura.docs.components.InterfacePreferencesComponent;
 import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
-import enterprises.iwakura.docs.command.AboutVoileCommand;
+import enterprises.iwakura.docs.command.VoileDebugCommand;
 import enterprises.iwakura.docs.command.CommandShortcutCommand;
-import enterprises.iwakura.docs.command.DocsCommand;
+import enterprises.iwakura.docs.command.VoileCommand;
 import enterprises.iwakura.docs.command.ReloadCommand;
 import enterprises.iwakura.docs.config.DocsConfig.CommandShortcuts.Command;
 import enterprises.iwakura.docs.integration.hytalemodding.HMWikiService;
@@ -39,9 +39,9 @@ public class Docs {
 
     private final List<BaseGlobalListener<?>> globalListeners;
 
-    private final DocsCommand docsCommand;
+    private final VoileCommand voileCommand;
     private final ReloadCommand reloadCommand;
-    private final AboutVoileCommand aboutVoileCommand;
+    private final VoileDebugCommand voileDebugCommand;
     private final VoileLocaleCommand voileLocaleCommand;
 
     private final VoileAPI voileAPI;
@@ -84,9 +84,9 @@ public class Docs {
 
         logger.info("Registering commands...");
         registerCommandShortcuts();
-        plugin.getCommandRegistry().registerCommand(docsCommand);
+        plugin.getCommandRegistry().registerCommand(voileCommand);
         plugin.getCommandRegistry().registerCommand(reloadCommand);
-        plugin.getCommandRegistry().registerCommand(aboutVoileCommand);
+        plugin.getCommandRegistry().registerCommand(voileDebugCommand);
         plugin.getCommandRegistry().registerCommand(voileLocaleCommand);
 
         logger.info("Registering global listeners...");
@@ -113,7 +113,7 @@ public class Docs {
 
         if (commandShortcutsConfig.isEnabled()) {
             if (!commandShortcutsConfig.isOverrideHytaleCommands()) {
-                docsCommand.initAliases();
+                voileCommand.initAliases();
             } else {
                 logger.warn("Command shortcuts' Hytale command override is enabled. Voile will be able to override Hytale's default commands. These commands will have their own permission nodes.");
                 logger.info("Found %d command shortcuts for /voile, registering them as standalone commands...".formatted(commandShortcutsConfig.getCommands().size()));
@@ -121,7 +121,8 @@ public class Docs {
                     logger.info("[COMMAND-SHORTCUT] /%s -> topic %s (iwakuraenterprises.voile.command.%s)".formatted(
                         command.getName(), command.getTopicIdentifier(), command.getName()
                     ));
-                    plugin.getCommandRegistry().registerCommand(new CommandShortcutCommand(command.getName(), docsCommand));
+                    plugin.getCommandRegistry().registerCommand(new CommandShortcutCommand(command.getName(),
+                        voileCommand));
                 }
             }
         } else {

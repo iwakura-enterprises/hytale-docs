@@ -2,8 +2,8 @@
   "documentations": [
     {
       "group": "IwakuraEnterprises",
-      "id": "Example",
-      "name": "Voile - Example",
+      "id": "MyDocumentation",
+      "name": "My Mod Name",
       "enabled": false,
       "sortIndex": 1000,
       "compatibility": {

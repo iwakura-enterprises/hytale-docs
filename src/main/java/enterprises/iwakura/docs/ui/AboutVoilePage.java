@@ -110,7 +110,7 @@ public class AboutVoilePage extends InteractiveCustomUIPage<PageData> {
             content.append("[>] Voile may serve you content made by other creators; Voile does not endorse, verify, or take responsibility for any user-created content. All content is provided as-is, without any warranty or guarantee. Voile and Iwakura Enterprises are not liable for any damages arising from the use of user-created content.\n");
             content.append("\n");
             content.append("\n");
-            content.append("Run /debug-voile command for more information.");
+            content.append("Run /voile-debug command for more information.");
         }
 
         return content.toString();

@@ -21,8 +21,8 @@ public class FallbackTopicService {
             "No topic has been set yet",
             """
                 # No topic set
-                <red>We're sorry but no topic has been set yet.</red>
-                
+                !x We're sorry but no topic has been set yet.
+
                 Please open a topic from the documentation tree.
                 """
         );
@@ -45,8 +45,10 @@ public class FallbackTopicService {
             "Could not found requested topic",
             """
                 # Topic not found
-                <red>We're sorry but topic with identifier `%s` could not be found.</red>
-                
+                !x We're sorry but topic with identifier `%s` could not be found.
+
+                Please, check the spelling. If in doubt, check out the **Topic identifiers** topic in Voile's internal wiki.
+
                 ## Documentation tree
                 ```
                 %s

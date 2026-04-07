@@ -1,6 +1,8 @@
 package enterprises.iwakura.docs.service;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -15,6 +17,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 
 import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.DocsPlugin;
+import enterprises.iwakura.docs.config.DocumentationIndexConfig;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
@@ -52,11 +55,33 @@ public class DocumentationService {
      */
     public void registerDocumentationLoaders() {
         logger.info("Registering default documentation loaders...");
-        // TODO: Create index file if does not exist when reloading
-        // TODO: hw wiki automaticky nestahuje nainstalované dokumentace?
+
+        var serverDocumentationDirectory = plugin.getDataDirectory()
+            .resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory());
+        var serverDocumentationIndexFile = serverDocumentationDirectory
+            .resolve("index.json");
+
+        if (!Files.exists(serverDocumentationDirectory)) {
+            logger.warn("Server documentation directory at " + serverDocumentationDirectory + " does not exist! Creating...");
+            try {
+                Files.createDirectories(serverDocumentationDirectory);
+            } catch (IOException exception) {
+                throw new RuntimeException("Failed to create server documentation directory at " + serverDocumentationDirectory, exception);
+            }
+        }
+
+        if (!Files.exists(serverDocumentationIndexFile)) {
+            logger.warn("Server documentation index file at " + serverDocumentationIndexFile + " does not exist! Creating...");
+            try {
+                Files.writeString(serverDocumentationIndexFile, gson.toJson(new DocumentationIndexConfig()));
+            } catch (IOException exception) {
+                throw new RuntimeException("Failed to create documentation index file at " + serverDocumentationIndexFile, exception);
+            }
+        }
+
         VoileAPI.get().register(plugin, new UniversalDocumentationLoader(
             DocumentationType.SERVER,
-            plugin.getDataDirectory().resolve(configurationService.getDocsConfig().getLoadDocumentationsFromDirectory()).resolve("index.json")
+            serverDocumentationIndexFile
         ));
 
         try {
@@ -256,13 +281,20 @@ public class DocumentationService {
             documentationId = openTopicData[0];
             topicId = openTopicData[1];
             documentationGroupOrId = true;
-        } else if (openTopicData.length == 3) {
+        } else if (openTopicData.length >= 3) {
+            if (openTopicData.length > 3) {
+                logger.warn("Incorrect topic identifier! Expected maximum of two colons: " + topicIdentifier);
+            }
             documentationGroup = openTopicData[0];
             documentationId = openTopicData[1];
             topicId = openTopicData[2];
         }
 
-        if (topicId != null && topicId.contains("$")) {
+        if (topicId == null) {
+            return Optional.empty();
+        }
+
+        if (topicId.contains("$")) {
             var topicIdWithLocale = topicId.split("\\$");
             topicId = topicIdWithLocale[0];
             // Always override preferred locale type if specifically specified
@@ -298,6 +330,10 @@ public class DocumentationService {
         LocaleType preferredLocaleType,
         boolean documentationGroupOrId
     ) {
+        if (topicId == null) {
+            logger.warn("topicId cannot be null when invoking #findTopic()!");
+            return Optional.empty();
+        }
         return documentations.stream()
             .filter(documentation -> {
                 if (documentationGroupOrId) {

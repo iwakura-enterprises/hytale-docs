@@ -2,86 +2,14 @@
   "documentations": [
     {
       "group": "IwakuraEnterprises",
-      "id": "Docs",
-      "name": "Voile Documentation",
+      "id": "Voile",
+      "name": "Voile",
       "enabled": true,
-      "sortIndex": 900,
-      "topics": [
-        {
-          "file": "index.md",
-          "subTopics": [
-            {
-              "file": "changelog.md"
-            }
-          ]
-        },
-        {
-          "file": "user-interface.md"
-        },
-        {
-          "file": "topic-identifiers.md"
-        },
-        {
-          "file": "formatting.md",
-          "subTopics": [
-            {
-              "file": "front-matter.md"
-            }
-          ]
-        },
-        {
-          "file": "configuration.md"
-        },
-        {
-          "file": "misc/index.md",
-          "subTopics": [
-            {
-              "file": "integrations.md"
-            },
-            {
-              "file": "misc/markdown-stress-test.md"
-            }
-          ]
+      "compatibility": {
+        "mod": {
+          "universalDocumentationLoader": true
         }
-      ]
-    },
-    {
-      "group": "IwakuraEnterprises",
-      "id": "DocsDeveloper",
-      "name": "Voile for Developers",
-      "enabled": true,
-      "sortIndex": 1100,
-      "topics": [
-        {
-          "file": "index.md",
-          "subTopics": [
-            {
-              "file": "advanced.md"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "group": "IwakuraEnterprises",
-      "id": "DocsServerOwner",
-      "name": "Voile for Server Owners",
-      "enabled": true,
-      "sortIndex": 1000,
-      "topics": [
-        {
-          "file": "index.md"
-        },
-        {
-          "file": "first-steps.md"
-        },
-        {
-          "file": "command-shortcuts.md"
-        },
-        {
-          "file": "permissions.md"
-        }
-      ]
+      }
     }
   ]
 }

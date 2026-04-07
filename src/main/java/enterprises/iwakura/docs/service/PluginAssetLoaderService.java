@@ -63,6 +63,10 @@ public class PluginAssetLoaderService {
                             indexPath,
                             javaPlugin.getClassLoader() // Must be specified if the mod won't support the UniversalDocumentationLoader
                         ));
+                    } else {
+                        logger.warn("Voile integration not found for plugin %s at %s".formatted(
+                            plugin.getIdentifier(), indexPath
+                        ));
                     }
                 } catch (Exception exception) {
                     logger.error("Failed to scan for documentations in plugin " + plugin.getIdentifier(), exception);
