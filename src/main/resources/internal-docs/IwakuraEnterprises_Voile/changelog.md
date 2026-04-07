@@ -10,10 +10,10 @@ sort-index: 5
 The largest update yet.
 
 ### Major
+- **Complete internal documentation rewrite**.
 - Added support for localization.
     - Check out the **Topic localization** topic for more information.
     - Supports over 40 languages.
-- Complete internal documentation rewrite.
 - Implemented new `UniversalDocumentationLoader` that works both with server and mod documentation.
     - This means mod documentation now does not have to specify topic files within its documentation index file.
     - Mod documentation supports localization as well.
@@ -23,6 +23,7 @@ The largest update yet.
 
 
 ### Minor
+- Renamed `/debug-voile` to `/voile-debug`
 - Fixed text wrapping issues in the table rendering.
 - Fixed text alignment issues in the table rendering.
 - Added little icons to admonition/notification blocks.
