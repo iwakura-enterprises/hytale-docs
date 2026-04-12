@@ -20,7 +20,7 @@ After installing the mod inside the mods folder, you can use the command **/voil
 
 ## Documentation
 
-**You may find complete documentation at [Iwakura Enterprises Documentations](https://docs.iwakura.enterprises/hytale-docs.html)**
+**You may find complete documentation at [Iwakura Enterprises Documentations](https://docs.voile.dev)**
 
 ## Support & suggestions
 
