@@ -5,6 +5,12 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.1
+
+### Minor
+- Fixed interface preferences saving on laggy servers due to race condition
+- Improved few log lines
+
 # 1.11.0
 
 The largest update yet.
