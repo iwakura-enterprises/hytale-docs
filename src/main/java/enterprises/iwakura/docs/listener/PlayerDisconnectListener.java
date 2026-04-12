@@ -3,7 +3,6 @@ package enterprises.iwakura.docs.listener;
 import com.hypixel.hytale.protocol.packets.connection.DisconnectType;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 
-import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.service.RuntimeImageAssetService;
 import enterprises.iwakura.docs.service.ValidatorService;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PlayerDisconnectListener implements BaseGlobalListener<PlayerDisconnectEvent> {
 
-    private final DocumentationViewerService documentationViewerService;
     private final ValidatorService validatorService;
     private final RuntimeImageAssetService runtimeImageAssetService;
 
@@ -28,6 +26,5 @@ public class PlayerDisconnectListener implements BaseGlobalListener<PlayerDiscon
             validatorService.handleCrashedPlayer(event.getPlayerRef());
         }
         runtimeImageAssetService.clearCacheForPlayer(event.getPlayerRef().getUuid());
-        documentationViewerService.saveInterfacePreferences(event.getPlayerRef());
     }
 }

@@ -10,6 +10,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.jspecify.annotations.NonNull;
+
+import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -526,20 +529,18 @@ public class DocumentationViewerService {
      * Loads interface preferences from player's holder
      *
      * @param playerRef Player reference
+     * @param holder Holder for the player
      */
-    public void loadInterfacePreferences(PlayerRef playerRef) {
+    public void loadInterfacePreferences(PlayerRef playerRef, Holder<EntityStore> holder) {
         var config = configurationService.getDocsConfig();
         if (config.isPersistInterfacePreferences()) {
-            var holder = playerRef.getHolder();
-            if (holder != null) {
-                var interfacePreferences = holder.getComponent(Components.getInterfacePreferencesComponent());
-                if (interfacePreferences != null) {
-                    if (!Objects.equals(config.getInterfacePreferencesDefaults().getChecksum(), interfacePreferences.getChecksum())) {
-                        logger.warn("Ignoring older player's interface preferences checksum (%s)".formatted(interfacePreferences.getChecksum()));
-                    } else {
-                        lastInterfacePreferencesForPlayer.put(playerRef.getUuid(), interfacePreferences);
-                        logger.info("Loaded interface preferences for player " + playerRef.getUuid());
-                    }
+            var interfacePreferences = holder.getComponent(Components.getInterfacePreferencesComponent());
+            if (interfacePreferences != null) {
+                if (Objects.equals(config.getInterfacePreferencesDefaults().getChecksum(), interfacePreferences.getChecksum())) {
+                    lastInterfacePreferencesForPlayer.put(playerRef.getUuid(), interfacePreferences);
+                    logger.info("Loaded interface preferences for player " + playerRef.getUuid());
+                } else {
+                    logger.warn("Ignoring older player's interface preferences due to checksum (%s)".formatted(interfacePreferences.getChecksum()));
                 }
             }
         }
@@ -549,26 +550,19 @@ public class DocumentationViewerService {
      * Saves interface preferences to player's holder
      *
      * @param playerRef Player reference
+     * @param holder Holder for the player
      */
-    public void saveInterfacePreferences(PlayerRef playerRef) {
+    public void saveInterfacePreferences(PlayerRef playerRef, Holder<EntityStore> holder) {
         var config = configurationService.getDocsConfig();
         if (config.isPersistInterfacePreferences()) {
-            var ref = playerRef.getReference();
             var interfacePreferences = lastInterfacePreferencesForPlayer.get(playerRef.getUuid());
 
-            if (interfacePreferences != null && ref != null) {
-                var world = Universe.get().getWorld(playerRef.getWorldUuid());
-
-                if (world != null) {
-                    world.execute(() -> {
-                        try {
-                            var store = ref.getStore();
-                            store.putComponent(ref, Components.getInterfacePreferencesComponent(), interfacePreferences);
-                            logger.info("Saved interface preferences for player " + playerRef.getUuid());
-                        } catch (Exception exception) {
-                            logger.error("Failed to save interface preferences for player " + playerRef.getUuid(), exception);
-                        }
-                    });
+            if (interfacePreferences != null) {
+                try {
+                    holder.putComponent(Components.getInterfacePreferencesComponent(), interfacePreferences);
+                    logger.info("Saved interface preferences for player " + playerRef.getUuid());
+                } catch (Exception exception) {
+                    logger.error("Failed to save interface preferences for player " + playerRef.getUuid(), exception);
                 }
             }
         }

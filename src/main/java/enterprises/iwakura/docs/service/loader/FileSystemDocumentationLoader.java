@@ -63,7 +63,7 @@ public class FileSystemDocumentationLoader extends DocumentationLoader {
         try {
             indexConfig = loaderContext.getGson().fromJson(Files.readString(indexFile), DocumentationIndexConfig.class);
         } catch (Exception exception) {
-            logger.error("└ Failed to load index.json: %s" + indexFile, exception);
+            logger.error("└ Failed to load index.json: %s".formatted(indexFile), exception);
             return List.of();
         }
         logger.info("└ Documentation index %s defines %d documentations".formatted(

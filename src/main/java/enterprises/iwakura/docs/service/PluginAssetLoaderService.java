@@ -46,6 +46,12 @@ public class PluginAssetLoaderService {
                 if (javaPlugin.getIdentifier().getGroup().equals("Hytale")) {
                     continue; // Skip Hytale mods
                 }
+                if (!Files.exists(javaPlugin.getFile())) {
+                    logger.warn("Plugin file for %s does not exist at %s (try restarting the server)".formatted(
+                        javaPlugin.getName(), javaPlugin.getFile()
+                    ));
+                    continue;
+                }
 
                 try {
                     // Won't be closed so we can access the file system when (re)loading the documentation.

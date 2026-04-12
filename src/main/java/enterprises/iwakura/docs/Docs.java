@@ -27,6 +27,7 @@ import enterprises.iwakura.docs.service.SentryService;
 import enterprises.iwakura.docs.service.ServerService;
 import enterprises.iwakura.docs.service.UpdateCheckerService;
 import enterprises.iwakura.docs.service.ValidatorService;
+import enterprises.iwakura.docs.systems.PlayerSystem;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,8 @@ public class Docs {
     private final FileSystemCacheService fileSystemCacheService;
     private final SentryService sentryService;
     private final DebugService debugService;
+
+    private final PlayerSystem playerSystem;
 
     private final DocsPlugin plugin;
     private final Logger logger;
@@ -101,6 +104,9 @@ public class Docs {
         logger.info("Registering documentation loaders...");
         documentationService.registerDocumentationLoaders();
         hytaleModdingWikiService.init();
+
+        logger.info("Registering systems...");
+        plugin.getEntityStoreRegistry().registerSystem(playerSystem);
 
         new HStats(HSTATS_MOD_ID, plugin.getManifest().getVersion().toString());
     }

@@ -58,7 +58,7 @@ public class UniversalDocumentationLoader extends DocumentationLoader {
         try {
             indexConfig = loaderContext.getGson().fromJson(Files.readString(documentationIndexFile), DocumentationIndexConfig.class);
         } catch (Exception exception) {
-            logger.error("└ Failed to load index.json: %s" + documentationIndexFile, exception);
+            logger.error("└ Failed to load index.json: %s".formatted(documentationIndexFile), exception);
             return List.of();
         }
         logger.info("└ Documentation index %s defines %d documentations".formatted(
