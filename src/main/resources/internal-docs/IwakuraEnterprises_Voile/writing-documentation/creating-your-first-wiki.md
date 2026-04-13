@@ -215,6 +215,10 @@ The result may look like this:
 !! 
 !! I will gladly replicate your development environment and try adding support for it in Voile.
 
+<buttons>
+    <button url="https://support.voile.dev">Support</button>
+</buttons>
+
 # Further reading
 
 This topic shows just the bare basics of Voile. Please check out other topics that will teach you all the other features

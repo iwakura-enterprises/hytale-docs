@@ -617,7 +617,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
                     LayoutMode: LeftCenterWrap;
                 """);
 
-            HtmlBlockParser.parse(markdownService, htmlBlock.getLiteral(), writer, docsContext);
+            HtmlBlockParser.parse(logger, markdownService, htmlBlock.getLiteral(), writer, docsContext);
 
             writer.raw("}");
         }
@@ -1055,7 +1055,7 @@ public class TopicContentRenderer implements Renderer<Topic> {
             private static final Pattern WRAPPER_PATTERN = Pattern.compile("<(\\w+)>([\\s\\S]*?)</\\1>");
             private static final Pattern INNER_PATTERN = Pattern.compile("<(\\w+)\\s+(\\w+)=\"([^\"]+)\">([^<]*)</\\1>");
 
-            public static void parse(MarkdownService markdownService, String htmlBlock, MarkdownWriter writer, DocsContext docsContext) {
+            public static void parse(Logger logger, MarkdownService markdownService, String htmlBlock, MarkdownWriter writer, DocsContext docsContext) {
                 var wrapperMatcher = WRAPPER_PATTERN.matcher(htmlBlock);
 
                 if (wrapperMatcher.find()) {
@@ -1072,20 +1072,26 @@ public class TopicContentRenderer implements Renderer<Topic> {
                             var attributeValue = innerMatcher.group(3); // "IwakuraEnterprises:another_topic_child1"
                             var textContent = innerMatcher.group(4);    // "Click me to get to second child!"
 
+                            var iconName = switch (attributeName) {
+                                case "topic" -> "voile-icon.png";
+                                default -> "redirect-icon.png";
+                            };
+
                             if (elementName.equals("button")) {
                                 writer.raw(
                                     """
                                         // TopicContentRender.HtmlBlockParser#parse()[button]
                                         Group {
                                             Padding: (Right: 10, Bottom: 8);
-                                        
-                                            TextButton #{{button-selector}} {
-                                                Text: "{{button-content}}";
+
+                                            Button #{{button-selector}} {
+                                                Anchor: (Height: 44);
+                                                Padding: (Horizontal: 24);
                                                 Style: (
-                                                    Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
-                                                    Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
-                                                    Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
-                                                    Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: 12), LabelStyle: (FontSize: 17, RenderBold: true, RenderUppercase: true, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bdcbd3)),
+                                                    Default: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary.png", Border: 12)),
+                                                    Hovered: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Hovered.png", Border: 12)),
+                                                    Pressed: (Background: PatchStyle(TexturePath: "Common/Buttons/Secondary_Pressed.png", Border: 12)),
+                                                    Disabled: (Background: PatchStyle(TexturePath: "Common/Buttons/Disabled.png", Border: 12)),
                                                     Sounds: (
                                                         Activate: (
                                                             SoundPath: "Sounds/ButtonsLightActivate.ogg",
@@ -1099,13 +1105,35 @@ public class TopicContentRenderer implements Renderer<Topic> {
                                                         )
                                                     )
                                                 );
-                                                Anchor: (Height: 44);
-                                                Padding: (Horizontal: 24);
+
+                                                Group {
+                                                    LayoutMode: Center;
+
+                                                    Label {
+                                                        Text: "{{button-content}}";
+                                                        Style: (
+                                                            FontSize: 17,
+                                                            TextColor: #bfcdd5,
+                                                            RenderBold: true,
+                                                            RenderUppercase: true,
+                                                            HorizontalAlignment: Center,
+                                                            VerticalAlignment: Center
+                                                        );
+                                                    }
+
+                                                    Group { Padding: (Left: 5); }
+
+                                                    AssetImage {
+                                                        Anchor: (Width: 20, Height: 20, Left: 5);
+                                                        AssetPath: "UI/Custom/Docs/Images/{{icon-name}}";
+                                                    }
+                                                }
                                             }
                                         }
                                         """
                                             .replace("{{button-content}}", markdownService.escapeText(textContent))
                                             .replace("{{button-selector}}", buttonSelector)
+                                            .replace("{{icon-name}}", iconName)
                                 );
 
                                 if (attributeName.equals("topic")) {
@@ -1117,6 +1145,17 @@ public class TopicContentRenderer implements Renderer<Topic> {
                                             .append(PageData.OPEN_TOPIC_FIELD, attributeValue),
                                         true
                                     );
+                                } else if (attributeName.equals("url")) {
+                                    docsContext.getEventBuilder().addEventBinding(
+                                        CustomUIEventBindingType.Activating,
+                                        "#" + buttonSelector,
+                                        new EventData()
+                                            .append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.SEND_CHAT_URL)
+                                            .append(PageData.SEND_CHAT_URL_FIELD, attributeValue),
+                                        true
+                                    );
+                                } else {
+                                    logger.warn("Unknown attribute name '%s' for topic button (available: topic, url)".formatted(attributeName));
                                 }
                             }
                         }

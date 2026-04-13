@@ -119,16 +119,19 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
     public static class PageData {
 
         public static final String OPEN_TOPIC_FIELD = "OpenTopic";
+        public static final String SEND_CHAT_URL_FIELD = "SendChatUrl";
         public static final String TOPIC_SEARCH_QUERY_FIELD = "@TopicSearchQuery";
         public static final String INTERFACE_ACTION_FIELD = "InterfaceAction";
 
         public static final BuilderCodec<PageData> CODEC = BuilderCodec.builder(PageData.class, PageData::new)
             .append(new KeyedCodec<>(OPEN_TOPIC_FIELD, Codec.STRING), PageData::setOpenTopic, PageData::getOpenTopic).add()
+            .append(new KeyedCodec<>(SEND_CHAT_URL_FIELD, Codec.STRING), PageData::setSendChatUrl, PageData::getSendChatUrl).add()
             .append(new KeyedCodec<>(TOPIC_SEARCH_QUERY_FIELD, Codec.STRING), PageData::setTopicSearchQuery, PageData::getTopicSearchQuery).add()
             .append(new KeyedCodec<>(INTERFACE_ACTION_FIELD, Codec.STRING), PageData::setInterfaceActionValue, PageData::getInterfaceActionValue).add()
             .build();
 
         private String openTopic;
+        private String sendChatUrl;
         private String topicSearchQuery;
         private String interfaceActionValue;
 
@@ -142,6 +145,7 @@ public class DocumentationViewerPage extends InteractiveCustomUIPage<PageData> {
             FORWARD,
             HOME,
             OPEN_TOPIC,
+            SEND_CHAT_URL,
             SEARCH,
             OPEN_ABOUT_VOILE_PAGE,
             TOGGLE_FULL_TEXT_SEARCH,

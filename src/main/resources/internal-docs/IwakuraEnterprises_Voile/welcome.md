@@ -33,6 +33,14 @@ Whether you're a **server owner** creating a wiki for your server or you're a **
 * Roadmap: https://youtrack.iwakura.enterprises
 ```
 
+<buttons>
+    <button url="https://download.voile.dev">Download</button>
+    <button url="https://voile.dev">Website</button>
+    <button url="https://docs.voile.dev">Documentation</button>
+    <button url="https://support.voile.dev">Support</button>
+    <button url="https://youtrack.iwakura.enterprises">Roadmap</button>
+</buttons>
+
 ! You can click the top left Voile text to see debug information.
 
 ## How to hide this internal wiki?

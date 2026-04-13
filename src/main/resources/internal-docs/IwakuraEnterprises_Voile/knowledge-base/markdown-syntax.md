@@ -224,10 +224,14 @@ by themselves.
 
 ***
 
-# Topic buttons
+# Buttons
 
-You can link different topics by using an HTML block `<buttons>` with the `<button>` element. The button element specifies
-the topic in the `topic` data element by a **Topic identifier**.
+You can create a button block by using an HTML block `<buttons>` with the `<button>` element. There are several types
+of buttons available, all defined by its attribute name.
+
+## Topic buttons
+
+A topic button opens a specified topic. This can be done by specifying the `topic` attribute with **topic's identifier**.
 
 ```
 <buttons>
@@ -239,6 +243,26 @@ To learn more about **Topic identifiers**, see its topic.
 
 <buttons>
     <button topic="topic-identifiers">Topic identifiers</button>
+</buttons>
+
+## URL buttons
+
+A URL button opens a specified URL. This can be done by specifying the `url` attribute. If the URL doesn't have specified
+protocol, Voile will fall back to `https://`
+
+!! Hytale does not support opening URLs directly in the UI. Voile's workaround is to send the URL in the chat, where the
+!! player will be able to open it.
+
+```
+<buttons>
+    <button url="https://iwakura.enterprises">Iwakura Enterprises</button>
+    <button url="voile.dev">Voile</button>
+</buttons>
+```
+
+<buttons>
+    <button url="https://iwakura.enterprises">Iwakura Enterprises</button>
+    <button url="voile.dev">Voile</button>
 </buttons>
 
 # Table

@@ -17,3 +17,7 @@ Installed mods that do not have Voile integration will be shown in the main Voil
 category.
 
 ![Hytale Modding Banner {350x0}](UI/Custom/Docs/Images/hytale-modding-banner.png)
+
+<buttons>
+    <button url="https://wiki.hytalemodding.dev">Hytale Modding Wiki</button>
+</buttons>

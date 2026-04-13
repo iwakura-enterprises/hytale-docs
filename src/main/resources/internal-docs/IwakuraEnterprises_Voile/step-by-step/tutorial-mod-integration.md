@@ -140,6 +140,10 @@ If you have problems and can't see the created mod documentation, check the cons
 
 If you still don't know why it isn't working, feel free to get support at &9&lhttps://support.voile.dev
 
+<buttons>
+    <button url="https://support.voile.dev">Support</button>
+</buttons>
+
 # Further reading
 
 To learn more, please see the following topics.

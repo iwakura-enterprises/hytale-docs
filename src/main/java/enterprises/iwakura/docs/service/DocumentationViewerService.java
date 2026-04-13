@@ -43,6 +43,7 @@ import enterprises.iwakura.docs.ui.render.TopicRenderer;
 import enterprises.iwakura.docs.util.ChatInfo;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
+import io.github.insideranh.talemessage.TaleMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -408,7 +409,6 @@ public class DocumentationViewerService {
                 } else {
                     logger.error("PageData with OPEN_TOPIC action without topic identifier to open!");
                 }
-
             }
             case OPEN_ABOUT_VOILE_PAGE -> {
                 openAboutVoilePage(page);
@@ -425,6 +425,18 @@ public class DocumentationViewerService {
                 }
                 getInterfacePreferences(page.getPlayerRef(), state).setFullTextSearch(state.isFullTextSearch());
                 updateDocumentationTree(page, updatedDocsContext);
+            }
+            case SEND_CHAT_URL -> {
+                if (data.getSendChatUrl() != null) {
+                    var url = data.getSendChatUrl().startsWith("http")
+                        ? data.getSendChatUrl()
+                        : "https://" + data.getSendChatUrl();
+                    var playerRef = page.getPlayerRef();
+                    page.getPlayer().getPageManager().setPage(ref, store, Page.None);
+                    playerRef.sendMessage(ChatInfo.INFO.of("Topic &e" + docsContext.getTopic().getName() + "{t} asks you to open a link: &e&l" + data.getSendChatUrl()).link(url));
+                } else {
+                    logger.error("PageData with SEND_CHAT_URL action without URL to send!");
+                }
             }
             default -> logger.error("Invalid interface action specified in page data " + data);
         }

@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public enum ChatInfo {
     SUCCESS("<b>>></b>", new Color(190, 237, 210), new Color(190, 237, 210)),
-    INFO("<b>[>]</b>", new Color(201, 201, 201), new Color(255, 255, 255)),
+    INFO("<b>[Voile]</b>", new Color(201, 201, 201), new Color(255, 255, 255)),
     WARN("<b>[!]</b>", new Color(230, 232, 118), new Color(255, 255, 255)),
     ERROR("<b>[!!]</b>", new Color(235, 120, 120), new Color(235, 120, 120)),
     DEBUG("<b>[D]</b>", new Color(169, 108, 235), new Color(169, 108, 235));
