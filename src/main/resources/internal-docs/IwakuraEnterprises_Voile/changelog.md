@@ -5,6 +5,13 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.2
+
+### Minor
+- Added support for URL buttons. See the **Markdown syntax** for more information.
+- Added little icon next to topic's button to differentiate topic and URL buttons.
+- Improved warning logging when specifying incorrect attribute within a button.
+
 # 1.11.1
 
 ### Minor
