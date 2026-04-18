@@ -15,11 +15,13 @@ import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.service.ConfigurationService;
+import enterprises.iwakura.docs.service.DocumentationSearchService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.ui.CommonStyles;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData;
 import enterprises.iwakura.docs.ui.DocumentationViewerPage.PageData.InterfaceAction;
+import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import enterprises.iwakura.sigewine.core.utils.BeanAccessor;
 import io.github.insideranh.talemessage.TaleMessage;
@@ -44,6 +46,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
     private final BeanAccessor<DocumentationViewerService> documentationViewerService = new BeanAccessor<>(DocumentationViewerService.class);
     private final DocumentationRenderer documentationRenderer;
     private final DocumentationService documentationService;
+    private final DocumentationSearchService documentationSearchService;
     private final ConfigurationService configurationService;
 
     @Override
@@ -276,13 +279,17 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
     public void clearAndAppendInline(DocsContext ctx, List<Documentation> documentations) {
         var interfaceState = ctx.getInterfaceState();
 
+        var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         documentations = documentations.stream()
             .filter(documentation -> interfaceState.getInterfaceMode() == null || interfaceState.getInterfaceMode().has(documentation.getType()))
-            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentation.searchForTopic(interfaceState.getTopicSearchQuery(), interfaceState.getPreferredLocaleType(), interfaceState.isFullTextSearch()))
+            .filter(documentation -> documentationSearchService.canSeeDocumentation(ctx.getPlayerRef(), documentation))
+            // Allow seeing empty documentations w/o any topics (UX)
+            .filter(documentation -> documentation.getTopics().isEmpty() || documentationSearchService.canSeeAnyTopic(ctx.getPlayerRef(), documentation.getTopics()))
+            .filter(documentation -> !ctx.hasTopicSearchQuery() || documentationSearchService.searchForTopic(documentation, searchPattern, interfaceState.getPreferredLocaleType(), interfaceState.isFullTextSearch()))
             .toList();
 
         var currentInterfaceMode = interfaceState.getInterfaceMode();
-        var availableInterfaceModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
+        var availableInterfaceModes = documentationSearchService.getAvailableInterfaceModes(ctx.getPlayerRef(), ctx.getDocumentations()); // Context non-filtered documentations
         // Enable the change mode button if there are more modes than one or player has mode
         // that is not currently enabled (so they can change)
         boolean changeModeButtonEnabled = availableInterfaceModes.size() > 1
@@ -300,7 +307,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                     """
                     Group {
                         Padding: (Bottom: 5);
-                    
+
                         Label {
                             Text: "——— {{type}} ———";
                             Style: (
@@ -423,7 +430,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
             }
 
             for (int i = windowEnd; i >= windowStart; i--) {
-                var optionalTopic = documentationService.findTopic(ctx.getDocumentations(), history.get(i), null, interfaceState.getPreferredLocaleType());
+                var optionalTopic = documentationSearchService.findTopic(ctx.getPlayerRef(), ctx.getDocumentations(), history.get(i), null, interfaceState.getPreferredLocaleType());
                 if (optionalTopic.isPresent()) {
                     var topic = optionalTopic.get();
                     boolean shouldBeBold = i == currentIndex;

@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import enterprises.iwakura.docs.integration.hytalemodding.api.objects.HMWikiMod;
-import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
+import enterprises.iwakura.docs.util.ListUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,7 +46,10 @@ public class Documentation {
      * List of topics supplied by the documentation.
      */
     private final List<Topic> topics = new ArrayList<>();
-
+    /**
+     * List of required permissions
+     */
+    private final List<String> requiredPermissions = new ArrayList<>();
     /**
      * User defined sorting index
      */
@@ -54,7 +57,23 @@ public class Documentation {
     /**
      * Additional information for the documentation.
      */
-    private final AdditionalInfo additionalInfo = new AdditionalInfo();
+    private final AdditionalDocumentationData additionalDocumentationData = new AdditionalDocumentationData();
+
+    public Documentation(
+        @NonNull String group,
+        @NonNull String id,
+        @NonNull String name,
+        @NonNull DocumentationType type,
+        int sortIndex,
+        List<String> requiredPermissions
+    ) {
+        this.group = group;
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.sortIndex = sortIndex;
+        this.requiredPermissions.addAll(ListUtils.emptyIfNull(requiredPermissions));
+    }
 
     /**
      * Adds topics to this documentation.
@@ -132,43 +151,10 @@ public class Documentation {
     }
 
     /**
-     * Checks if documentation has any topic that contains the search query
-     *
-     * @param topicSearchQuery Topic search query
-     * @param fullTextSearch   If search should be done on the topic's content
-     * @param preferredLocaleType Preferred topic locale type to search in
-     *
-     * @return True if yes, false otherwise
-     */
-    public boolean searchForTopic(String topicSearchQuery, LocaleType preferredLocaleType, boolean fullTextSearch) {
-        var searchPattern = SearchPattern.of(topicSearchQuery);
-        return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, preferredLocaleType, fullTextSearch));
-    }
-
-    /**
-     * returns first found non-category topic
-     *
-     * @return Optional of topic (empty if not found)
-     */
-    public Optional<Topic> getFirstTopic() {
-        for (Topic topic : topics) {
-            if (!topic.isCategory()) {
-                return Optional.of(topic);
-            } else {
-                var subTopic = topic.getFirstTopic();
-                if (subTopic.isPresent()) {
-                    return subTopic;
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
      * Various information for the documentation. Includes classes from various integrations.
      */
     @Data
-    public static class AdditionalInfo {
+    public static class AdditionalDocumentationData {
 
         private HMWikiMod hytaleModdingWikiMod;
 

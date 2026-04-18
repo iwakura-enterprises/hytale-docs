@@ -1,5 +1,6 @@
 package enterprises.iwakura.docs.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import enterprises.iwakura.docs.object.Documentation;
@@ -21,13 +22,7 @@ public class TopicConfig {
     private boolean category;
     private String markdownContent;
     private List<String> subTopics;
-
-    public void setSubTopics(List<String> subTopics) {
-        if (subTopics == null) {
-            subTopics = List.of();
-        }
-        this.subTopics = subTopics;
-    }
+    private List<String> requiredPermissions;
 
     /**
      * Converts current topic config to Topic for Documentation. Validates
@@ -62,8 +57,18 @@ public class TopicConfig {
             localeType = LocaleType.ENGLISH;
         }
 
-        return new Topic(id, name, description, author, localeType, sortIndex, category, markdownContent, null,
-            documentation, null, null);
+        return new Topic(
+            id,
+            name,
+            description,
+            author,
+            localeType,
+            sortIndex,
+            category,
+            markdownContent,
+            documentation,
+            requiredPermissions
+        );
     }
 
     /**

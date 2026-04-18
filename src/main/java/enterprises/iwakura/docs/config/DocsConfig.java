@@ -13,6 +13,7 @@ import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.object.LocaleType;
+import enterprises.iwakura.docs.object.TopicIdentifier;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,8 @@ public class DocsConfig {
     private String loadDocumentationsFromDirectory = "documentation";
     private String defaultTopicIdentifier;
     private final List<DocumentationType> disabledDocumentationTypes = new ArrayList<>();
+    private final List<String> disabledDocumentations = new ArrayList<>();
+    private final List<String> disabledTopicIdentifiers = new ArrayList<>();
     private InterfacePreferencesDefaults interfacePreferencesDefaults = new InterfacePreferencesDefaults();
     private Validator validator = new Validator();
     private CommandShortcuts commandShortcuts = new CommandShortcuts();
@@ -37,10 +40,23 @@ public class DocsConfig {
     private FileSystemCache fileSystemCache = new FileSystemCache();
     private Sentry sentry = new Sentry();
 
+    private final transient List<TopicIdentifier> parsedDisabledTopicIdentifiers = new ArrayList<>();
+
     public List<InterfaceMode> getAvailableInterfaceModes() {
         return InterfaceMode.ALL.stream()
             .filter(mode -> mode != InterfaceMode.HYTALE_MODDING_WIKI || integration.getHytaleModdingWiki().isEnabled())
             .toList();
+    }
+
+    public List<TopicIdentifier> getParsedDisabledTopicIdentifiers() {
+        if (parsedDisabledTopicIdentifiers.isEmpty() && !disabledTopicIdentifiers.isEmpty()) {
+            disabledTopicIdentifiers.stream()
+                .map(TopicIdentifier::parse)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(parsedDisabledTopicIdentifiers::add);
+        }
+        return parsedDisabledTopicIdentifiers;
     }
 
     @Data

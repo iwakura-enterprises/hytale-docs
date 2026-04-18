@@ -30,3 +30,16 @@ For example, the command shortcut `/rules` will have permission `iwakuraenterpri
 <buttons>
     <button topic="command-shortcuts">Command shortcuts</button>
 </buttons>
+
+# Documentation and Topic permissions
+
+You may define required permissions for documentations and topics. In order for the player to seem them,
+they will have to have all the specified permissions.
+
+If the player doesn't have the required permissions for a topic that has sub-topics, all sub-topics won't be accessible
+as well.
+
+<buttons>
+    <button topic="documentation-index-file">Documentation index file</button>
+    <button topic="topic-file">Topic file</button>
+</buttons>

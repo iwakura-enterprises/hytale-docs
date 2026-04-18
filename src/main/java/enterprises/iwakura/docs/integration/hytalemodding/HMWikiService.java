@@ -11,7 +11,6 @@ import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.integration.hytalemodding.api.HMWikiApi;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
-import enterprises.iwakura.docs.object.InterfaceMode;
 import enterprises.iwakura.docs.service.ConfigurationService;
 import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.util.Logger;
@@ -83,7 +82,7 @@ public class HMWikiService {
         }
 
         for (Documentation documentation : documentationService.getDocumentations(DOCUMENTATION_TYPES_TO_PRELOAD)) {
-            var mod = documentation.getAdditionalInfo().getHytaleModdingWikiMod();
+            var mod = documentation.getAdditionalDocumentationData().getHytaleModdingWikiMod();
 
             if (mod != null && hmWikiDocumentationLoader.preloadDocumentation(documentation, mod, false, false) != null) {
                 break;

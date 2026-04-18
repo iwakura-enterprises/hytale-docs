@@ -30,6 +30,10 @@ The documentation index file follows strict JSON format.
       "name": "My extensive wiki",
       "enabled": true,
       "sortIndex": 1100,
+      "requiredPermissions": [
+        "Creative",
+        "my-permission"
+      ],
       "compatibility": {
         "mod": {
           "universalDocumentationLoader": true
@@ -53,15 +57,16 @@ The documentation index file follows strict JSON format.
 
 > ### `DocumentationConfig` object
 >
-> | Field           | Type                 | Description                                                          |
-> |-----------------|----------------------|----------------------------------------------------------------------|
-> | `group`         | String               | **Mandatory** Documentation's group                                  |
-> | `id`            | String               | **Mandatory** Documentation's ID                                     |
-> | `name`          | String               | **Mandatory** Documentation's name (shown in the UI)                 |
-> | `enabled`       | Boolean              | Whether the documentation should be shown in the UI                 |
-> | `sortIndex`     | Integer              | Sorting index for the documentation. Lower values are sorted first.  |
-> | `compatibility` | `Compatibility`      | Various compatibility options                                        |
-> | `topics`        | List of `TopicEntry` | **Deprecated** and available only for mod documentation index files. |
+> | Field                 | Type                 | Description                                                                       |
+> |-----------------------|----------------------|-----------------------------------------------------------------------------------|
+> | `group`               | String               | **Mandatory** Documentation's group                                               |
+> | `id`                  | String               | **Mandatory** Documentation's ID                                                  |
+> | `name`                | String               | **Mandatory** Documentation's name (shown in the UI)                              |
+> | `enabled`             | Boolean              | Whether the documentation should be shown in the UI                               |
+> | `sortIndex`           | Integer              | Sorting index for the documentation. Lower values are sorted first.               |
+> | `requiredPermissions` | List of `String`     | List of required permissions for the player to all have to see the documentation. |
+> | `compatibility`       | `Compatibility`      | Various compatibility options                                                     |
+> | `topics`              | List of `TopicEntry` | **Deprecated** and available only for mod documentation index files.              |
 
 > ### `Compatibility` object
 >

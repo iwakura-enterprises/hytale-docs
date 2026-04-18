@@ -64,6 +64,7 @@ public class DocumentationViewerService {
     private final ConfigurationService configurationService;
     private final ValidatorService validatorService;
     private final DocumentationService documentationService;
+    private final DocumentationSearchService documentationSearchService;
     private final FallbackTopicService fallbackTopicService;
     private final DocumentationViewerRenderer documentationViewerRenderer;
     private final DocumentationTreeRenderer documentationTreeRenderer;
@@ -92,7 +93,7 @@ public class DocumentationViewerService {
 
         // 1. Requested topic
         if (requestedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, requestedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
+            topicToOpen = documentationSearchService.findTopic(playerRef, documentations, requestedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
 
             // Fallback to not found topic
             if (notFoundTopicIfInvalid && topicToOpen.isEmpty()) {
@@ -104,7 +105,7 @@ public class DocumentationViewerService {
 
         // 2. Last opened topic
         if (topicToOpen.isEmpty() && lastOpenedTopicIdentifier.isPresent()) {
-            topicToOpen = documentationService.findTopic(documentations, lastOpenedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
+            topicToOpen = documentationSearchService.findTopic(playerRef, documentations, lastOpenedTopicIdentifier.get(), null, interfacePreferences.getPreferredLocaleType());
         }
 
         // 3. Default config topic
@@ -112,13 +113,13 @@ public class DocumentationViewerService {
             var currentInterfaceMode = Optional.ofNullable(interfacePreferences.getLastInterfaceMode())
                 .orElse(InterfaceMode.VOILE);
             switchToInterfaceMode = Optional.of(currentInterfaceMode);
-            topicToOpen = documentationService.getDefaultTopic(documentations.stream()
+            topicToOpen = documentationSearchService.findDefaultTopic(playerRef, documentations.stream()
                 .filter(documentation -> currentInterfaceMode.has(documentation.getType()))
                 .toList(), interfacePreferences.getPreferredLocaleType()
             );
 
             if (topicToOpen.isEmpty()) {
-                topicToOpen = documentationService.getDefaultTopic(documentations, interfacePreferences.getPreferredLocaleType());
+                topicToOpen = documentationSearchService.findDefaultTopic(playerRef, documentations, interfacePreferences.getPreferredLocaleType());
 
                 if (topicToOpen.isPresent()) {
                     switchToInterfaceMode = InterfaceMode.forType(topicToOpen.get().getDocumentation().getType());
@@ -346,7 +347,7 @@ public class DocumentationViewerService {
         switch (action) {
             case CHANGE_MODE -> {
                 var currentMode = state.getInterfaceMode();
-                var availableModes = configurationService.getDocsConfig().getAvailableInterfaceModes();
+                var availableModes = documentationSearchService.getAvailableInterfaceModes(docsContext.getPlayerRef(), docsContext.getDocumentations());
                 var nextMode = availableModes.stream()
                     .filter(mode -> currentMode != null && mode.ordinal() > currentMode.ordinal())
                     .findFirst()
@@ -375,7 +376,7 @@ public class DocumentationViewerService {
                     .filter(documentation -> docsContext.getInterfaceState().getInterfaceMode() == null || docsContext.getInterfaceState().getInterfaceMode().has(documentation.getType()))
                     .toList();
 
-                var defaultTopic = documentationService.getDefaultTopic(documentations, state.getPreferredLocaleType());
+                var defaultTopic = documentationSearchService.findDefaultTopic(docsContext.getPlayerRef(), documentations, state.getPreferredLocaleType());
                 if (defaultTopic.isPresent()) {
                     state.resetHistory();
                     state.pushToHistory(defaultTopic.get(), true);
@@ -453,7 +454,7 @@ public class DocumentationViewerService {
      */
     private Topic openTopicByIdentifier(DocumentationViewerPage page, DocsContext docsContext, String topicIdentifier) {
         var updatedDocsContext = DocsContext.of(docsContext);
-        var topic = documentationService.findTopic(docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getPreferredLocaleType())
+        var topic = documentationSearchService.findTopic(docsContext.getPlayerRef(), docsContext.getDocumentations(), topicIdentifier, docsContext.getTopic().getDocumentation(), docsContext.getInterfaceState().getPreferredLocaleType())
             .orElseGet(() -> fallbackTopicService.createTopicNotFound(docsContext.getDocumentations(), topicIdentifier));
         updatedDocsContext.getInterfaceState().setTopic(topic);
         InterfaceMode.forType(topic.getDocumentation().getType()).ifPresent(mode -> updatedDocsContext.getInterfaceState().setInterfaceMode(mode));
@@ -503,20 +504,22 @@ public class DocumentationViewerService {
         lastInterfacePreferencesForPlayer.remove(playerUuid);
         Optional.ofNullable(Universe.get().getPlayer(playerUuid))
             .ifPresentOrElse(playerRef -> {
-                var world = Universe.get().getWorld(playerRef.getWorldUuid());
-                var ref = playerRef.getReference();
+                if (playerRef.getWorldUuid() != null) {
+                    var world = Universe.get().getWorld(playerRef.getWorldUuid());
+                    var ref = playerRef.getReference();
 
-                if (world != null && ref != null) {
-                    var store = ref.getStore();
-                    world.execute(() -> {
-                        try {
-                            if (store.getComponent(ref, Components.getInterfacePreferencesComponent()) != null) {
-                                store.removeComponent(ref, Components.getInterfacePreferencesComponent());
+                    if (world != null && ref != null) {
+                        var store = ref.getStore();
+                        world.execute(() -> {
+                            try {
+                                if (store.getComponent(ref, Components.getInterfacePreferencesComponent()) != null) {
+                                    store.removeComponent(ref, Components.getInterfacePreferencesComponent());
+                                }
+                            } catch (Exception exception) {
+                                logger.error("Failed to remove interface preferences component from player's store " + playerUuid, exception);
                             }
-                        } catch (Exception exception) {
-                            logger.error("Failed to remove interface preferences component from player's store " + playerUuid, exception);
-                        }
-                    });
+                        });
+                    }
                 }
             }, () -> {
                 Universe.get().getPlayerStorage().load(playerUuid).whenCompleteAsync((holder, exception) -> {

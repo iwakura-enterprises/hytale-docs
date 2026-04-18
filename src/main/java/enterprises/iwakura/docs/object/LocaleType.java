@@ -83,8 +83,7 @@ public enum LocaleType {
             }
         }
 
-        // Fallback to English
-        return LocaleType.ENGLISH;
+        return null;
     }
 
     public static LocaleType safeValueOf(String value) {

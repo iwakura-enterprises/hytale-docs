@@ -4,29 +4,23 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
+import enterprises.iwakura.docs.service.DocumentationSearchService;
+import enterprises.iwakura.docs.util.ListUtils;
 import enterprises.iwakura.docs.util.LocaleUtils;
 import jdk.jfr.Experimental;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
  * Defines a topic inside {@link Documentation}. Can have sub-topics.
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Topic {
 
     // TODO: Image
@@ -45,6 +39,10 @@ public class Topic {
      * List of warnings
      */
     private final List<String> warnings = new ArrayList<>(); // TODO: Implement in renderer
+    /**
+     * List of required permissions
+     */
+    private final List<String> requiredPermissions = new ArrayList<>();
     /**
      * Unique ID for the topic within the {@link Documentation}
      */
@@ -78,9 +76,9 @@ public class Topic {
      */
     private @NonNull String markdownContent;
     /**
-     * Normalized Markdown content for full-text search
+     * Additional topic data
      */
-    private transient String normalizedMarkdownContent;
+    private final AdditionalTopicData additionalTopicData;
     /**
      * The documentation that the topic belongs to. Nullable.
      */
@@ -98,6 +96,41 @@ public class Topic {
     @Experimental
     private Consumer<DocsContext> topicOpenedCallback;
 
+    public Topic(
+        @NonNull String id,
+        @NonNull String name,
+        @NonNull String description,
+        @NonNull String author,
+        @NonNull LocaleType localeType,
+        int sortIndex,
+        boolean category,
+        @NonNull String markdownContent,
+        Documentation documentation,
+        List<String> requiredPermissions
+    ) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.author = author;
+        this.localeType = localeType;
+        this.sortIndex = sortIndex;
+        this.category = category;
+        this.markdownContent = markdownContent;
+        this.documentation = documentation;
+        this.requiredPermissions.addAll(ListUtils.emptyIfNull(requiredPermissions));
+
+        this.additionalTopicData = new AdditionalTopicData(
+            LocaleUtils.normalize(name),
+            LocaleUtils.normalize(markdownContent),
+            new TopicIdentifier(
+                documentation != null ? documentation.getGroup() : null,
+                documentation != null ? documentation.getId() : null,
+                id,
+                localeType
+            )
+        );
+    }
+
     /**
      * Checks whenever this topic is empty.
      *
@@ -114,7 +147,6 @@ public class Topic {
      */
     public void setMarkdownContent(String markdownContent) {
         this.markdownContent = Objects.requireNonNullElse(markdownContent, "");
-        this.normalizedMarkdownContent = null;
     }
 
     /**
@@ -230,62 +262,6 @@ public class Topic {
     }
 
     /**
-     * Checks if this topic's name/content or its sub topics' name/content is contained in the search query
-     *
-     * @param topicSearchQuery Topic search query
-     * @param fullTextSearch   If search should be done on the topic's content
-     * @param preferredLocaleType Preferred topic locale type to search in
-     *
-     * @return True if yes, false otherwise
-     */
-    public boolean searchTopic(String topicSearchQuery, LocaleType preferredLocaleType, boolean fullTextSearch) {
-        String normalizedQuery = LocaleUtils.normalize(topicSearchQuery);
-        SearchPattern searchPattern = SearchPattern.of(normalizedQuery);
-        return searchTopic(searchPattern, preferredLocaleType, fullTextSearch);
-    }
-
-    /**
-     * Checks if this topic's name/content or its sub topics' name/content is contained in the search query
-     *
-     * @param searchPattern  Pre-built {@link SearchPattern}
-     * @param fullTextSearch If search should be done on the topic's content
-     * @param preferredLocaleType Preferred topic locale type to search in
-     *
-     * @return True if yes, false otherwise
-     */
-    public boolean searchTopic(SearchPattern searchPattern, LocaleType preferredLocaleType, boolean fullTextSearch) {
-        boolean matchesTopicContent = fullTextSearch && matchesTopicContentSearch(searchPattern, preferredLocaleType);
-
-        if (matchesTopicContent || searchPattern.containedIn(LocaleUtils.normalize(this.getLocalePreferredTopic(preferredLocaleType).name))) {
-            return true;
-        } else {
-            return topics.stream().anyMatch(topic -> topic.searchTopic(searchPattern, preferredLocaleType, fullTextSearch));
-        }
-    }
-
-    /**
-     * Checks whenever the search topic query is contained in ticket's content
-     *
-     * @param searchPattern Pre-computed search pattern
-     * @param preferredLocaleType Preferred topic locale type to search in
-     *
-     * @return True if yes, false otherwise
-     */
-    private boolean matchesTopicContentSearch(SearchPattern searchPattern, LocaleType preferredLocaleType) {
-        if (category) {
-            return false; // Category has no content
-        }
-
-        var searchInTopic = this.getLocalePreferredTopic(preferredLocaleType);
-
-        if (searchInTopic.normalizedMarkdownContent == null) {
-            searchInTopic.normalizedMarkdownContent = LocaleUtils.normalize(searchInTopic.markdownContent);
-        }
-
-        return searchPattern.containedIn(searchInTopic.normalizedMarkdownContent);
-    }
-
-    /**
      * Invokes the {@link #topicOpenedCallback} if non-null
      *
      * @param context DocsContext
@@ -296,50 +272,12 @@ public class Topic {
         }
     }
 
-    /**
-     * returns first found non-category topic
-     *
-     * @return Optional of topic (empty if not found)
-     */
-    public Optional<Topic> getFirstTopic() {
-        for (Topic topic : topics) {
-            if (!topic.isCategory()) {
-                return Optional.of(topic);
-            } else {
-                var subTopic = topic.getFirstTopic();
-                if (subTopic.isPresent()) {
-                    return subTopic;
-                }
-            }
-        }
-        return Optional.empty();
-    }
+    @Data
+    @RequiredArgsConstructor
+    public static class AdditionalTopicData {
 
-    /**
-     * Gets the locale preferred topic. Returns itself, if the locale type matches, otherwise finds the matching locale
-     * topic from {@link #localizedTopics}. If no topic with the specified topic is found, uses the lowest
-     * {@link LocaleType#ordinal()} that is found in {@link #localizedTopics} and the current topic instance.
-     *
-     * @param localeType Localized type
-     *
-     * @return Non-null topic (itself or one from {@link #localizedTopics}
-     */
-    public Topic getLocalePreferredTopic(LocaleType localeType) {
-        int lowestLocalizedTopicLocaleTypeOrdinal = this.localeType.ordinal();
-        Topic lowestLocalizedTopic = this;
-        if (localeType == null || this.localeType == localeType) {
-            return this;
-        } else {
-            for (Topic localizedTopic : localizedTopics) {
-                if (localizedTopic.localeType == localeType) {
-                    return localizedTopic;
-                }
-                if (localizedTopic.localeType.ordinal() < lowestLocalizedTopicLocaleTypeOrdinal) {
-                    lowestLocalizedTopicLocaleTypeOrdinal = localizedTopic.localeType.ordinal();
-                    lowestLocalizedTopic = localizedTopic;
-                }
-            }
-        }
-        return lowestLocalizedTopic;
+        private final String normalizedName;
+        private final String normalizedMarkdownContent;
+        private final TopicIdentifier topicIdentifier;
     }
 }

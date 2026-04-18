@@ -179,6 +179,9 @@ After restarting the server, you should be able to run `/rules` command to open 
 
 To learn more, please see the following topics.
 
+! You may create administrator-only documentations that will be only visible to certain players with specific permissions.
+! For more information, check the **Documentation index file** and **Topic file** topics.
+
 <buttons>
    <button topic="documentation-index-file">Documentation index file</button>
    <button topic="topic-file">Topic file</button>

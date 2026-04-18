@@ -1,7 +1,11 @@
 package enterprises.iwakura.docs.ui.render;
 
+import java.util.List;
+
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocsContext;
+import enterprises.iwakura.docs.service.DocumentationSearchService;
+import enterprises.iwakura.docs.service.DocumentationService;
 import enterprises.iwakura.docs.service.MarkdownService;
 import enterprises.iwakura.docs.ui.render.DocumentationTreeTopicRenderer.RenderData;
 import enterprises.iwakura.docs.util.BoyerMooreSearch.SearchPattern;
@@ -14,6 +18,7 @@ public class DocumentationRenderer implements Renderer<Documentation> {
 
     private final DocumentationTreeTopicRenderer documentationTreeTopicRenderer;
     private final MarkdownService markdownService;
+    private final DocumentationSearchService documentationSearchService;
 
     @Override
     public String render(DocsContext ctx, Documentation documentation) {
@@ -42,9 +47,10 @@ public class DocumentationRenderer implements Renderer<Documentation> {
         var searchPattern = ctx.hasTopicSearchQuery() ? SearchPattern.of(ctx.getInterfaceState().getTopicSearchQuery()) : null;
         documentation.getTopics()
             .stream()
-            .filter(childTopic -> !ctx.hasTopicSearchQuery() || childTopic.searchTopic(searchPattern, ctx.getInterfaceState().getPreferredLocaleType(), ctx.getInterfaceState().isFullTextSearch()))
+            .filter(topic -> !ctx.hasTopicSearchQuery() || documentationSearchService.searchTopic(topic, searchPattern, ctx.getInterfaceState().getPreferredLocaleType(), ctx.getInterfaceState().isFullTextSearch()))
+            .filter(topic -> documentationSearchService.canSeeAnyTopic(ctx.getPlayerRef(), List.of(topic)))
             .forEach(topic -> {
-                topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, topic.getLocalePreferredTopic(ctx.getInterfaceState().getPreferredLocaleType()))));
+                topicsUI.append(documentationTreeTopicRenderer.render(ctx, new RenderData(documentation, documentationSearchService.getLocalePreferredTopic(topic, ctx.getInterfaceState().getPreferredLocaleType()))));
             });
 
         return treeUI

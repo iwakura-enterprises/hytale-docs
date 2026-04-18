@@ -102,7 +102,7 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
                     .id("%s_%s".formatted(mod.getSlug(), mod.getId()))
                     .name(mod.getName())
                     .build();
-                documentation.getAdditionalInfo().setHytaleModdingWikiMod(mod);
+                documentation.getAdditionalDocumentationData().setHytaleModdingWikiMod(mod);
                 documentation.addTopics(createIndexTopic(documentation, mod));
                 preloadDocumentation(documentation, mod, true, true);
                 return documentation;
@@ -110,15 +110,18 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
     }
 
     private Topic createIndexTopic(Documentation documentation, HMWikiMod mod) {
-        var topic = Topic.builder()
-            .id(UNLOADED_INDEX_TOPIC_ID_PREFIX + mod.getSlug())
-            .name(Optional.ofNullable(mod.getName()).orElse("Unknown mod"))
-            .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
-            .localeType(LocaleType.ENGLISH)
-            .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
-            .documentation(documentation)
-            .markdownContent("If you see this, it means that the mod does not have any pages set up. Bummer!")
-            .build();
+        var topic = new Topic(
+            UNLOADED_INDEX_TOPIC_ID_PREFIX + mod.getSlug(),
+            Optional.ofNullable(mod.getName()).orElse("Unknown mod"),
+            Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"),
+            Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"),
+            LocaleType.ENGLISH,
+            0,
+            false,
+            "If you see this, it means that the mod does not have any pages set up. Bummer!",
+            documentation,
+            List.of()
+        );
 
         if (mod.getIndexPage() != null) {
             topic.setName(mod.getIndexPage().getTitle());
@@ -150,18 +153,18 @@ public class HMWikiDocumentationLoader extends DocumentationLoader {
         HMWikiPage page
     ) {
         //logger.info("└ Creating topic for page " + page.getSlug());
-
-        var topic = Topic.builder()
-            .id(Optional.ofNullable(page.getSlug()).orElseGet(() -> UUID.randomUUID().toString()))
-            .localeType(LocaleType.ENGLISH)
-            .author(Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"))
-            .name(Optional.ofNullable(page.getTitle()).orElse("Unnamed page"))
-            .description(Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"))
-            .documentation(documentation)
-            .sortIndex(mod.getIndexPage() != null && Objects.equals(mod.getIndexPage().getId(), page.getId()) ? -1 : 0)
-            .markdownContent("")
-            .category(page.isCategory())
-            .build();
+        var topic = new Topic(
+            Optional.ofNullable(page.getSlug()).orElseGet(() -> UUID.randomUUID().toString()),
+            Optional.ofNullable(page.getTitle()).orElse("Unnamed page"),
+            Optional.ofNullable(mod.getDescription()).orElse("Hytale Modding Wiki"),
+            Optional.ofNullable(mod.getAuthor()).map(User::getName).orElse("Unknown author"),
+            LocaleType.ENGLISH,
+            0,
+            page.isCategory(),
+            "",
+            documentation,
+            List.of()
+        );
 
         topic.setTopicOpenedCallback(context -> loadTopicPageContent(topic, mod, page));
 

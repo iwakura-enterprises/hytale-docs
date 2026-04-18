@@ -11,6 +11,7 @@ import lombok.Data;
  * as from a normal file system.
  */
 @Data
+@Deprecated
 public class AssetDocumentationIndexConfig {
 
     private final List<AssetDocumentationConfig> documentations = new ArrayList<>();

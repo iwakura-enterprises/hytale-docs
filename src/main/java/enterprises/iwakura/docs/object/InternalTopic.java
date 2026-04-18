@@ -1,5 +1,7 @@
 package enterprises.iwakura.docs.object;
 
+import java.util.List;
+
 public class InternalTopic extends Topic {
 
     public InternalTopic(String idSuffix, String name, String description, String content) {
@@ -12,7 +14,6 @@ public class InternalTopic extends Topic {
             0,
             false,
             content,
-            null,
             new Documentation(
                 "voile",
                 "internal_voile_documentation",
@@ -20,8 +21,7 @@ public class InternalTopic extends Topic {
                 DocumentationType.INTERNAL,
                 0
             ),
-            null,
-            null
+            List.of()
         );
     }
 }

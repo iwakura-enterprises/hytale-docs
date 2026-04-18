@@ -57,7 +57,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 // Classic Hytale container
                 @Container #WindowContainer {
                     Anchor: (Width: 1850, Height: 990);
-                    
+
 
                     // Title for the container (from @Container)
                     #Title {

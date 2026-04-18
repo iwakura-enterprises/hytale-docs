@@ -18,6 +18,7 @@ public class DocumentationConfig {
     private String name;
     private boolean enabled = true;
     private int sortIndex;
+    private List<String> requiredPermissions;
     private Compatibility compatibility = new Compatibility();
 
     /**
@@ -37,7 +38,7 @@ public class DocumentationConfig {
             throw new IllegalArgumentException("Documentation config cannot have empty name!");
         }
 
-        return new Documentation(group, id, name, type, sortIndex);
+        return new Documentation(group, id, name, type, sortIndex, requiredPermissions);
     }
 
     @Override

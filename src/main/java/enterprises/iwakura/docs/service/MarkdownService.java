@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor;
@@ -18,7 +18,6 @@ import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 
 import enterprises.iwakura.docs.config.TopicConfig;
-import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.LocaleType;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
@@ -186,8 +185,9 @@ public class MarkdownService {
         topic.setSortIndex(Integer.parseInt(getFirstOrThrow(metadata, "sort-index", "0")));
         topic.setCategory(Boolean.parseBoolean(getFirstOrThrow(metadata, "category", "false")));
         topic.setSubTopics(metadata.get("sub-topics"));
+        topic.setRequiredPermissions(metadata.get("required-permissions"));
         topic.setMarkdownContent(stripFrontMatter(markdownFileContent));
-        topic.setLocaleType(LocaleType.byCode(getFirstOrThrow(metadata, "locale", fileLocale)));
+        topic.setLocaleType(Optional.ofNullable(LocaleType.byCode(getFirstOrThrow(metadata, "locale", fileLocale))).orElse(LocaleType.ENGLISH));
         return topic;
     }
 

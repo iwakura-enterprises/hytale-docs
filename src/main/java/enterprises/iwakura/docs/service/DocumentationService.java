@@ -13,7 +13,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.google.gson.Gson;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.DocsPlugin;
@@ -33,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DocumentationService {
 
+    private final DocumentationSearchService documentationSearchService;
     private final ConfigurationService configurationService;
     private final MarkdownService markdownService;
     private final Gson gson;
@@ -203,152 +207,5 @@ public class DocumentationService {
                 .thenComparing(Documentation::getSortIndex, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(Documentation::getName))
             .toList();
-    }
-
-    /**
-     * Returns default topic specified in documentation index. If none is specified, the first topic is returned.
-     *
-     * @param documentations Documentations to find the default configured topic
-     * @param preferredLocaleType Preferred locale type to use when finding default topic
-     *
-     * @return Optional topic (empty if no topics were loaded)
-     */
-    public Optional<Topic> getDefaultTopic(List<Documentation> documentations, LocaleType preferredLocaleType) {
-        if (documentations.isEmpty()) {
-            return Optional.empty();
-        }
-
-        var docsConfig = configurationService.getDocsConfig();
-        if (docsConfig.getDefaultTopicIdentifier() != null) {
-            var defaultTopic = findTopic(documentations, docsConfig.getDefaultTopicIdentifier(), null, preferredLocaleType);
-            if (defaultTopic.isPresent()) {
-                return defaultTopic;
-            }
-        }
-
-        // First found topic
-        for (Documentation documentation : documentations) {
-            Optional<Topic> firstTopic = documentation.getFirstTopic();
-            if (firstTopic.isPresent()) {
-                return firstTopic;
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Finds a topic based on a colon-separated identifier string.
-     * <p>
-     * The topic string supports the following formats:
-     * <ul>
-     *   <li>{@code topicId} - searches for topic by ID only</li>
-     *   <li>{@code groupOrId:topicId} - searches for topic within a documentation matching group or ID</li>
-     *   <li>{@code group:documentationId:topicId} - searches for topic within a specific documentation group and
-     *   ID</li>
-     * </ul>
-     *
-     * @param documentations         Documentations to search in
-     * @param topicIdentifier        the topic identifier string, using colons as delimiters
-     * @param preferredDocumentation The preferred documentation to look first if topic identifier does not specify
-     *                               documentation group or id
-     * @param preferredLocaleType The preferred locale type to use, falls back to any other locale based on {@link LocaleType#ordinal()}
-     *
-     * @return an {@link Optional} containing the found {@link Topic}, or empty if not found
-     *
-     * @see #findTopic(List, String, String, String, LocaleType, boolean)
-     */
-    public Optional<Topic> findTopic(
-        List<Documentation> documentations,
-        String topicIdentifier,
-        Documentation preferredDocumentation,
-        LocaleType preferredLocaleType
-    ) {
-        boolean documentationGroupOrId = false;
-        String documentationGroup = null;
-        String documentationId = null;
-        String topicId = null;
-        LocaleType localeType = preferredLocaleType;
-        String[] openTopicData = topicIdentifier.split(":");
-
-        if (openTopicData.length == 1) {
-            topicId = openTopicData[0];
-            if (preferredDocumentation != null) {
-                documentationGroup = preferredDocumentation.getGroup();
-                documentationId = preferredDocumentation.getId();
-            }
-        } else if (openTopicData.length == 2) {
-            documentationGroup = openTopicData[0];
-            documentationId = openTopicData[0];
-            topicId = openTopicData[1];
-            documentationGroupOrId = true;
-        } else if (openTopicData.length >= 3) {
-            if (openTopicData.length > 3) {
-                logger.warn("Incorrect topic identifier! Expected maximum of two colons: " + topicIdentifier);
-            }
-            documentationGroup = openTopicData[0];
-            documentationId = openTopicData[1];
-            topicId = openTopicData[2];
-        }
-
-        if (topicId == null) {
-            return Optional.empty();
-        }
-
-        if (topicId.contains("$")) {
-            var topicIdWithLocale = topicId.split("\\$");
-            topicId = topicIdWithLocale[0];
-            // Always override preferred locale type if specifically specified
-            localeType = LocaleType.byCode(topicIdWithLocale[1]);
-        }
-
-        var optionalTopic = findTopic(documentations, documentationGroup, documentationId, topicId, localeType, documentationGroupOrId);
-
-        if (optionalTopic.isEmpty() && openTopicData.length == 1) {
-            // try searching without the preferred documentation
-            optionalTopic = findTopic(documentations, null, null, topicId, localeType, false);
-        }
-
-        return optionalTopic;
-    }
-
-    /**
-     * Finds topic specified by the parameters
-     *
-     * @param documentations         Documentations to search in
-     * @param documentationGroup     Optional documentation group
-     * @param documentationId        Optional documentation ID
-     * @param topicId                Topic ID
-     * @param documentationGroupOrId If search should be done loosely on documentation group / id
-     * @param preferredLocaleType    Preferred locale type
-     *
-     * @return Optional topic
-     */
-    public Optional<Topic> findTopic(
-        List<Documentation> documentations, String documentationGroup,
-        String documentationId,
-        String topicId,
-        LocaleType preferredLocaleType,
-        boolean documentationGroupOrId
-    ) {
-        if (topicId == null) {
-            logger.warn("topicId cannot be null when invoking #findTopic()!");
-            return Optional.empty();
-        }
-        return documentations.stream()
-            .filter(documentation -> {
-                if (documentationGroupOrId) {
-                    return (documentationGroup == null || documentation.getGroup().equals(documentationGroup)
-                        || documentationGroup.equals(documentationId))
-                        && (documentationId == null || documentation.getId().equals(documentationId)
-                        || documentation.getGroup().equals(documentationGroup));
-                } else {
-                    return (documentationGroup == null || documentation.getGroup().equals(documentationGroup))
-                        && (documentationId == null || documentation.getId().equals(documentationId));
-                }
-            })
-            .map(documentation -> documentation.findTopicById(topicId).orElse(null))
-            .filter(Objects::nonNull)
-            .map(topic -> topic.getLocalePreferredTopic(preferredLocaleType))
-            .findFirst();
     }
 }

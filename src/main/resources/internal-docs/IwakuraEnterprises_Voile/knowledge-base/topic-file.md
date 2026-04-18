@@ -82,22 +82,26 @@ author: Myself
 locale-type: cs
 sort-index: -57
 category: false
+required-permissions:
+  - Creative
+  - my-permission
 sub-topics:
   - other-topic-id
   - directory-name
 ---
 ```
 
-| Field         | Type                   | Description                                                                                                                                                         |
-|---------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`          | String                 | Topic's ID. If specified, overrides the topic's ID extracted from the file name.                                                                                        |
-| `name`        | String                 | **Mandatory** Topic's name. Shown in the documentation tree and when a player opens the topic.                                                                        |
-| `description` | String                 | Topic's description. Shown when a player opens the topic.                                                                                                             |
-| `author`      | String                 | Topic's author. Shown when a player opens the topic.                                                                                                                  |
-| `sort-index`  | Integer                | Sorting index for the topic. Lower values are sorted first.                                                                                                         |
-| `category`    | Boolean                | Whether the topic should be considered as a category. Category topics are rendered with a bold name and are unclickable.                                           |
-| `locale-type` | String (language code) | Topic's locale. If specified, overrides the topic's locale extracted from the file name, if it was supplied.                                                            |
-| `sub-topics`  | List of String         | List of sub-topics for this topic. May specify other topic IDs or a folder name to include all topics within the folder. The folder must be next to the topic file. |
+| Field                  | Type                   | Description                                                                                                                                                             |
+|------------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`                   | String                 | Topic's ID. If specified, overrides the topic's ID extracted from the file name.                                                                                        |
+| `name`                 | String                 | **Mandatory** Topic's name. Shown in the documentation tree and when a player opens the topic.                                                                          |
+| `description`          | String                 | Topic's description. Shown when a player opens the topic.                                                                                                               |
+| `author`               | String                 | Topic's author. Shown when a player opens the topic.                                                                                                                    |
+| `sort-index`           | Integer                | Sorting index for the topic. Lower values are sorted first.                                                                                                             |
+| `category`             | Boolean                | Whether the topic should be considered as a category. Category topics are rendered with a bold name and are unclickable.                                                |
+| `locale-type`          | String (language code) | Topic's locale. If specified, overrides the topic's locale extracted from the file name, if it was supplied.                                                            |
+| `required-permissions` | List of String         | List of required permissions for the player to all have to see the topic. If player does not have the required permissions, the sub-topics won't be accessible as well. |
+| `sub-topics`           | List of String         | List of sub-topics for this topic. May specify other topic IDs or a folder name to include all topics within the folder. The folder must be next to the topic file.     |
 
 !! The `sub-topics` field can reference topics only in the current documentation. Topic identifiers (not IDs) are not supported.
 
