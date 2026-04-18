@@ -5,6 +5,14 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.3
+
+### Minor
+- Added support for disabling entire documentations and specific topics for server owners. See the **Configuration** topic for more information.
+- Added support for permission-gated documentations and topics. See the **Documentation index file** and **Topic file** topics for more information.
+- Refactored search functionality in Voile. Searching is now more performant and has less impact on the overall server stability and performance.
+- Refactored how topic identifiers are parsed using REGEX.
+
 # 1.11.2
 
 ### Minor
