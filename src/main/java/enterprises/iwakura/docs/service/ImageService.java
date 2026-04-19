@@ -196,7 +196,8 @@ public class ImageService {
         return responseInfo -> {
             var contentLength = responseInfo.headers().firstValueAsLong("Content-Length").orElse(-1L);
             if (contentLength > maxBytes) {
-                throw new RuntimeException("Content-Length " + contentLength + " exceeds limit of " + maxBytes + " bytes");
+                throw new RuntimeException(
+                    "Content-Length %.2f KB exceeds limit of %.2f KB (to increase see config.json -> runtimeImageAssets.maxImageDownloadFileSizeKb)".formatted(contentLength / 1024.0, maxBytes / 1024.0));
             }
             return limitedBodySubscriber(maxBytes);
         };
@@ -219,7 +220,9 @@ public class ImageService {
                 long chunk = buffers.stream().mapToLong(ByteBuffer::remaining).sum();
                 if (received.addAndGet(chunk) > maxBytes) {
                     subscription.cancel();
-                    delegate.onError(new RuntimeException("Response body exceeds limit of " + maxBytes + " bytes"));
+                    delegate.onError(new RuntimeException(
+                        "Content-Length %.2f KB exceeds limit of %.2f KB (to increase see config.json -> runtimeImageAssets.maxImageDownloadFileSizeKb)".formatted(received.get() / 1024.0, maxBytes / 1024.0)
+                    ));
                     return;
                 }
                 delegate.onNext(buffers);
