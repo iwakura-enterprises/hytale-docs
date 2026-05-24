@@ -531,7 +531,7 @@ public class DocumentationViewerService {
                     try {
                         if (holder.getComponent(Components.getInterfacePreferencesComponent()) != null) {
                             holder.removeComponent(Components.getInterfacePreferencesComponent());
-                            Universe.get().getPlayerStorage().save(playerUuid, holder);
+                            Universe.get().getPlayerStorage().save(playerUuid, holder, true);
                         }
                     } catch (Exception exceptionHolder) {
                         logger.error("Failed to remove interface preferences component from player's holder " + playerUuid, exceptionHolder);

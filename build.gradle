@@ -1,23 +1,33 @@
 plugins {
     id 'java'
     id("com.gradleup.shadow") version "9.3.1"
-    id("app.ultradev.hytalegradle") version "1.4.3"
 }
 
 group = 'enterprises.iwakura'
-version = '1.11.3'
+version = '1.11.3-beta.0'
 def serverPatchLine = "release"
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://maven.hytale-modding.info/releases' }
+    repositories {
+        maven {
+            name = "hytale-release"
+            url = "https://maven.hytale.com/release"
+        }
+        maven {
+            name = "hytale-pre-release"
+            url = "https://maven.hytale.com/pre-release"
+        }
+    }
     flatDir {
         dir 'libs'
     }
 }
 
 dependencies {
+    compileOnly 'com.hypixel.hytale:Server:0.5.0-pre.9.1'
     implementation (name: 'HytaleUIParser-3.0.1')
     implementation (name: 'HytaleUIParser-Spec-3.0.1')
 
@@ -63,18 +73,6 @@ shadowJar {
 
 test {
     useJUnitPlatform()
-}
-
-
-hytale {
-    // Use optional custom hytale installation directory
-    if (project.hasProperty('hytaleInstallationDir')) {
-        basePath.set(file(project.property('hytaleInstallationDir') + "/install/" + serverPatchLine + "/package/game/latest"))
-    }
-
-    // Configure build for release
-    allowOp.set(true)
-    patchline.set(serverPatchLine)
 }
 
 def generatedSrcDir = "${buildDir}/generated-src/main/java"

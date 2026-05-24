@@ -1,7 +1,5 @@
 package enterprises.iwakura.docs.util;
 
-import com.hypixel.hytale.math.vector.Vector2d;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

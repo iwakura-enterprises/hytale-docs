@@ -14,7 +14,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import com.hypixel.hytale.common.util.ArrayUtil;
-import com.hypixel.hytale.math.vector.Vector2d;
 import com.hypixel.hytale.protocol.ToClientPacket;
 import com.hypixel.hytale.protocol.packets.setup.AssetFinalize;
 import com.hypixel.hytale.protocol.packets.setup.AssetInitialize;
@@ -25,12 +24,12 @@ import com.hypixel.hytale.server.core.asset.common.CommonAssetRegistry;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import enterprises.iwakura.docs.DocsPlugin;
-import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.PlayerRuntimeImageAssets;
 import enterprises.iwakura.docs.object.ResolvedImageCommonAsset;
 import enterprises.iwakura.docs.object.RuntimeImageAsset;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
+import enterprises.iwakura.docs.util.Vector2d;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

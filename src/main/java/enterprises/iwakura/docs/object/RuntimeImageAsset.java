@@ -4,8 +4,7 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.hypixel.hytale.math.vector.Vector2d;
-
+import enterprises.iwakura.docs.util.Vector2d;
 import lombok.Data;
 
 /**

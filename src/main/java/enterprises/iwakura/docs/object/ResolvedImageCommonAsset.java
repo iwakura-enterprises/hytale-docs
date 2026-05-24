@@ -1,7 +1,6 @@
 package enterprises.iwakura.docs.object;
 
-import com.hypixel.hytale.math.vector.Vector2d;
-
+import enterprises.iwakura.docs.util.Vector2d;
 import lombok.Data;
 
 @Data

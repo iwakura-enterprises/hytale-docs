@@ -10,20 +10,17 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-
-import com.hypixel.hytale.math.vector.Vector2d;
 
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.CacheIndex.Entry.CacheFileType;
 import enterprises.iwakura.docs.util.Logger;
+import enterprises.iwakura.docs.util.Vector2d;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.RequiredArgsConstructor;
 
