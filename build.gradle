@@ -71,6 +71,11 @@ shadowJar {
     mergeServiceFiles()
 }
 
+task deployToMods(type: Copy, dependsOn: shadowJar) {
+    from(shadowJar.archiveFile)
+    into 'run/mods'
+}
+
 test {
     useJUnitPlatform()
 }
