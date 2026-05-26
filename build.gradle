@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.hypixel.hytale:Server:0.5.0-pre.9.1'
+    compileOnly 'com.hypixel.hytale:Server:0.5.0'
     implementation (name: 'HytaleUIParser-3.0.1')
     implementation (name: 'HytaleUIParser-Spec-3.0.1')
 
