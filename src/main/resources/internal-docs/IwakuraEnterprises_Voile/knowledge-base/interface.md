@@ -107,3 +107,13 @@ If an error occurs while rendering the topic's content, the error message will b
 
 On the right side, a tree of chapters for the currently opened topic is visible. This tree is purely visual and currently
 does not have any functionality.
+
+# Mod Integration
+
+Other mods may open Voile's interface using the `VoileAPI` class.
+
+| Method                                       | Description                                                                                                                                                          |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `#openInterface(PlayerRef)`                  | Opens the interface with the last opened topic and player's interface settings                                                                                       |
+| `#openInterface(PlayerRef, String, boolean)` | Opens the interface with specified topic identifier. Also allows you to choose whenever **Not Found** topic should be visible if the specified topic does not exist. |
+| `#openInterface(PlayerRef, DocsContext)`     | Opens the interface with specified DocsContext. This method is reserved for experienced modders.                                                                     |

@@ -1,14 +1,19 @@
 package enterprises.iwakura.docs;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 
+import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.service.DocumentationService;
+import enterprises.iwakura.docs.service.DocumentationViewerService;
 import enterprises.iwakura.docs.service.loader.DirectDocumentationLoader;
 import enterprises.iwakura.docs.service.loader.DocumentationLoader;
-import enterprises.iwakura.docs.service.loader.ResourcesDocumentationLoader;
+import enterprises.iwakura.docs.service.loader.UniversalDocumentationLoader;
 import enterprises.iwakura.docs.util.Logger;
 import enterprises.iwakura.sigewine.core.annotations.Bean;
 import lombok.NonNull;
@@ -20,8 +25,8 @@ public class VoileAPI {
 
     private static VoileAPI instance;
 
-    private final Logger logger;
     private final DocumentationService documentationService;
+    private final DocumentationViewerService documentationViewerService;
 
     /**
      * Returns the {@link VoileAPI} instance
@@ -46,6 +51,60 @@ public class VoileAPI {
     }
 
     /**
+     * Opens Voile's interface for the specified player. This respects player's last opened topic, settings, etc.
+     *
+     * @param playerRef Player Ref
+     *
+     * @return Completable future with Boolean that detonates whenever the interface was successfully opened.
+     *
+     * @see #openInterface(PlayerRef, String, boolean)
+     */
+    public CompletableFuture<Boolean> openInterface(PlayerRef playerRef) {
+        return documentationViewerService.openFor(playerRef, DocsContext.empty(playerRef));
+    }
+
+    /**
+     * Opens Voile's interface for the specified player with the specified topic identifier. See documentation how to
+     * define a topic identifier.
+     *
+     * @param playerRef              Player Ref
+     * @param topicIdentifier        Topic identifier
+     * @param notFoundTopicIfInvalid Whenever "Not Found" topic should be displayed whenever the specified topic
+     *                               identifier is invalid/unknown.
+     *
+     * @return Completable future with Boolean that detonates whenever the interface was successfully opened (returns
+     * true even if the topic identifier is not found)
+     *
+     * @see #openInterface(PlayerRef)
+     */
+    public CompletableFuture<Boolean> openInterface(
+        PlayerRef playerRef,
+        String topicIdentifier,
+        boolean notFoundTopicIfInvalid
+    ) {
+        return documentationViewerService.openFor(playerRef, Optional.ofNullable(topicIdentifier), notFoundTopicIfInvalid);
+    }
+
+    /**
+     * Opens Voile's interface for the specified player with the specified {@link DocsContext}. This method is designed
+     * for experienced Voile-supporting mods that want to be able to configure the
+     * {@link enterprises.iwakura.docs.object.InterfaceState} in the context. Be careful when using this method!
+     *
+     * @param playerRef   Player Ref
+     * @param docsContext Docs Context
+     *
+     * @return Completable future with Boolean that detonates whenever the interface was successfully opened
+     *
+     * @see #openInterface(PlayerRef, String, boolean)
+     * @see #openInterface(PlayerRef)
+     * @deprecated Unstable API, may or may not crash the server or kick the player when incorrectly used.
+     */
+    @Deprecated
+    public CompletableFuture<Boolean> openInterface(PlayerRef playerRef, DocsContext docsContext) {
+        return documentationViewerService.openFor(playerRef, docsContext);
+    }
+
+    /**
      * <p>Registers your {@link DocumentationLoader} that loads documentations.</p>
      * <p>
      * There are multiple predefined implementations of {@link DocumentationLoader} you may use:
@@ -53,14 +112,10 @@ public class VoileAPI {
      *         <li>
      *             {@link DirectDocumentationLoader} that loads programmatically passed list of {@link Documentation}.
      *              The easiest way to register documentations.
-     *              </li>
-     *         <li>
-     *             {@link ResourcesDocumentationLoader} that loads documentations from specific index.json inside your
-     *             plugin's resources. This allows you to create Markdown files right in the resources. See
-     *             <a href="https://docs.iwakura.enterprises/hytale-docs.html">documentation page</a>
-     *             or its javadocs for
-     *             more info, as it requires specific setup.
-     *         </li>
+     *          </li>
+     *          <li>
+     *          {@link UniversalDocumentationLoader} that loads the documentation from specified index {@link java.nio.file.Path}
+     *          </li>
      *     </ul>
      * </p>
      *

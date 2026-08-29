@@ -155,6 +155,19 @@ If you still don't know why it isn't working, feel free to get support at &9&lht
     <button url="https://support.voile.dev">Support</button>
 </buttons>
 
+# Opening Voile's interface programmatically
+
+Other mods may open Voile's interface using the `VoileAPI` class. These methods do not check player's permission.
+
+To access this class, please, include Voile as compile-time dependency to your mod.
+
+| Method                                       | Description                                                                                                                                                          |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `#openInterface(PlayerRef)`                  | Opens the interface with the last opened topic and player's interface settings                                                                                       |
+| `#openInterface(PlayerRef, String, boolean)` | Opens the interface with specified topic identifier. Also allows you to choose whenever **Not Found** topic should be visible if the specified topic does not exist. |
+| `#openInterface(PlayerRef, DocsContext)`     | Opens the interface with specified DocsContext. This method is reserved for experienced modders.                                                                     |
+
+
 # Further reading
 
 To learn more, please see the following topics.

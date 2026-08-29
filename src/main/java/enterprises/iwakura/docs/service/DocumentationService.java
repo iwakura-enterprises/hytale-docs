@@ -21,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import enterprises.iwakura.docs.VoileAPI;
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.config.DocumentationIndexConfig;
+import enterprises.iwakura.docs.object.DocsContext;
 import enterprises.iwakura.docs.object.Documentation;
 import enterprises.iwakura.docs.object.DocumentationType;
 import enterprises.iwakura.docs.object.LoaderContext;
