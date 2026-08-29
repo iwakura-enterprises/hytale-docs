@@ -5,6 +5,17 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.5
+
+### Minor
+- Updated to Hytale `0.6.2`
+- Voile now supports versions `>=0.6.0 <0.7.0`
+- Fixed runtime image asset service
+  - Improved runtime asset reloading strategy
+- Updated HStats class
+- Config option `voileCommandRequiresPermission` now works without restarting the server
+- Added support for other mods to open Voile's interface programmatically, see **Mod Integration** topic for more info.
+
 # 1.11.4
 
 ### Minor
