@@ -35,6 +35,9 @@ public class HStats {
     private final String URL_BASE = "https://api.hstats.dev/api/";
     private final boolean DEBUG = false; // This is for development purposes only
 
+    private final int CONNECT_TIMEOUT_MS = 5000;
+    private final int READ_TIMEOUT_MS = 5000;
+
     private final String modUUID;
     private final String modVersion;
     private final String serverUUID;
@@ -56,9 +59,8 @@ public class HStats {
             return; // Metrics disabled by server owner
         }
 
-        logMetrics();
-        addModToServer();
-        HytaleServer.SCHEDULED_EXECUTOR.scheduleAtFixedRate(this::logMetrics, 5, 5, TimeUnit.MINUTES);
+        HytaleServer.SCHEDULED_EXECUTOR.scheduleAtFixedRate(this::logMetrics, 0, 5, TimeUnit.MINUTES);
+        HytaleServer.SCHEDULED_EXECUTOR.execute(this::addModToServer);
     }
 
     public HStats(String modUUID) {
@@ -112,12 +114,15 @@ public class HStats {
     }
 
     private void sendRequest(String urlString, Map<String, String> arguments) {
+        HttpURLConnection http = null;
         try {
             URL url = URI.create(urlString).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http = (HttpURLConnection) url.openConnection();
 
             http.setRequestMethod("POST");
             http.setDoOutput(true);
+            http.setConnectTimeout(CONNECT_TIMEOUT_MS);
+            http.setReadTimeout(READ_TIMEOUT_MS);
             http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
             StringJoiner sj = new StringJoiner("&");
@@ -138,17 +143,25 @@ public class HStats {
             InputStream is = (code >= 200 && code < 300) ? http.getInputStream() : http.getErrorStream();
             String body = (is != null) ? new String(is.readAllBytes(), StandardCharsets.UTF_8) : "";
 
-            if (DEBUG)
-                System.out.println("Metrics POST -> " + code + " " + body);
+            if (DEBUG) System.out.println("Metrics POST -> " + code + " " + body);
 
             http.disconnect();
         } catch (Exception e) {
-            // pass
+            if (DEBUG)
+                System.out.println("[HStats] Metrics request failed: " + e.getMessage());
+        } finally {
+            if (http != null) {
+                http.disconnect();
+            }
         }
     }
 
     private int getOnlinePlayerCount() {
-        return Universe.get().getPlayerCount();
+        try {
+            return Universe.get() != null ? Universe.get().getPlayerCount() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
 }

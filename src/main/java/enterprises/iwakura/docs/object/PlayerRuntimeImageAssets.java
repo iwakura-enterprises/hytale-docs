@@ -1,6 +1,7 @@
 package enterprises.iwakura.docs.object;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class PlayerRuntimeImageAssets {
 
     private final UUID playerUuid;
     private final ConcurrentSkipListMap<Integer, UUID> indexToFileId = new ConcurrentSkipListMap<>();
+    private final Map<Integer, RuntimeCommonAsset> indexToCommonAsset = Collections.synchronizedMap(new HashMap<>());
     private final Set<Integer> pendingIndexes = Collections.synchronizedSet(new HashSet<>());
 
     /**
@@ -58,7 +60,15 @@ public class PlayerRuntimeImageAssets {
 
     public void removeFileIds(List<UUID> fileIdsToRemove) {
         synchronized (indexToFileId) {
-            indexToFileId.entrySet().removeIf(entry -> fileIdsToRemove.contains(entry.getValue()));
+            indexToFileId.entrySet().removeIf(entry -> {
+                if (!fileIdsToRemove.contains(entry.getValue())) {
+                    return false;
+                }
+
+                indexToCommonAsset.remove(entry.getKey());
+                pendingIndexes.remove(entry.getKey());
+                return true;
+            });
         }
     }
 }

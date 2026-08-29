@@ -4,32 +4,51 @@ plugins {
 }
 
 group = 'enterprises.iwakura'
-version = '1.11.4'
+version = '1.11.5'
 def serverPatchLine = "release"
+def hytaleGroup = 'com.hypixel.hytale'
+def hytaleModule = 'Server'
+def hytaleVersion = '0.6.2'
+def vineflowerJar = file('libs/vineflower-1.12.0.jar')
+def localRepoDir = file("$projectDir/local-repo")
+def decompileThreads = 24
+
+configurations {
+    hytaleServerJar {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
+}
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://maven.hytale-modding.info/releases' }
-    repositories {
-        maven {
-            name = "hytale-release"
-            url = "https://maven.hytale.com/release"
-        }
-        maven {
-            name = "hytale-pre-release"
-            url = "https://maven.hytale.com/pre-release"
-        }
+    maven {
+        name = "hytale-release"
+        url = "https://maven.hytale.com/release"
+    }
+    maven {
+        name = "hytale-pre-release"
+        url = "https://maven.hytale.com/pre-release"
     }
     flatDir {
         dir 'libs'
     }
+    maven {
+        name = 'decompiled-local'
+        url = uri("$projectDir/local-repo")
+        mavenContent { includeModule(hytaleGroup, hytaleModule) }
+        metadataSources { mavenPom(); artifact() }
+    }
 }
 
 dependencies {
-    compileOnly 'com.hypixel.hytale:Server:0.5.1'
-    implementation (name: 'HytaleUIParser-3.0.1')
-    implementation (name: 'HytaleUIParser-Spec-3.0.1')
+    compileOnly "$hytaleGroup:$hytaleModule:$hytaleVersion"
+    hytaleServerJar "$hytaleGroup:$hytaleModule:$hytaleVersion"
+    implementation(name: 'HytaleUIParser-3.0.1')
+    implementation(name: 'HytaleUIParser-Spec-3.0.1')
 
     // MiniMessage but Hytale
     implementation 'com.github.InsiderAnh:TaleMessage:1.0.2'
@@ -119,3 +138,96 @@ sourceSets {
 
 // Make sure version class is generated before compilation
 compileJava.dependsOn generateVersionClass
+
+// Hytale Server decompilation
+
+def hytaleJarProvider = providers.provider { configurations.hytaleServerJar.singleFile }
+def hytaleOutProvider = hytaleJarProvider.map { jar ->
+    def parent = jar.parentFile
+    parent.canWrite() ? new File(parent, 'out')
+            : layout.buildDirectory.dir('decompiled').get().asFile
+}
+def hytaleSrcProvider = hytaleOutProvider.map { out ->
+    def maybeJar = new File(out, "${hytaleModule}-${hytaleVersion}.jar")
+    maybeJar.exists() ? maybeJar : out
+}
+
+tasks.register('decompileHytaleServer', JavaExec) {
+    group = 'hytale'
+
+    def externals = configurations.compileClasspath
+
+    classpath = files(vineflowerJar)
+    mainClass.set('org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler')
+    maxHeapSize = '16G'
+
+    inputs.file(vineflowerJar)
+    inputs.file(hytaleJarProvider)
+    outputs.dir(hytaleOutProvider)
+
+    doFirst {
+        if (!vineflowerJar.exists()) {
+            throw new GradleException("Missing ${vineflowerJar} in libs/")
+        }
+        hytaleOutProvider.get().mkdirs()
+    }
+
+    argumentProviders.add({
+        def jar = hytaleJarProvider.get()
+        def out = hytaleOutProvider.get()
+
+        def args = [
+                "--thread-count=$decompileThreads".toString(),
+                '--include-runtime=current',
+                '--decompiler-comments=1',
+                '-dgs=1',
+                '-din=1',
+                '-das=1',
+                '-rsy=1',
+                '-rbr=1',
+                '-sef=1',
+                '-hdc=1',
+                '-ump=1',
+                '-asc=1',
+                '-nls=1',
+                '-ind=    ',
+                '-log=WARN'
+        ]
+
+        externals.files.findAll { it != jar }.each { args << "-e=${it.absolutePath}".toString() }
+
+        args << jar.absolutePath
+        args << out.absolutePath
+        args
+    } as org.gradle.process.CommandLineArgumentProvider)
+}
+
+tasks.register('packHytaleServerSources', Zip) {
+    group = 'hytale'
+    dependsOn 'decompileHytaleServer'
+
+    from(hytaleSrcProvider.map { it.isDirectory() ? fileTree(it) : zipTree(it) }) {
+        include '**/*.java'
+    }
+
+    archiveFileName = "${hytaleModule}-${hytaleVersion}-sources.jar"
+    destinationDirectory = layout.buildDirectory.dir('hytale')
+}
+
+tasks.register('installHytaleServerSources', Copy) {
+    group = 'hytale'
+    dependsOn 'packHytaleServerSources'
+
+    onlyIf { !hytaleJarProvider.get().absolutePath.startsWith(localRepoDir.absolutePath) }
+
+    from(hytaleJarProvider)
+    from(tasks.named('packHytaleServerSources'))
+    from(hytaleJarProvider.map { jar -> fileTree(jar.parentFile.parentFile).matching { include '**/*.pom' } })
+
+    into new File(localRepoDir, "${hytaleGroup.replace('.', '/')}/$hytaleModule/$hytaleVersion")
+}
+
+tasks.register('setupHytaleSources') {
+    group = 'hytale'
+    dependsOn 'installHytaleServerSources'
+}

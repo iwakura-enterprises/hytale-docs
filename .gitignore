@@ -47,3 +47,4 @@ build/
 run/
 .gradle/
 gradle.properties
+local-repo/

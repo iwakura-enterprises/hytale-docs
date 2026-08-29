@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
@@ -18,7 +20,6 @@ import com.hypixel.hytale.protocol.ToClientPacket;
 import com.hypixel.hytale.protocol.packets.setup.AssetFinalize;
 import com.hypixel.hytale.protocol.packets.setup.AssetInitialize;
 import com.hypixel.hytale.protocol.packets.setup.AssetPart;
-import com.hypixel.hytale.protocol.packets.setup.RequestCommonAssetsRebuild;
 import com.hypixel.hytale.server.core.asset.common.CommonAsset;
 import com.hypixel.hytale.server.core.asset.common.CommonAssetRegistry;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
@@ -26,6 +27,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import enterprises.iwakura.docs.DocsPlugin;
 import enterprises.iwakura.docs.object.PlayerRuntimeImageAssets;
 import enterprises.iwakura.docs.object.ResolvedImageCommonAsset;
+import enterprises.iwakura.docs.object.RuntimeCommonAsset;
 import enterprises.iwakura.docs.object.RuntimeImageAsset;
 import enterprises.iwakura.docs.object.Topic;
 import enterprises.iwakura.docs.util.Logger;
@@ -319,10 +321,16 @@ public class RuntimeImageAssetService {
             // Fallback to 0
             availableIndex = oldestAssetEntry != null ? oldestAssetEntry.getKey() : 0;
         }
+        var commonAsset = COMMON_ASSET_MAP.get(availableIndex);
+        if (commonAsset == null) {
+            return null;
+        }
+
         playerRuntimeImageAssets.getIndexToFileId().put(availableIndex, runtimeImageAsset.getId());
+        playerRuntimeImageAssets.getIndexToCommonAsset().put(availableIndex, new RuntimeCommonAsset(commonAsset.getName(), runtimeImageAsset.getData()));
         playerRuntimeImageAssets.getPendingIndexes().add(availableIndex);
         runtimeImageAsset.setLastUsedAt(OffsetDateTime.now());
-        return COMMON_ASSET_MAP.get(availableIndex);
+        return commonAsset;
     }
 
     /**
@@ -347,12 +355,17 @@ public class RuntimeImageAssetService {
             PlayerRuntimeImageAssets::new);
 
         var pendingAssetIndexes = playerRuntimeImageAsset.getPendingIndexes();
-        if (pendingAssetIndexes.isEmpty()) {
-            return;
+        List<Integer> indexesToSend;
+
+        synchronized (pendingAssetIndexes) {
+            if (pendingAssetIndexes.isEmpty()) {
+                return;
+            }
+            indexesToSend = new ArrayList<>(pendingAssetIndexes);
         }
 
-        pendingAssetIndexes.forEach(index -> {
-            var commonAsset = COMMON_ASSET_MAP.get(index);
+        indexesToSend.forEach(index -> {
+            var commonAsset = playerRuntimeImageAsset.getIndexToCommonAsset().get(index);
 
             if (commonAsset != null) {
                 var fileId = playerRuntimeImageAsset.getIndexToFileId().get(index);
@@ -361,12 +374,11 @@ public class RuntimeImageAssetService {
                     var runtimeImageAsset = RUNTIME_IMAGE_ASSET_MAP.get(fileId);
 
                     if (runtimeImageAsset != null) {
-                        var fileContent = runtimeImageAsset.getData();
+                        var fileContent = commonAsset.getData();
 
                         if (fileContent != null) {
                             if (fileContent.length > 0) {
-                                // Use one of the common assets to send the runtime image asset
-                                // Taken from CommonAssetModule#sendAssetsToPlayer()
+                                // Taken from CommonAssetModule#sendAsset()
                                 byte[][] fileContentParts = ArrayUtil.split(fileContent, MAX_PACKET_SIZE);
                                 ToClientPacket[] packets = new ToClientPacket[1 + fileContentParts.length];
                                 packets[0] = new AssetInitialize(commonAsset.toPacket(), fileContent.length);
@@ -397,14 +409,12 @@ public class RuntimeImageAssetService {
                     ));
                 }
             } else {
-                logger.warn("Could not find common asset for index %d when sending pending assets to player %s".formatted(
+                logger.warn("Could not find runtime common asset for index %d when sending pending assets to player %s".formatted(
                     index, playerRef.getUuid()
                 ));
             }
         });
 
-        // TODO: Check if there's a way to rebuild only specific common assets
-        playerRef.getPacketHandler().writeNoCache(new RequestCommonAssetsRebuild());
-        playerRuntimeImageAsset.getPendingIndexes().clear(); // Always clear pending indexes
+        indexesToSend.forEach(pendingAssetIndexes::remove);
     }
 }

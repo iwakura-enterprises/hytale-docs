@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
@@ -65,13 +66,12 @@ public class VoileCommand extends AbstractPlayerCommand {
     }
 
     @Override
-    protected boolean canGeneratePermission() {
+    public boolean hasPermission(@NonNull CommandSender sender) {
         var config = configurationService.getDocsConfig();
         if (!config.isVoileCommandRequiresPermission()) {
-            logger.warn("voileCommandRequiresPermission is set to false, /voile won't have permission node generated.");
-            return false;
+            return true;
         }
-        return super.canGeneratePermission();
+        return super.hasPermission(sender);
     }
 
     @Override
