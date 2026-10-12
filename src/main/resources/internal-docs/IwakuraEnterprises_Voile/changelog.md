@@ -5,6 +5,12 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.6
+
+### Minor
+- Updated to Hytale `0.7.0`
+- Voile now supports versions `>=0.6.0 <0.8.0`
+
 # 1.11.5
 
 ### Minor
