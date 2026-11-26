@@ -1,7 +1,6 @@
 package enterprises.iwakura.docs.ui.render;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.commonmark.ext.gfm.tables.TableBlock;
@@ -62,7 +61,8 @@ import lombok.RequiredArgsConstructor;
 public class TopicContentRenderer implements Renderer<Topic> {
 
     public static final Pattern IMAGE_RESIZE_HINT_PATTERN = Pattern.compile("\\{(\\d+)x(\\d+)}$");
-    public static final int MAX_IMAGE_SIZE = 750;
+    public static final int NORMAL_MAX_IMAGE_SIZE = 750;
+    public static final int SMALLER_MAX_IMAGE_SIZE = 500;
 
     public static final String FAILED_TO_PARSE_MARKDOWN =
         """
@@ -787,8 +787,10 @@ public class TopicContentRenderer implements Renderer<Topic> {
                 }
             }
 
-            if (imageSize.getX() > MAX_IMAGE_SIZE) {
-                imageSize = ResizeUtils.resize(imageSize, String.valueOf(MAX_IMAGE_SIZE), "0");
+            int maxImageSize = docsContext.getInterfaceState().isSmallerMaxImageSize() ? SMALLER_MAX_IMAGE_SIZE : NORMAL_MAX_IMAGE_SIZE;
+
+            if (imageSize.getX() > maxImageSize) {
+                imageSize = ResizeUtils.resize(imageSize, String.valueOf(maxImageSize), "0");
             }
 
             var tooltip = altText != null && !altText.isBlank()

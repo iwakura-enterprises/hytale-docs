@@ -34,6 +34,8 @@ public class InterfaceState {
 
     private String topicSearchQuery;
     private boolean fullTextSearch;
+    private boolean ultraWidescreenSupport = false;
+    private boolean smallerMaxImageSize = false;
 
     public InterfaceState(List<Documentation> documentations, Topic topic) {
         this.documentations = documentations;
@@ -149,6 +151,8 @@ public class InterfaceState {
         preferences.setTopicIdentifierHistoryIndex(topicIdentifierHistoryIndex);
         preferences.setLastInterfaceMode(interfaceMode);
         preferences.setPreferredLocaleType(preferredLocaleType);
+        preferences.setUltraWidescreenSupport(ultraWidescreenSupport);
+        preferences.setSmallerMaxImageSize(smallerMaxImageSize);
     }
 
     /**
@@ -161,6 +165,8 @@ public class InterfaceState {
         fullTextSearch = interfacePreferencesComponent.isFullTextSearch();
         interfaceMode = interfacePreferencesComponent.getLastInterfaceMode();
         preferredLocaleType = interfacePreferencesComponent.getPreferredLocaleType();
+        ultraWidescreenSupport = interfacePreferencesComponent.isUltraWidescreenSupport();
+        smallerMaxImageSize = interfacePreferencesComponent.isSmallerMaxImageSize();
         if (interfacePreferencesComponent.getTopicIdentifierHistory() != null) {
             topicIdentifierHistory.clear();
             topicIdentifierHistory.addAll(interfacePreferencesComponent.getTopicIdentifierHistory());

@@ -55,12 +55,22 @@ public class InterfacePreferencesComponent implements Component<EntityStore> {
             (data, value) -> data.preferredLocaleType = LocaleType.safeValueOf(value),
             data -> Optional.ofNullable(data.preferredLocaleType).map(LocaleType::name).orElse(null)
         ).add()
+        .append(new KeyedCodec<>("UltraWidescreenSupport", Codec.BOOLEAN),
+            (data, value) -> data.ultraWidescreenSupport = value,
+            data -> data.ultraWidescreenSupport
+        ).add()
+        .append(new KeyedCodec<>("SmallerMaxImageSize", Codec.BOOLEAN),
+            (data, value) -> data.smallerMaxImageSize = value,
+            data -> data.smallerMaxImageSize
+        ).add()
         .build();
 
     private UUID checksum;
     private String lastOpenedTopicIdentifier;
     private String lastTopicSearchQuery;
     private boolean fullTextSearch;
+    private boolean ultraWidescreenSupport;
+    private boolean smallerMaxImageSize;
     private List<String> topicIdentifierHistory;
     private int topicIdentifierHistoryIndex;
     private InterfaceMode lastInterfaceMode;
@@ -78,6 +88,8 @@ public class InterfacePreferencesComponent implements Component<EntityStore> {
         this.topicIdentifierHistoryIndex = other.topicIdentifierHistoryIndex;
         this.lastInterfaceMode = other.lastInterfaceMode;
         this.preferredLocaleType = other.preferredLocaleType;
+        this.ultraWidescreenSupport = other.ultraWidescreenSupport;
+        this.smallerMaxImageSize = other.smallerMaxImageSize;
     }
 
     @Override

@@ -24,6 +24,10 @@ import lombok.RequiredArgsConstructor;
 public class DocumentationViewerRenderer implements Renderer<RenderData> {
 
     public static final String ABOUT_VOILE_BUTTON_SELECTOR = "#AboutVoileButton";
+    public static final String TOGGLE_ULTRA_WIDESCREEN_SUPPORT_BUTTON_SELECTOR = "#ToggleUltraWidescreenSupportButton";
+    public static final String TOGGLE_SMALLER_MAX_IMAGE_SIZE_BUTTON_SELECTOR = "#ToggleSmallerMaxImageSizeButton";
+    public static final String ULTRA_WIDESCREEN_ANCHOR = "Width: 1850, Height: 990";
+    public static final String DYNAMIC_ANCHOR = "Full: 50";
 
     private final HytaleCommonRenderer hytaleCommonRenderer;
     private final DocumentationTreeRenderer documentationTreeRenderer;
@@ -47,6 +51,20 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
             false
         );
 
+        ctx.getEventBuilder().addEventBinding(
+            CustomUIEventBindingType.Activating,
+            TOGGLE_ULTRA_WIDESCREEN_SUPPORT_BUTTON_SELECTOR,
+            new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.TOGGLE_ULTRA_WIDESCREEN_SUPPORT.name()),
+            true
+        );
+
+        ctx.getEventBuilder().addEventBinding(
+            CustomUIEventBindingType.Activating,
+            TOGGLE_SMALLER_MAX_IMAGE_SIZE_BUTTON_SELECTOR,
+            new EventData().append(PageData.INTERFACE_ACTION_FIELD, InterfaceAction.TOGGLE_SMALLER_MAX_IMAGE_SIZE.name()),
+            true
+        );
+
         return
             """
             {{hytale-common}}
@@ -56,8 +74,7 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
 
                 // Classic Hytale container
                 @Container #WindowContainer {
-                    // Support for any aspect ratio
-                    Anchor: (Top: 50, Bottom: 50, Left: 50, Right: 50);
+                    Anchor: ({{viewer-anchor}});
 
 
                     // Title for the container (from @Container)
@@ -127,8 +144,71 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
 
             // Adds UX back button to the bottom left of the screen
             @BackButton {}
+            
+            Group {
+                LayoutMode: Bottom;
+                Anchor: (Right: 5, Bottom: 5);
+                Group {
+                    LayoutMode: Right;
+                    
+                    TextButton {{toggle-ultra-widescreen-support-button-selector}} {
+                        Text: "Toggle ultra widescreen support";
+                        Style: (
+                            Default: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bfbfbf(0.5))),
+                            Hovered: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #ffffff(0.5))),
+                            Pressed: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #e1e1e1(0.5))),
+                            Sounds: (
+                                Activate: (
+                                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                                    MinPitch: -0.4,
+                                    MaxPitch: 0.4,
+                                    Volume: 4
+                                ),
+                                MouseHover: (
+                                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                                    Volume: 6
+                                )
+                            )
+                        );
+                        TooltipText: "Currently {{is-ultra-widescreen-support-enabled}}";
+                        TextTooltipStyle: {{interface-button-tooltip-style-short}};
+                        TextTooltipShowDelay: 0.1;
+                    }
+                    
+                    Group {
+                        Anchor: (Width: 10);
+                    }
+    
+                    TextButton {{toggle-smaller-max-image-size-button-selector}} {
+                        Text: "Toggle smaller images";
+                        Style: (
+                            Default: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #bfbfbf(0.5))),
+                            Hovered: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #ffffff(0.5))),
+                            Pressed: (LabelStyle: (FontSize: 12, RenderBold: false, RenderUppercase: false, HorizontalAlignment: Center, VerticalAlignment: Center, TextColor: #e1e1e1(0.5))),
+                            Sounds: (
+                                Activate: (
+                                    SoundPath: "Sounds/ButtonsLightActivate.ogg",
+                                    MinPitch: -0.4,
+                                    MaxPitch: 0.4,
+                                    Volume: 4
+                                ),
+                                MouseHover: (
+                                    SoundPath: "Sounds/ButtonsLightHover.ogg",
+                                    Volume: 6
+                                )
+                            )
+                        );
+                        TooltipText: "Currently {{is-smaller-max-image-size-enabled}}";
+                        TextTooltipStyle: {{interface-button-tooltip-style-short}};
+                        TextTooltipShowDelay: 0.1;
+                    }
+                }
+            }
+            
             """
                 .replace("{{about-voile-button-selector}}", ABOUT_VOILE_BUTTON_SELECTOR)
+                .replace("{{toggle-ultra-widescreen-support-button-selector}}", TOGGLE_ULTRA_WIDESCREEN_SUPPORT_BUTTON_SELECTOR)
+                .replace("{{toggle-smaller-max-image-size-button-selector}}", TOGGLE_SMALLER_MAX_IMAGE_SIZE_BUTTON_SELECTOR)
                 .replace("{{hytale-common}}", hytaleCommonUI)
                 .replace("{{documentation-tree}}", documentationTreeUI)
                 .replace("{{topic}}", topicUI)
@@ -136,6 +216,9 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
                 .replace("{{chapter-tree}}", topicChapterTreeUI)
                 .replace("{{version}}", Version.VERSION)
                 .replaceAll("\\{\\{interface-button-tooltip-style-short}}", CommonStyles.TOOLTIP_STYLE_SHORT)
+                .replace("{{viewer-anchor}}", ctx.getInterfaceState().isUltraWidescreenSupport() ? ULTRA_WIDESCREEN_ANCHOR : DYNAMIC_ANCHOR)
+                .replace("{{is-ultra-widescreen-support-enabled}}", ctx.getInterfaceState().isUltraWidescreenSupport() ? "enabled" : "disabled")
+                .replace("{{is-smaller-max-image-size-enabled}}", ctx.getInterfaceState().isSmallerMaxImageSize() ? "enabled" : "disabled")
                 .replace("{{update-available-text}}", updateCheckerService.isUpdateAvailable() ? markdownService.escapeText("Update available: " + updateCheckerService.getUpdateVersion()) : "");
     }
 

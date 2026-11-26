@@ -439,6 +439,16 @@ public class DocumentationViewerService {
                     logger.error("PageData with SEND_CHAT_URL action without URL to send!");
                 }
             }
+            case TOGGLE_ULTRA_WIDESCREEN_SUPPORT -> {
+                state.setUltraWidescreenSupport(!state.isUltraWidescreenSupport());
+                getInterfacePreferences(page.getPlayerRef(), state).setUltraWidescreenSupport(state.isUltraWidescreenSupport());
+                openFor(page.getPlayerRef(), DocsContext.of(docsContext));
+            }
+            case TOGGLE_SMALLER_MAX_IMAGE_SIZE -> {
+                state.setSmallerMaxImageSize(!state.isSmallerMaxImageSize());
+                getInterfacePreferences(page.getPlayerRef(), state).setSmallerMaxImageSize(state.isSmallerMaxImageSize());
+                openFor(page.getPlayerRef(), DocsContext.of(docsContext));
+            }
             default -> logger.error("Invalid interface action specified in page data " + data);
         }
     }
