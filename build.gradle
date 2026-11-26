@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'enterprises.iwakura'
-version = '1.11.6'
+version = '1.11.7'
 def serverPatchLine = "release"
 def hytaleGroup = 'com.hypixel.hytale'
 def hytaleModule = 'Server'

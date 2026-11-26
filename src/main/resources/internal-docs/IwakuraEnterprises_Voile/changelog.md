@@ -5,6 +5,16 @@ author: mayuna
 sort-index: 5
 ---
 
+# 1.11.7
+
+### Minor
+- Added support for various aspect ratios for the documentation viewer
+  - Theoretically any normal aspect ratio should work now
+  - Added toggle for ultra widescreens
+  - Added toggle for smaller max image sizes (useful for 4:3 aspect ratios)
+- Fixed interface preferences sometimes not being correctly persisted in the player data
+- Updated to Hytale `0.7.7`
+
 # 1.11.6
 
 ### Minor
