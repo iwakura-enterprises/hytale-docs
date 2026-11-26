@@ -56,7 +56,8 @@ public class DocumentationViewerRenderer implements Renderer<RenderData> {
 
                 // Classic Hytale container
                 @Container #WindowContainer {
-                    Anchor: (Width: 1850, Height: 990);
+                    // Support for any aspect ratio
+                    Anchor: (Top: 50, Bottom: 50, Left: 50, Right: 50);
 
 
                     // Title for the container (from @Container)

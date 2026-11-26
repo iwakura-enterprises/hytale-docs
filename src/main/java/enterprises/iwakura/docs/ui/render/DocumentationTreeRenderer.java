@@ -118,6 +118,7 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
         return """
             // DocumentationTreeRenderer#render()
             Group {
+                Anchor: (Right: -30);
                 Padding: (Vertical: 40);
                 LayoutMode: Top;
                 FlexWeight: 1;
@@ -229,32 +230,35 @@ public class DocumentationTreeRenderer implements Renderer<List<Documentation>> 
                     Padding: (Left: 10, Right: 10, Bottom: 10);
 
                     @TextField {{topic-search-bar-selector}} {
-                        @Anchor = (Height: 40, Width: 285);
+                        @Anchor = (Height: 40, Width: 290);
                         PlaceholderText: "Search for topic...";
                     }
                 }
 
                 Group {
-                    Padding: (Left: 10, Right: 10, Bottom: 10);
-                    Anchor: (Height: 750);
-                    Background: #121a24;
-                    OutlineColor: #203651;
-                    OutlineSize: 2;
+                    Anchor: (Left: 10, Bottom: 75);
 
                     Group {
-                        Padding: (Horizontal: 5, Top: 10);
-                        LayoutMode: TopScrolling;
-                        ScrollbarStyle: (
-                            Spacing: 6,
-                            Size: 6,
-                            Background: (TexturePath: "Common/Scrollbar.png", Border: 3),
-                            Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3),
-                            HoveredHandle: (TexturePath: "Common/ScrollbarHandleHovered.png", Border: 3),
-                            DraggedHandle: (TexturePath: "Common/ScrollbarHandleDragged.png", Border: 3),
-                            OnlyVisibleWhenHovered: true
-                        );
+                        Padding: (Left: 10, Right: 10, Bottom: 10);
+                        Background: #121a24;
+                        OutlineColor: #203651;
+                        OutlineSize: 2;
 
-                        Group {{documentation-tree-selector}} {
+                        Group {
+                            Padding: (Horizontal: 5, Top: 10);
+                            LayoutMode: TopScrolling;
+                            ScrollbarStyle: (
+                                Spacing: 6,
+                                Size: 6,
+                                Background: (TexturePath: "Common/Scrollbar.png", Border: 3),
+                                Handle: (TexturePath: "Common/ScrollbarHandle.png", Border: 3),
+                                HoveredHandle: (TexturePath: "Common/ScrollbarHandleHovered.png", Border: 3),
+                                DraggedHandle: (TexturePath: "Common/ScrollbarHandleDragged.png", Border: 3),
+                                OnlyVisibleWhenHovered: true
+                            );
+    
+                            Group {{documentation-tree-selector}} {
+                            }
                         }
                     }
                 }

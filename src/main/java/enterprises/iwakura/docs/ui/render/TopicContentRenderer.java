@@ -62,7 +62,7 @@ import lombok.RequiredArgsConstructor;
 public class TopicContentRenderer implements Renderer<Topic> {
 
     public static final Pattern IMAGE_RESIZE_HINT_PATTERN = Pattern.compile("\\{(\\d+)x(\\d+)}$");
-    public static final int MAX_IMAGE_SIZE = 900;
+    public static final int MAX_IMAGE_SIZE = 750;
 
     public static final String FAILED_TO_PARSE_MARKDOWN =
         """
